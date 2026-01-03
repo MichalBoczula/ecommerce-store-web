@@ -1,0 +1,15 @@
+@use '@angular/material' as mat;
+
+$nav-color: rgb(85, 106, 215);
+$font-color: rgb(227, 224, 224);
+$transition: all 0.2s linear;
+
+body {
+    margin: 0;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
