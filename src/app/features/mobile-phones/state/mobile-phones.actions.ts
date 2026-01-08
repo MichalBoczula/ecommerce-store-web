@@ -13,3 +13,16 @@ export const loadMobilePhonesFailure = createAction(
     '[MobilePhones] Load Failure',
     props<{ error: string }>()
 );
+
+export const loadMobilePhoneById = createAction(
+    '[MobilePhones] Load By Id',
+    props<{ id: string }>()
+);
+export const loadMobilePhoneByIdSuccess = createAction(
+    '[MobilePhones] Load By Id Success',
+    props<{ item: MobilePhone }>()
+);
+export const loadMobilePhoneByIdFailure = createAction(
+    '[MobilePhones] Load By Id Failure',
+    props<{ error: string }>()
+);

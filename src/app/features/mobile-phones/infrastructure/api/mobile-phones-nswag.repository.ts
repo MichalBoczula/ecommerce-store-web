@@ -16,4 +16,10 @@ export class MobilePhonesNswagRepository implements MobilePhonesRepository {
             map(dtos => dtos.map(mapMobilePhoneDtoToDomain)),
         );
     }
+
+    getById(id: string): Observable<MobilePhone> {
+        return this.api.getMobilePhoneById(id).pipe(
+            map(mapMobilePhoneDtoToDomain),
+        );
+    }
 }
