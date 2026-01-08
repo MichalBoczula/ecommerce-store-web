@@ -791,6 +791,357 @@ export class Client {
     }
 
     /**
+     * Get mobile phone by Id
+     * @return OK
+     */
+    getMobilePhoneById(id: string): Observable<MobilePhoneDto> {
+        let url_ = this.baseUrl + "/mobile-phones/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetMobilePhoneById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetMobilePhoneById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MobilePhoneDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MobilePhoneDto>;
+        }));
+    }
+
+    protected processGetMobilePhoneById(response: HttpResponseBase): Observable<MobilePhoneDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MobilePhoneDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = NotFoundProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Update mobile phone
+     * @return OK
+     */
+    updateMobilePhone(id: string, body: UpdateMobilePhoneExternalDto): Observable<MobilePhoneDto> {
+        let url_ = this.baseUrl + "/mobile-phones/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateMobilePhone(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateMobilePhone(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MobilePhoneDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MobilePhoneDto>;
+        }));
+    }
+
+    protected processUpdateMobilePhone(response: HttpResponseBase): Observable<MobilePhoneDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MobilePhoneDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ApiProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Delete mobile phone
+     * @return OK
+     */
+    deleteMobilePhone(id: string): Observable<MobilePhoneDto> {
+        let url_ = this.baseUrl + "/mobile-phones/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteMobilePhone(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteMobilePhone(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MobilePhoneDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MobilePhoneDto>;
+        }));
+    }
+
+    protected processDeleteMobilePhone(response: HttpResponseBase): Observable<MobilePhoneDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MobilePhoneDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ApiProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Get mobile phones
+     * @return OK
+     */
+    getMobilePhones(amount: number): Observable<MobilePhoneDto[]> {
+        let url_ = this.baseUrl + "/mobile-phones?";
+        if (amount === undefined || amount === null)
+            throw new globalThis.Error("The parameter 'amount' must be defined and cannot be null.");
+        else
+            url_ += "amount=" + encodeURIComponent("" + amount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetMobilePhones(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetMobilePhones(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MobilePhoneDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MobilePhoneDto[]>;
+        }));
+    }
+
+    protected processGetMobilePhones(response: HttpResponseBase): Observable<MobilePhoneDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(MobilePhoneDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Create mobile phone
+     * @return Created
+     */
+    createMobilePhone(body: CreateMobilePhoneExternalDto): Observable<MobilePhoneDto> {
+        let url_ = this.baseUrl + "/mobile-phones";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateMobilePhone(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateMobilePhone(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MobilePhoneDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MobilePhoneDto>;
+        }));
+    }
+
+    protected processCreateMobilePhone(response: HttpResponseBase): Observable<MobilePhoneDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = MobilePhoneDto.fromJS(resultData201);
+            return _observableOf(result201);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ApiProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Get a product by ID
      * @return OK
      */
@@ -1276,6 +1627,166 @@ export interface ICategoryDto {
     isActive: boolean;
 }
 
+export class CommonDescriptionDto implements ICommonDescriptionDto {
+    name?: string;
+    description?: string;
+    mainPhoto?: string;
+    otherPhotos?: string[];
+
+    constructor(data?: ICommonDescriptionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.mainPhoto = _data["mainPhoto"];
+            if (Array.isArray(_data["otherPhotos"])) {
+                this.otherPhotos = [] as any;
+                for (let item of _data["otherPhotos"])
+                    this.otherPhotos!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): CommonDescriptionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CommonDescriptionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["mainPhoto"] = this.mainPhoto;
+        if (Array.isArray(this.otherPhotos)) {
+            data["otherPhotos"] = [];
+            for (let item of this.otherPhotos)
+                data["otherPhotos"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface ICommonDescriptionDto {
+    name?: string;
+    description?: string;
+    mainPhoto?: string;
+    otherPhotos?: string[];
+}
+
+export class CommonDescriptionExtrernalDto implements ICommonDescriptionExtrernalDto {
+    name?: string;
+    description?: string;
+    mainPhoto?: string;
+    otherPhotos?: string[];
+
+    constructor(data?: ICommonDescriptionExtrernalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.mainPhoto = _data["mainPhoto"];
+            if (Array.isArray(_data["otherPhotos"])) {
+                this.otherPhotos = [] as any;
+                for (let item of _data["otherPhotos"])
+                    this.otherPhotos!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): CommonDescriptionExtrernalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CommonDescriptionExtrernalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["mainPhoto"] = this.mainPhoto;
+        if (Array.isArray(this.otherPhotos)) {
+            data["otherPhotos"] = [];
+            for (let item of this.otherPhotos)
+                data["otherPhotos"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface ICommonDescriptionExtrernalDto {
+    name?: string;
+    description?: string;
+    mainPhoto?: string;
+    otherPhotos?: string[];
+}
+
+export class ConnectivityDto implements IConnectivityDto {
+    has5G!: boolean;
+    wiFi!: boolean;
+    nfc!: boolean;
+    bluetooth!: boolean;
+
+    constructor(data?: IConnectivityDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.has5G = _data["has5G"];
+            this.wiFi = _data["wiFi"];
+            this.nfc = _data["nfc"];
+            this.bluetooth = _data["bluetooth"];
+        }
+    }
+
+    static fromJS(data: any): ConnectivityDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ConnectivityDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["has5G"] = this.has5G;
+        data["wiFi"] = this.wiFi;
+        data["nfc"] = this.nfc;
+        data["bluetooth"] = this.bluetooth;
+        return data;
+    }
+}
+
+export interface IConnectivityDto {
+    has5G: boolean;
+    wiFi: boolean;
+    nfc: boolean;
+    bluetooth: boolean;
+}
+
 export class CreateCategoryExternalDto implements ICreateCategoryExternalDto {
     code?: string;
     name?: string;
@@ -1316,6 +1827,54 @@ export interface ICreateCategoryExternalDto {
     name?: string;
 }
 
+export class CreateConnectivityExternalDto implements ICreateConnectivityExternalDto {
+    has5G!: boolean;
+    wiFi!: boolean;
+    nfc!: boolean;
+    bluetooth!: boolean;
+
+    constructor(data?: ICreateConnectivityExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.has5G = _data["has5G"];
+            this.wiFi = _data["wiFi"];
+            this.nfc = _data["nfc"];
+            this.bluetooth = _data["bluetooth"];
+        }
+    }
+
+    static fromJS(data: any): CreateConnectivityExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateConnectivityExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["has5G"] = this.has5G;
+        data["wiFi"] = this.wiFi;
+        data["nfc"] = this.nfc;
+        data["bluetooth"] = this.bluetooth;
+        return data;
+    }
+}
+
+export interface ICreateConnectivityExternalDto {
+    has5G: boolean;
+    wiFi: boolean;
+    nfc: boolean;
+    bluetooth: boolean;
+}
+
 export class CreateCurrencyExternalDto implements ICreateCurrencyExternalDto {
     code?: string;
     description?: string;
@@ -1354,6 +1913,158 @@ export class CreateCurrencyExternalDto implements ICreateCurrencyExternalDto {
 export interface ICreateCurrencyExternalDto {
     code?: string;
     description?: string;
+}
+
+export class CreateElectronicDetailsExternalDto implements ICreateElectronicDetailsExternalDto {
+    cpu?: string;
+    gpu?: string;
+    ram?: string;
+    storage?: string;
+    displayType?: string;
+    refreshRateHz?: number;
+    screenSizeInches?: number;
+    width?: number;
+    height?: number;
+    batteryType?: string;
+    batteryCapacity?: number;
+
+    constructor(data?: ICreateElectronicDetailsExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.cpu = _data["cpu"];
+            this.gpu = _data["gpu"];
+            this.ram = _data["ram"];
+            this.storage = _data["storage"];
+            this.displayType = _data["displayType"];
+            this.refreshRateHz = _data["refreshRateHz"];
+            this.screenSizeInches = _data["screenSizeInches"];
+            this.width = _data["width"];
+            this.height = _data["height"];
+            this.batteryType = _data["batteryType"];
+            this.batteryCapacity = _data["batteryCapacity"];
+        }
+    }
+
+    static fromJS(data: any): CreateElectronicDetailsExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateElectronicDetailsExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["cpu"] = this.cpu;
+        data["gpu"] = this.gpu;
+        data["ram"] = this.ram;
+        data["storage"] = this.storage;
+        data["displayType"] = this.displayType;
+        data["refreshRateHz"] = this.refreshRateHz;
+        data["screenSizeInches"] = this.screenSizeInches;
+        data["width"] = this.width;
+        data["height"] = this.height;
+        data["batteryType"] = this.batteryType;
+        data["batteryCapacity"] = this.batteryCapacity;
+        return data;
+    }
+}
+
+export interface ICreateElectronicDetailsExternalDto {
+    cpu?: string;
+    gpu?: string;
+    ram?: string;
+    storage?: string;
+    displayType?: string;
+    refreshRateHz?: number;
+    screenSizeInches?: number;
+    width?: number;
+    height?: number;
+    batteryType?: string;
+    batteryCapacity?: number;
+}
+
+export class CreateMobilePhoneExternalDto implements ICreateMobilePhoneExternalDto {
+    commonDescription!: CommonDescriptionExtrernalDto;
+    electronicDetails!: CreateElectronicDetailsExternalDto;
+    connectivity!: CreateConnectivityExternalDto;
+    satelliteNavigationSystems!: CreateSatelliteNavigationSystemExternalDto;
+    sensors!: CreateSensorsExternalDto;
+    fingerPrint?: boolean;
+    faceId?: boolean;
+    categoryId?: string;
+    price!: CreateMoneyExternalDto;
+
+    constructor(data?: ICreateMobilePhoneExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.commonDescription = new CommonDescriptionExtrernalDto();
+            this.electronicDetails = new CreateElectronicDetailsExternalDto();
+            this.connectivity = new CreateConnectivityExternalDto();
+            this.satelliteNavigationSystems = new CreateSatelliteNavigationSystemExternalDto();
+            this.sensors = new CreateSensorsExternalDto();
+            this.price = new CreateMoneyExternalDto();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.commonDescription = _data["commonDescription"] ? CommonDescriptionExtrernalDto.fromJS(_data["commonDescription"]) : new CommonDescriptionExtrernalDto();
+            this.electronicDetails = _data["electronicDetails"] ? CreateElectronicDetailsExternalDto.fromJS(_data["electronicDetails"]) : new CreateElectronicDetailsExternalDto();
+            this.connectivity = _data["connectivity"] ? CreateConnectivityExternalDto.fromJS(_data["connectivity"]) : new CreateConnectivityExternalDto();
+            this.satelliteNavigationSystems = _data["satelliteNavigationSystems"] ? CreateSatelliteNavigationSystemExternalDto.fromJS(_data["satelliteNavigationSystems"]) : new CreateSatelliteNavigationSystemExternalDto();
+            this.sensors = _data["sensors"] ? CreateSensorsExternalDto.fromJS(_data["sensors"]) : new CreateSensorsExternalDto();
+            this.fingerPrint = _data["fingerPrint"];
+            this.faceId = _data["faceId"];
+            this.categoryId = _data["categoryId"];
+            this.price = _data["price"] ? CreateMoneyExternalDto.fromJS(_data["price"]) : new CreateMoneyExternalDto();
+        }
+    }
+
+    static fromJS(data: any): CreateMobilePhoneExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateMobilePhoneExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["commonDescription"] = this.commonDescription ? this.commonDescription.toJSON() : undefined as any;
+        data["electronicDetails"] = this.electronicDetails ? this.electronicDetails.toJSON() : undefined as any;
+        data["connectivity"] = this.connectivity ? this.connectivity.toJSON() : undefined as any;
+        data["satelliteNavigationSystems"] = this.satelliteNavigationSystems ? this.satelliteNavigationSystems.toJSON() : undefined as any;
+        data["sensors"] = this.sensors ? this.sensors.toJSON() : undefined as any;
+        data["fingerPrint"] = this.fingerPrint;
+        data["faceId"] = this.faceId;
+        data["categoryId"] = this.categoryId;
+        data["price"] = this.price ? this.price.toJSON() : undefined as any;
+        return data;
+    }
+}
+
+export interface ICreateMobilePhoneExternalDto {
+    commonDescription: CommonDescriptionExtrernalDto;
+    electronicDetails: CreateElectronicDetailsExternalDto;
+    connectivity: CreateConnectivityExternalDto;
+    satelliteNavigationSystems: CreateSatelliteNavigationSystemExternalDto;
+    sensors: CreateSensorsExternalDto;
+    fingerPrint?: boolean;
+    faceId?: boolean;
+    categoryId?: string;
+    price: CreateMoneyExternalDto;
 }
 
 export class CreateMoneyExternalDto implements ICreateMoneyExternalDto {
@@ -1444,6 +2155,118 @@ export interface ICreateProductExternalDto {
     categoryId?: string;
 }
 
+export class CreateSatelliteNavigationSystemExternalDto implements ICreateSatelliteNavigationSystemExternalDto {
+    gps!: boolean;
+    agps!: boolean;
+    galileo!: boolean;
+    glonass!: boolean;
+    qzss!: boolean;
+
+    constructor(data?: ICreateSatelliteNavigationSystemExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.gps = _data["gps"];
+            this.agps = _data["agps"];
+            this.galileo = _data["galileo"];
+            this.glonass = _data["glonass"];
+            this.qzss = _data["qzss"];
+        }
+    }
+
+    static fromJS(data: any): CreateSatelliteNavigationSystemExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateSatelliteNavigationSystemExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["gps"] = this.gps;
+        data["agps"] = this.agps;
+        data["galileo"] = this.galileo;
+        data["glonass"] = this.glonass;
+        data["qzss"] = this.qzss;
+        return data;
+    }
+}
+
+export interface ICreateSatelliteNavigationSystemExternalDto {
+    gps: boolean;
+    agps: boolean;
+    galileo: boolean;
+    glonass: boolean;
+    qzss: boolean;
+}
+
+export class CreateSensorsExternalDto implements ICreateSensorsExternalDto {
+    accelerometer!: boolean;
+    gyroscope!: boolean;
+    proximity!: boolean;
+    compass!: boolean;
+    barometer!: boolean;
+    halla!: boolean;
+    ambientLight!: boolean;
+
+    constructor(data?: ICreateSensorsExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.accelerometer = _data["accelerometer"];
+            this.gyroscope = _data["gyroscope"];
+            this.proximity = _data["proximity"];
+            this.compass = _data["compass"];
+            this.barometer = _data["barometer"];
+            this.halla = _data["halla"];
+            this.ambientLight = _data["ambientLight"];
+        }
+    }
+
+    static fromJS(data: any): CreateSensorsExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateSensorsExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["accelerometer"] = this.accelerometer;
+        data["gyroscope"] = this.gyroscope;
+        data["proximity"] = this.proximity;
+        data["compass"] = this.compass;
+        data["barometer"] = this.barometer;
+        data["halla"] = this.halla;
+        data["ambientLight"] = this.ambientLight;
+        return data;
+    }
+}
+
+export interface ICreateSensorsExternalDto {
+    accelerometer: boolean;
+    gyroscope: boolean;
+    proximity: boolean;
+    compass: boolean;
+    barometer: boolean;
+    halla: boolean;
+    ambientLight: boolean;
+}
+
 export class CurrencyDto implements ICurrencyDto {
     id!: string;
     code!: string;
@@ -1492,6 +2315,82 @@ export interface ICurrencyDto {
     isActive: boolean;
 }
 
+export class ElectronicDetailsDto implements IElectronicDetailsDto {
+    cpu!: string;
+    gpu!: string;
+    ram!: string;
+    storage!: string;
+    displayType!: string;
+    refreshRateHz!: number;
+    screenSizeInches!: number;
+    width!: number;
+    height!: number;
+    batteryType!: string;
+    batteryCapacity!: number;
+
+    constructor(data?: IElectronicDetailsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.cpu = _data["cpu"];
+            this.gpu = _data["gpu"];
+            this.ram = _data["ram"];
+            this.storage = _data["storage"];
+            this.displayType = _data["displayType"];
+            this.refreshRateHz = _data["refreshRateHz"];
+            this.screenSizeInches = _data["screenSizeInches"];
+            this.width = _data["width"];
+            this.height = _data["height"];
+            this.batteryType = _data["batteryType"];
+            this.batteryCapacity = _data["batteryCapacity"];
+        }
+    }
+
+    static fromJS(data: any): ElectronicDetailsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ElectronicDetailsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["cpu"] = this.cpu;
+        data["gpu"] = this.gpu;
+        data["ram"] = this.ram;
+        data["storage"] = this.storage;
+        data["displayType"] = this.displayType;
+        data["refreshRateHz"] = this.refreshRateHz;
+        data["screenSizeInches"] = this.screenSizeInches;
+        data["width"] = this.width;
+        data["height"] = this.height;
+        data["batteryType"] = this.batteryType;
+        data["batteryCapacity"] = this.batteryCapacity;
+        return data;
+    }
+}
+
+export interface IElectronicDetailsDto {
+    cpu: string;
+    gpu: string;
+    ram: string;
+    storage: string;
+    displayType: string;
+    refreshRateHz: number;
+    screenSizeInches: number;
+    width: number;
+    height: number;
+    batteryType: string;
+    batteryCapacity: number;
+}
+
 export class FlowDescription implements IFlowDescription {
     actionName!: string;
     steps?: string[];
@@ -1538,6 +2437,90 @@ export class FlowDescription implements IFlowDescription {
 export interface IFlowDescription {
     actionName: string;
     steps?: string[];
+}
+
+export class MobilePhoneDto implements IMobilePhoneDto {
+    commonDescription!: CommonDescriptionDto;
+    electronicDetails!: ElectronicDetailsDto;
+    connectivity!: ConnectivityDto;
+    satelliteNavigationSystems!: SatelliteNavigationSystemDto;
+    sensors!: SensorsDto;
+    price!: MoneyDto;
+    fingerPrint!: boolean;
+    faceId!: boolean;
+    categoryId!: string;
+    id!: string;
+    isActive!: boolean;
+
+    constructor(data?: IMobilePhoneDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.commonDescription = new CommonDescriptionDto();
+            this.electronicDetails = new ElectronicDetailsDto();
+            this.connectivity = new ConnectivityDto();
+            this.satelliteNavigationSystems = new SatelliteNavigationSystemDto();
+            this.sensors = new SensorsDto();
+            this.price = new MoneyDto();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.commonDescription = _data["commonDescription"] ? CommonDescriptionDto.fromJS(_data["commonDescription"]) : new CommonDescriptionDto();
+            this.electronicDetails = _data["electronicDetails"] ? ElectronicDetailsDto.fromJS(_data["electronicDetails"]) : new ElectronicDetailsDto();
+            this.connectivity = _data["connectivity"] ? ConnectivityDto.fromJS(_data["connectivity"]) : new ConnectivityDto();
+            this.satelliteNavigationSystems = _data["satelliteNavigationSystems"] ? SatelliteNavigationSystemDto.fromJS(_data["satelliteNavigationSystems"]) : new SatelliteNavigationSystemDto();
+            this.sensors = _data["sensors"] ? SensorsDto.fromJS(_data["sensors"]) : new SensorsDto();
+            this.price = _data["price"] ? MoneyDto.fromJS(_data["price"]) : new MoneyDto();
+            this.fingerPrint = _data["fingerPrint"];
+            this.faceId = _data["faceId"];
+            this.categoryId = _data["categoryId"];
+            this.id = _data["id"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): MobilePhoneDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MobilePhoneDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["commonDescription"] = this.commonDescription ? this.commonDescription.toJSON() : undefined as any;
+        data["electronicDetails"] = this.electronicDetails ? this.electronicDetails.toJSON() : undefined as any;
+        data["connectivity"] = this.connectivity ? this.connectivity.toJSON() : undefined as any;
+        data["satelliteNavigationSystems"] = this.satelliteNavigationSystems ? this.satelliteNavigationSystems.toJSON() : undefined as any;
+        data["sensors"] = this.sensors ? this.sensors.toJSON() : undefined as any;
+        data["price"] = this.price ? this.price.toJSON() : undefined as any;
+        data["fingerPrint"] = this.fingerPrint;
+        data["faceId"] = this.faceId;
+        data["categoryId"] = this.categoryId;
+        data["id"] = this.id;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface IMobilePhoneDto {
+    commonDescription: CommonDescriptionDto;
+    electronicDetails: ElectronicDetailsDto;
+    connectivity: ConnectivityDto;
+    satelliteNavigationSystems: SatelliteNavigationSystemDto;
+    sensors: SensorsDto;
+    price: MoneyDto;
+    fingerPrint: boolean;
+    faceId: boolean;
+    categoryId: string;
+    id: string;
+    isActive: boolean;
 }
 
 export class MoneyDto implements IMoneyDto {
@@ -1771,6 +2754,118 @@ export interface IProductDto {
     categoryId: string;
 }
 
+export class SatelliteNavigationSystemDto implements ISatelliteNavigationSystemDto {
+    gps!: boolean;
+    agps!: boolean;
+    galileo!: boolean;
+    glonass!: boolean;
+    qzss!: boolean;
+
+    constructor(data?: ISatelliteNavigationSystemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.gps = _data["gps"];
+            this.agps = _data["agps"];
+            this.galileo = _data["galileo"];
+            this.glonass = _data["glonass"];
+            this.qzss = _data["qzss"];
+        }
+    }
+
+    static fromJS(data: any): SatelliteNavigationSystemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SatelliteNavigationSystemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["gps"] = this.gps;
+        data["agps"] = this.agps;
+        data["galileo"] = this.galileo;
+        data["glonass"] = this.glonass;
+        data["qzss"] = this.qzss;
+        return data;
+    }
+}
+
+export interface ISatelliteNavigationSystemDto {
+    gps: boolean;
+    agps: boolean;
+    galileo: boolean;
+    glonass: boolean;
+    qzss: boolean;
+}
+
+export class SensorsDto implements ISensorsDto {
+    accelerometer!: boolean;
+    gyroscope!: boolean;
+    proximity!: boolean;
+    compass!: boolean;
+    barometer!: boolean;
+    halla!: boolean;
+    ambientLight!: boolean;
+
+    constructor(data?: ISensorsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.accelerometer = _data["accelerometer"];
+            this.gyroscope = _data["gyroscope"];
+            this.proximity = _data["proximity"];
+            this.compass = _data["compass"];
+            this.barometer = _data["barometer"];
+            this.halla = _data["halla"];
+            this.ambientLight = _data["ambientLight"];
+        }
+    }
+
+    static fromJS(data: any): SensorsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SensorsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["accelerometer"] = this.accelerometer;
+        data["gyroscope"] = this.gyroscope;
+        data["proximity"] = this.proximity;
+        data["compass"] = this.compass;
+        data["barometer"] = this.barometer;
+        data["halla"] = this.halla;
+        data["ambientLight"] = this.ambientLight;
+        return data;
+    }
+}
+
+export interface ISensorsDto {
+    accelerometer: boolean;
+    gyroscope: boolean;
+    proximity: boolean;
+    compass: boolean;
+    barometer: boolean;
+    halla: boolean;
+    ambientLight: boolean;
+}
+
 export class UpdateCategoryExternalDto implements IUpdateCategoryExternalDto {
     code?: string;
     name?: string;
@@ -1811,6 +2906,54 @@ export interface IUpdateCategoryExternalDto {
     name?: string;
 }
 
+export class UpdateConnectivityExternalDto implements IUpdateConnectivityExternalDto {
+    has5G!: boolean;
+    wiFi!: boolean;
+    nfc!: boolean;
+    bluetooth!: boolean;
+
+    constructor(data?: IUpdateConnectivityExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.has5G = _data["has5G"];
+            this.wiFi = _data["wiFi"];
+            this.nfc = _data["nfc"];
+            this.bluetooth = _data["bluetooth"];
+        }
+    }
+
+    static fromJS(data: any): UpdateConnectivityExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateConnectivityExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["has5G"] = this.has5G;
+        data["wiFi"] = this.wiFi;
+        data["nfc"] = this.nfc;
+        data["bluetooth"] = this.bluetooth;
+        return data;
+    }
+}
+
+export interface IUpdateConnectivityExternalDto {
+    has5G: boolean;
+    wiFi: boolean;
+    nfc: boolean;
+    bluetooth: boolean;
+}
+
 export class UpdateCurrencyExternalDto implements IUpdateCurrencyExternalDto {
     code?: string;
     description?: string;
@@ -1849,6 +2992,158 @@ export class UpdateCurrencyExternalDto implements IUpdateCurrencyExternalDto {
 export interface IUpdateCurrencyExternalDto {
     code?: string;
     description?: string;
+}
+
+export class UpdateElectronicDetailsExternalDto implements IUpdateElectronicDetailsExternalDto {
+    cpu?: string;
+    gpu?: string;
+    ram?: string;
+    storage?: string;
+    displayType?: string;
+    refreshRateHz?: number;
+    screenSizeInches?: number;
+    width?: number;
+    height?: number;
+    batteryType?: string;
+    batteryCapacity?: number;
+
+    constructor(data?: IUpdateElectronicDetailsExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.cpu = _data["cpu"];
+            this.gpu = _data["gpu"];
+            this.ram = _data["ram"];
+            this.storage = _data["storage"];
+            this.displayType = _data["displayType"];
+            this.refreshRateHz = _data["refreshRateHz"];
+            this.screenSizeInches = _data["screenSizeInches"];
+            this.width = _data["width"];
+            this.height = _data["height"];
+            this.batteryType = _data["batteryType"];
+            this.batteryCapacity = _data["batteryCapacity"];
+        }
+    }
+
+    static fromJS(data: any): UpdateElectronicDetailsExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateElectronicDetailsExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["cpu"] = this.cpu;
+        data["gpu"] = this.gpu;
+        data["ram"] = this.ram;
+        data["storage"] = this.storage;
+        data["displayType"] = this.displayType;
+        data["refreshRateHz"] = this.refreshRateHz;
+        data["screenSizeInches"] = this.screenSizeInches;
+        data["width"] = this.width;
+        data["height"] = this.height;
+        data["batteryType"] = this.batteryType;
+        data["batteryCapacity"] = this.batteryCapacity;
+        return data;
+    }
+}
+
+export interface IUpdateElectronicDetailsExternalDto {
+    cpu?: string;
+    gpu?: string;
+    ram?: string;
+    storage?: string;
+    displayType?: string;
+    refreshRateHz?: number;
+    screenSizeInches?: number;
+    width?: number;
+    height?: number;
+    batteryType?: string;
+    batteryCapacity?: number;
+}
+
+export class UpdateMobilePhoneExternalDto implements IUpdateMobilePhoneExternalDto {
+    commonDescription!: CommonDescriptionExtrernalDto;
+    electronicDetails!: UpdateElectronicDetailsExternalDto;
+    connectivity!: UpdateConnectivityExternalDto;
+    satelliteNavigationSystems!: UpdateSatelliteNavigationSystemExternalDto;
+    sensors!: UpdateSensorsExternalDto;
+    fingerPrint?: boolean;
+    faceId?: boolean;
+    categoryId?: string;
+    price!: UpdateMoneyExternalDto;
+
+    constructor(data?: IUpdateMobilePhoneExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.commonDescription = new CommonDescriptionExtrernalDto();
+            this.electronicDetails = new UpdateElectronicDetailsExternalDto();
+            this.connectivity = new UpdateConnectivityExternalDto();
+            this.satelliteNavigationSystems = new UpdateSatelliteNavigationSystemExternalDto();
+            this.sensors = new UpdateSensorsExternalDto();
+            this.price = new UpdateMoneyExternalDto();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.commonDescription = _data["commonDescription"] ? CommonDescriptionExtrernalDto.fromJS(_data["commonDescription"]) : new CommonDescriptionExtrernalDto();
+            this.electronicDetails = _data["electronicDetails"] ? UpdateElectronicDetailsExternalDto.fromJS(_data["electronicDetails"]) : new UpdateElectronicDetailsExternalDto();
+            this.connectivity = _data["connectivity"] ? UpdateConnectivityExternalDto.fromJS(_data["connectivity"]) : new UpdateConnectivityExternalDto();
+            this.satelliteNavigationSystems = _data["satelliteNavigationSystems"] ? UpdateSatelliteNavigationSystemExternalDto.fromJS(_data["satelliteNavigationSystems"]) : new UpdateSatelliteNavigationSystemExternalDto();
+            this.sensors = _data["sensors"] ? UpdateSensorsExternalDto.fromJS(_data["sensors"]) : new UpdateSensorsExternalDto();
+            this.fingerPrint = _data["fingerPrint"];
+            this.faceId = _data["faceId"];
+            this.categoryId = _data["categoryId"];
+            this.price = _data["price"] ? UpdateMoneyExternalDto.fromJS(_data["price"]) : new UpdateMoneyExternalDto();
+        }
+    }
+
+    static fromJS(data: any): UpdateMobilePhoneExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateMobilePhoneExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["commonDescription"] = this.commonDescription ? this.commonDescription.toJSON() : undefined as any;
+        data["electronicDetails"] = this.electronicDetails ? this.electronicDetails.toJSON() : undefined as any;
+        data["connectivity"] = this.connectivity ? this.connectivity.toJSON() : undefined as any;
+        data["satelliteNavigationSystems"] = this.satelliteNavigationSystems ? this.satelliteNavigationSystems.toJSON() : undefined as any;
+        data["sensors"] = this.sensors ? this.sensors.toJSON() : undefined as any;
+        data["fingerPrint"] = this.fingerPrint;
+        data["faceId"] = this.faceId;
+        data["categoryId"] = this.categoryId;
+        data["price"] = this.price ? this.price.toJSON() : undefined as any;
+        return data;
+    }
+}
+
+export interface IUpdateMobilePhoneExternalDto {
+    commonDescription: CommonDescriptionExtrernalDto;
+    electronicDetails: UpdateElectronicDetailsExternalDto;
+    connectivity: UpdateConnectivityExternalDto;
+    satelliteNavigationSystems: UpdateSatelliteNavigationSystemExternalDto;
+    sensors: UpdateSensorsExternalDto;
+    fingerPrint?: boolean;
+    faceId?: boolean;
+    categoryId?: string;
+    price: UpdateMoneyExternalDto;
 }
 
 export class UpdateMoneyExternalDto implements IUpdateMoneyExternalDto {
@@ -1937,6 +3232,118 @@ export interface IUpdateProductExternalDto {
     description?: string;
     price?: UpdateMoneyExternalDto;
     categoryId?: string;
+}
+
+export class UpdateSatelliteNavigationSystemExternalDto implements IUpdateSatelliteNavigationSystemExternalDto {
+    gps!: boolean;
+    agps!: boolean;
+    galileo!: boolean;
+    glonass!: boolean;
+    qzss!: boolean;
+
+    constructor(data?: IUpdateSatelliteNavigationSystemExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.gps = _data["gps"];
+            this.agps = _data["agps"];
+            this.galileo = _data["galileo"];
+            this.glonass = _data["glonass"];
+            this.qzss = _data["qzss"];
+        }
+    }
+
+    static fromJS(data: any): UpdateSatelliteNavigationSystemExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateSatelliteNavigationSystemExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["gps"] = this.gps;
+        data["agps"] = this.agps;
+        data["galileo"] = this.galileo;
+        data["glonass"] = this.glonass;
+        data["qzss"] = this.qzss;
+        return data;
+    }
+}
+
+export interface IUpdateSatelliteNavigationSystemExternalDto {
+    gps: boolean;
+    agps: boolean;
+    galileo: boolean;
+    glonass: boolean;
+    qzss: boolean;
+}
+
+export class UpdateSensorsExternalDto implements IUpdateSensorsExternalDto {
+    accelerometer!: boolean;
+    gyroscope!: boolean;
+    proximity!: boolean;
+    compass!: boolean;
+    barometer!: boolean;
+    halla!: boolean;
+    ambientLight!: boolean;
+
+    constructor(data?: IUpdateSensorsExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.accelerometer = _data["accelerometer"];
+            this.gyroscope = _data["gyroscope"];
+            this.proximity = _data["proximity"];
+            this.compass = _data["compass"];
+            this.barometer = _data["barometer"];
+            this.halla = _data["halla"];
+            this.ambientLight = _data["ambientLight"];
+        }
+    }
+
+    static fromJS(data: any): UpdateSensorsExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateSensorsExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["accelerometer"] = this.accelerometer;
+        data["gyroscope"] = this.gyroscope;
+        data["proximity"] = this.proximity;
+        data["compass"] = this.compass;
+        data["barometer"] = this.barometer;
+        data["halla"] = this.halla;
+        data["ambientLight"] = this.ambientLight;
+        return data;
+    }
+}
+
+export interface IUpdateSensorsExternalDto {
+    accelerometer: boolean;
+    gyroscope: boolean;
+    proximity: boolean;
+    compass: boolean;
+    barometer: boolean;
+    halla: boolean;
+    ambientLight: boolean;
 }
 
 export class ValidationError implements IValidationError {
