@@ -8,7 +8,7 @@ import { MobilePhone } from '../../domain/model/mobile-phone';
 export class MobilePhonesFacade {
     private readonly repository = inject(MobilePhonesRepository);
 
-    getAll(): Observable<MobilePhone[]> {
-        return this.repository.getAll();
+    getAll(amount: number): Observable<MobilePhone[]> {
+        return this.repository.getAll(amount);
     }
 }

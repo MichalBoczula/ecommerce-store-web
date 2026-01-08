@@ -11,8 +11,8 @@ import { Client } from '../../../../shared/api/nswag/api-client';
 export class MobilePhonesNswagRepository implements MobilePhonesRepository {
     private readonly api = inject(Client);
 
-    getAll(): Observable<MobilePhone[]> {
-        return this.api.getMobilePhones().pipe(
+    getAll(amount: number): Observable<MobilePhone[]> {
+        return this.api.getMobilePhones(amount).pipe(
             map(dtos => dtos.map(mapMobilePhoneDtoToDomain)),
         );
     }
