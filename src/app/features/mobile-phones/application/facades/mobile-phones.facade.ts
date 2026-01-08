@@ -11,4 +11,8 @@ export class MobilePhonesFacade {
     getAll(amount: number): Observable<MobilePhone[]> {
         return this.repository.getAll(amount);
     }
+
+    getById(id: string): Observable<MobilePhone> {
+        return this.repository.getById(id);
+    }
 }

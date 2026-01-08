@@ -20,4 +20,16 @@ export class MobilePhonesEffects {
             )
         )
     );
+
+    loadById$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(ActionsSet.loadMobilePhoneById),
+            switchMap(({ id }) =>
+                this.repo.getById(id).pipe(
+                    map(item => ActionsSet.loadMobilePhoneByIdSuccess({ item })),
+                    catchError(e => of(ActionsSet.loadMobilePhoneByIdFailure({ error: String(e) }))),
+                )
+            )
+        )
+    );
 }
