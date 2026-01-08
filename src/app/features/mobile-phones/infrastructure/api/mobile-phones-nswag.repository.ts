@@ -3,7 +3,8 @@ import { map, Observable } from 'rxjs';
 
 import { MobilePhonesRepository } from '../../domain/ports/mobile-phones-repository.port';
 import { MobilePhone } from '../../domain/model/mobile-phone';
-import { mapMobilePhoneDtoToDomain } from '../mappers/mobile-phone.mapper';
+import { CreateMobilePhone } from '../../domain/model/create-mobile-phone';
+import { mapCreateMobilePhoneToDto, mapMobilePhoneDtoToDomain } from '../mappers/mobile-phone.mapper';
 
 import { Client } from '../../../../shared/api/nswag/api-client';
 
@@ -19,6 +20,12 @@ export class MobilePhonesNswagRepository implements MobilePhonesRepository {
 
     getById(id: string): Observable<MobilePhone> {
         return this.api.getMobilePhoneById(id).pipe(
+            map(mapMobilePhoneDtoToDomain),
+        );
+    }
+
+    create(body: CreateMobilePhone): Observable<MobilePhone> {
+        return this.api.createMobilePhone(mapCreateMobilePhoneToDto(body)).pipe(
             map(mapMobilePhoneDtoToDomain),
         );
     }

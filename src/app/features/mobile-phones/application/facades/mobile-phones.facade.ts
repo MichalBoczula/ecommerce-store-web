@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 
 import { MobilePhonesRepository } from '../../domain/ports/mobile-phones-repository.port';
 import { MobilePhone } from '../../domain/model/mobile-phone';
+import { CreateMobilePhone } from '../../domain/model/create-mobile-phone';
 
 @Injectable()
 export class MobilePhonesFacade {
@@ -14,5 +15,9 @@ export class MobilePhonesFacade {
 
     getById(id: string): Observable<MobilePhone> {
         return this.repository.getById(id);
+    }
+
+    create(body: CreateMobilePhone): Observable<MobilePhone> {
+        return this.repository.create(body);
     }
 }

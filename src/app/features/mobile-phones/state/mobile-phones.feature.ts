@@ -32,5 +32,13 @@ export const mobilePhonesFeature = createFeature({
             selectedItem: item,
         })),
         on(Actions.loadMobilePhoneByIdFailure, (s, { error }) => ({ ...s, status: 'error', error })),
+        on(Actions.createMobilePhone, s => ({ ...s, status: 'loading', error: null })),
+        on(Actions.createMobilePhoneSuccess, (s, { item }) => ({
+            ...s,
+            status: 'loaded',
+            items: [item, ...s.items],
+            selectedItem: item,
+        })),
+        on(Actions.createMobilePhoneFailure, (s, { error }) => ({ ...s, status: 'error', error })),
     ),
 });
