@@ -1,4 +1,4 @@
-import { inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, of, switchMap } from 'rxjs';
 
@@ -64,6 +64,7 @@ const createMobilePhoneBody: CreateMobilePhone = {
     }),
 };
 
+@Injectable()
 export class MobilePhonesEffects {
     private readonly actions$ = inject(Actions);
     private readonly repo = inject(MobilePhonesRepository);

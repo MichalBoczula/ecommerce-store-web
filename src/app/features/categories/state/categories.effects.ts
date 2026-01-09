@@ -1,10 +1,11 @@
-import { inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, of, switchMap } from 'rxjs';
 
 import * as ActionsSet from './categories.actions';
 import { CategoriesRepository } from '../domain/ports/categories-repository.port';
 
+@Injectable()
 export class CategoriesEffects {
     private readonly actions$ = inject(Actions);
     private readonly repo = inject(CategoriesRepository);
