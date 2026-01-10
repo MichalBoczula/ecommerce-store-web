@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 
-import { CategoriesRepository } from '../../domain/interfaces/categories-repository.port';
-import { Category } from '../../domain/model/category';
+import { CategoriesRepository } from '../../domain/interfaces/categories-repository';
+import { Category } from '../../domain/model/category.model';
 import { mapCategoryDtoToDomain } from '../mappers/category.mapper';
 
 import { Client } from '../../../../shared/api/nswag/api-client';

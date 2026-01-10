@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, of, switchMap } from 'rxjs';
 
 import * as ActionsSet from './categories.actions';
-import { CategoriesRepository } from '../domain/interfaces/categories-repository.port';
+import { CategoriesRepository } from '../domain/interfaces/categories-repository';
 
 @Injectable()
 export class CategoriesEffects {

@@ -6,7 +6,7 @@ import { categoriesFeature } from './state/categories.feature';
 import { CategoriesEffects } from './state/categories.effects';
 import { CategoriesFacade } from './application/categories.facade';
 
-import { CategoriesRepository } from './domain/interfaces/categories-repository.port';
+import { CategoriesRepository } from './domain/interfaces/categories-repository';
 import { CategoriesNswagRepository } from './infrastructure/api/categories-nswag.repository';
 
 export const CATEGORIES_ROUTES: Routes = [
@@ -19,6 +19,6 @@ export const CATEGORIES_ROUTES: Routes = [
             { provide: CategoriesRepository, useClass: CategoriesNswagRepository },
         ],
         loadComponent: () =>
-            // import('../categories/presentation/categories.page').then(m => m.CategoriesPage),
+            import('../categories/presentation/categories-list/categories-list').then(m => m.CategoriesList),
     },
 ];

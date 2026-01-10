@@ -1,4 +1,4 @@
-import { Category } from '../../domain/model/category';
+import { Category } from '../../domain/model/category.model';
 import { CategoryDto } from '../../../../shared/api/nswag/api-client';
 
 export function mapCategoryDtoToDomain(dto: CategoryDto): Category {

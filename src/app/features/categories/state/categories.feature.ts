@@ -1,6 +1,6 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import * as Actions from './categories.actions';
-import { Category } from '../domain/model/category';
+import { Category } from '../domain/model/category.model';
 
 export type LoadStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
