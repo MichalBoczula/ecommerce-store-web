@@ -1,0 +1,14 @@
+<h2>Categories</h2>
+
+@if ((facade.status$ | async) === 'loading') {
+<mat-progress-bar mode="indeterminate"></mat-progress-bar>
+}
+
+<mat-list>
+    @for (c of (facade.items$ | async) ?? []; track c.id) {
+    <mat-list-item>
+        <div matListItemTitle>{{ c.name }}</div>
+        <div matListItemLine>{{ c.code }} • Active: {{ c.isActive }}</div>
+    </mat-list-item>
+    }
+</mat-list>

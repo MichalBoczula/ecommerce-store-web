@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { categoriesFeature } from '../../state/categories.feature';
-import * as Actions from '../../state/categories.actions';
+import { categoriesFeature } from '../state/categories.feature';
+import * as Actions from '../state/categories.actions';
 
 @Injectable()
 export class CategoriesFacade {

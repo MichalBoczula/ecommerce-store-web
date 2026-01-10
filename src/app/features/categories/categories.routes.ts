@@ -2,12 +2,12 @@ import { Routes } from '@angular/router';
 import { provideEffects } from '@ngrx/effects';
 import { provideState } from '@ngrx/store';
 
-import { categoriesFeature } from '../state/categories.feature';
-import { CategoriesEffects } from '../state/categories.effects';
-import { CategoriesFacade } from '../application/facades/categories.facade';
+import { categoriesFeature } from './state/categories.feature';
+import { CategoriesEffects } from './state/categories.effects';
+import { CategoriesFacade } from './application/categories.facade';
 
-import { CategoriesRepository } from '../domain/ports/categories-repository.port';
-import { CategoriesNswagRepository } from '../infrastructure/api/categories-nswag.repository';
+import { CategoriesRepository } from './domain/interfaces/categories-repository.port';
+import { CategoriesNswagRepository } from './infrastructure/api/categories-nswag.repository';
 
 export const CATEGORIES_ROUTES: Routes = [
     {
@@ -19,6 +19,6 @@ export const CATEGORIES_ROUTES: Routes = [
             { provide: CategoriesRepository, useClass: CategoriesNswagRepository },
         ],
         loadComponent: () =>
-            import('./pages/categories.page').then(m => m.CategoriesPage),
+            // import('../categories/presentation/categories.page').then(m => m.CategoriesPage),
     },
 ];

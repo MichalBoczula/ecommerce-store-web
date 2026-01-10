@@ -6,7 +6,7 @@ export const routes: Routes = [
     {
         path: 'categories',
         loadChildren: () =>
-            import('./features/categories/presentation/categories.routes')
+            import('./features/categories/categories.routes')
                 .then(m => m.CATEGORIES_ROUTES),
     },
     {

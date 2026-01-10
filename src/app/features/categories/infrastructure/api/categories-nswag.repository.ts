@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 
-import { CategoriesRepository } from '../../domain/ports/categories-repository.port';
+import { CategoriesRepository } from '../../domain/interfaces/categories-repository.port';
 import { Category } from '../../domain/model/category';
 import { mapCategoryDtoToDomain } from '../mappers/category.mapper';
 
