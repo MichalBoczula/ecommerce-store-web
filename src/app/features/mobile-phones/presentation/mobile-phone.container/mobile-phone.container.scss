@@ -1,0 +1,12 @@
+@use '../../../../../styles.scss' as v;
+
+
+.content {
+    height: calc(100vh - v.$nav-height);
+    background-color: aqua;
+}
+
+.side-navbar {
+    background-color: v.$nav-color;
+    height: calc(100vh - v.$nav-height);
+}
