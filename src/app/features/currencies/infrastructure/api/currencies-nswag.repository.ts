@@ -5,7 +5,7 @@ import { inject, Injectable } from "@angular/core";
 import { mapCurrencyDtoToDomain } from "../mapper/currency.dto";
 import { Currency } from "../../domain/model/currency.model";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class CurrenciesNswagRepository implements CurrencyRepository {
     private readonly api = inject(Client);
 

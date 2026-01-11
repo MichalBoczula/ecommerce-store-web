@@ -4,7 +4,7 @@ import { catchError, map, of, switchMap } from 'rxjs';
 
 import * as ActionsSet from './mobile-phones.actions';
 import { CreateMobilePhone } from '../domain/model/create-mobile-phone';
-import { MobilePhonesRepository } from '../domain/ports/mobile-phones-repository.port';
+import { MobilePhonesRepository } from '../domain/interfaces/mobile-phones-repository.port';
 import {
     CommonDescriptionExtrernalDto,
     CreateConnectivityExternalDto,
