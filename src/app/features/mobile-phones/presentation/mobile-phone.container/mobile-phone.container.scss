@@ -49,6 +49,12 @@
     color: v.$font-color;
     padding: 16px;
     font-weight: 700;
+    transition: v.$transition;
+}
+
+.brand:hover {
+    transform: scale(1.15);
+    cursor: pointer;
 }
 
 .item {
