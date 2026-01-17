@@ -1,5 +1,4 @@
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed } from '@angular/core';
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { MatIconModule } from "@angular/material/icon";
 import { MatListModule } from "@angular/material/list";
@@ -8,8 +7,6 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MobilePhoneList } from "../mobile-phone.list/mobile-phone.list";
 import { MobilePhoneFilter } from "../mobile-phone.filter/mobile-phone.filter";
-
-type NavItem = { label: string; icon: string; link: string };
 
 @Component({
   selector: 'app-mobile-phone-container',
@@ -28,29 +25,10 @@ type NavItem = { label: string; icon: string; link: string };
   standalone: true
 })
 export class MobilePhoneContainer {
-  private readonly breakpoints = inject(BreakpointObserver);
-
-  private readonly handsetMatch = signal(false);
-
-  constructor() {
-    this.breakpoints.observe([Breakpoints.Handset]).subscribe(r => {
-      this.handsetMatch.set(r.matches);
-    });
-  }
-
-  readonly isHandset = computed(() => this.handsetMatch());
-
-  readonly sidenavMode = computed<'over' | 'side'>(() => (this.isHandset() ? 'over' : 'side'));
-  readonly sidenavOpened = computed(() => !this.isHandset());
-
-  readonly navItems = signal<NavItem[]>([
-    { label: 'Home', icon: 'home', link: '/' },
-    { label: 'Products', icon: 'inventory_2', link: '/products' },
-    { label: 'Categories', icon: 'category', link: '/categories' },
-    { label: 'Orders', icon: 'receipt_long', link: '/orders' },
-  ]);
+  readonly sidenavMode = computed<'over'>(() => 'over');
+  readonly sidenavOpened = computed(() => false);
 
   onNavClick(sidenav: { close: () => void }) {
-    if (this.isHandset()) sidenav.close();
+    sidenav.close();
   }
 }

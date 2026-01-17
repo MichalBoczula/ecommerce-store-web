@@ -1,11 +1,9 @@
 <mat-sidenav-container class="container">
-    <mat-sidenav #sidenav class="sidenav" [mode]="sidenavMode()" [opened]="sidenavOpened()"
-        [fixedInViewport]="isHandset()">
+    <mat-sidenav #sidenav class="sidenav" [mode]="sidenavMode()" [opened]="sidenavOpened()">
         <div class="brand" (click)="sidenav.toggle()">
             <mat-icon>store</mat-icon>
             <span class="brand-name">eCommerce</span>
         </div>
-
         <mat-nav-list>
             <app-mobile-phone-filter></app-mobile-phone-filter>
         </mat-nav-list>
