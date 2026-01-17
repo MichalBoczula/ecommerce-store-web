@@ -6,13 +6,13 @@ import { MatListModule } from "@angular/material/list";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { RouterOutlet } from '@angular/router';
-import { MobilePhoneList } from "./features/mobile-phones/presentation/mobile-phone.container/mobile-phone.container";
+import { MobilePhoneContainer } from "./features/mobile-phones/presentation/mobile-phone.container/mobile-phone.container";
 
 type NavItem = { label: string; icon: string; link: string };
 
 @Component({
   selector: 'app-root',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatListModule, MatSidenavModule, RouterOutlet, MobilePhoneList],
+  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatListModule, MatSidenavModule, RouterOutlet, MobilePhoneContainer],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
