@@ -16,18 +16,5 @@ const DESKTOP = '(min-width: 1300px)';
 })
 export class MobilePhoneList {
   cards = [1, 2, 3, 4, 5, 6, 7];
-  private bp = inject(BreakpointObserver);
 
-  private layout = toSignal(
-    this.bp.observe([Breakpoints.Handset, DESKTOP]).pipe(
-      map(state => state.breakpoints[DESKTOP]
-        ? { col: 4, height: '320px' }
-        : { col: 2, height: '320px' }
-      )
-    ),
-    { initialValue: { col: 2, height: '320px' } }
-  );
-
-  cols = () => this.layout().col;
-  rowHeight = () => this.layout().height;
 }

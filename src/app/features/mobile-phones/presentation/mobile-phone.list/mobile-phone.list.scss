@@ -1,7 +1,93 @@
-.example-card {
-    max-width: 200px;
+.container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    align-items: start;
+    margin-top: 20px;
+    border-radius: 20px;
+
+    border-radius: 20px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
 }
 
-.example-header-image {
-    background-size: cover;
+.image {
+    grid-column: 1;
+    background-color: blueviolet;
+}
+
+.image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image img {
+    max-width: 300px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 50px;
+}
+
+.content-container {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    background-color: aqua;
+    height: 100%;
+}
+
+.grid-list {
+    margin-left: 25%;
+    margin-right: 25%;
+}
+
+.sub-content {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.grid-list {
+    margin-left: 20%;
+    margin-right: 20%;
+}
+
+@media (max-width: 2100px) {
+    .grid-list {
+        margin-left: 15%;
+        margin-right: 15%;
+    }
+}
+
+@media (max-width: 1600px) {
+    .grid-list {
+        margin-left: 10%;
+        margin-right: 10%;
+    }
+}
+
+@media (max-width: 1324px) {
+    .grid-list {
+        margin-left: 8%;
+        margin-right: 8%;
+    }
+}
+
+@media (max-width: 1024px) {
+    .grid-list {
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+
+    .image img {
+        max-width: 200px;
+    }
 }
