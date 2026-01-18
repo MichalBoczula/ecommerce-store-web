@@ -1,16 +1,11 @@
-import { Component, inject } from '@angular/core';
-import { MatGridListModule } from '@angular/material/grid-list';
+import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { BreakpointObserver, Breakpoints, } from '@angular/cdk/layout';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
-
-const DESKTOP = '(min-width: 1300px)';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-mobile-phone-list',
-  imports: [MatGridListModule, MatCardModule, MatButtonModule],
+  imports: [MatButtonModule, MatDividerModule, MatIconModule],
   templateUrl: './mobile-phone.list.html',
   styleUrl: './mobile-phone.list.scss',
 })
