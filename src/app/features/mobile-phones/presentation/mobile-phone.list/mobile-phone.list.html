@@ -1,41 +1,50 @@
 <article class="grid-list">
-    @for (card of cards; track card) {
+    @if (phones$ | async; as phones) {
+    @for (phone of phones; track phone.id) {
     <section class="container">
         <div class="image">
-            <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu">
+            <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu" />
         </div>
+
         <div class="content-container">
             <div class="content">
-                <h1>Name</h1>
+                <h1>{{ phone.name ?? 'Unknown model' }}</h1>
+
                 <div class="content-line">
                     <p class="content-title">Screen size:</p>
-                    <p class="content-specific">5''</p>
+                    <p class="content-specific">{{ phone.screenSizeInches }}''</p>
                 </div>
+
                 <div class="content-line">
                     <p class="content-title">Camera:</p>
-                    <p class="content-specific">Exynos 1580</p>
+                    <p class="content-specific">{{ phone.camera }}</p>
                 </div>
+
                 <div class="content-line">
                     <p class="content-title">Processor:</p>
-                    <p class="content-specific">8</p>
+                    <p class="content-specific">{{ phone.displayType }}</p>
                 </div>
             </div>
+
             <div class="sub-content">
-                <div class="price">999$</div>
+                <div class="price">
+                    {{ phone.price.amount }} {{ phone.price.currency }}
+                </div>
+
                 <div class="button-container">
-                    <button matButton="filled">
-                        <span class="material-symbols-outlined">
-                            favorite
-                        </span>
+                    <button matButton="filled" type="button" (click)="toggleFavorite(phone)">
+                        <span class="material-symbols-outlined">favorite</span>
                     </button>
-                    <button matButton="elevated">
-                        <span class="material-symbols-outlined">
-                            shopping_cart_checkout
-                        </span>
+
+                    <button matButton="elevated" type="button" (click)="addToCart(phone)">
+                        <span class="material-symbols-outlined">shopping_cart_checkout</span>
                     </button>
                 </div>
             </div>
         </div>
     </section>
+    }
+    } @else {
+    <h1>loading</h1>
     }
 </article>
