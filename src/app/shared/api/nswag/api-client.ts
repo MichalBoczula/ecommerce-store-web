@@ -26,7 +26,7 @@ export class Client {
     }
 
     /**
-     * List categories
+     * Get all categories
      * @return OK
      */
     getCategories(): Observable<CategoryDto[]> {
@@ -1142,6 +1142,83 @@ export class Client {
     }
 
     /**
+     * Get mobile phone history
+     * @return OK
+     */
+    getMobilePhoneHistory(id: string, pageNumber: number, pageSize: number): Observable<MobilePhoneHistoryDto[]> {
+        let url_ = this.baseUrl + "/mobile-phones/{id}/history?";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        if (pageNumber === undefined || pageNumber === null)
+            throw new globalThis.Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new globalThis.Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetMobilePhoneHistory(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetMobilePhoneHistory(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MobilePhoneHistoryDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MobilePhoneHistoryDto[]>;
+        }));
+    }
+
+    protected processGetMobilePhoneHistory(response: HttpResponseBase): Observable<MobilePhoneHistoryDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(MobilePhoneHistoryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Get a product by ID
      * @return OK
      */
@@ -1629,6 +1706,7 @@ export interface ICategoryDto {
 
 export class CommonDescriptionDto implements ICommonDescriptionDto {
     name?: string;
+    brand?: string;
     description?: string;
     mainPhoto?: string;
     otherPhotos?: string[];
@@ -1645,6 +1723,7 @@ export class CommonDescriptionDto implements ICommonDescriptionDto {
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
+            this.brand = _data["brand"];
             this.description = _data["description"];
             this.mainPhoto = _data["mainPhoto"];
             if (Array.isArray(_data["otherPhotos"])) {
@@ -1665,6 +1744,7 @@ export class CommonDescriptionDto implements ICommonDescriptionDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
+        data["brand"] = this.brand;
         data["description"] = this.description;
         data["mainPhoto"] = this.mainPhoto;
         if (Array.isArray(this.otherPhotos)) {
@@ -1678,6 +1758,7 @@ export class CommonDescriptionDto implements ICommonDescriptionDto {
 
 export interface ICommonDescriptionDto {
     name?: string;
+    brand?: string;
     description?: string;
     mainPhoto?: string;
     otherPhotos?: string[];
@@ -1685,6 +1766,7 @@ export interface ICommonDescriptionDto {
 
 export class CommonDescriptionExtrernalDto implements ICommonDescriptionExtrernalDto {
     name?: string;
+    brand?: string;
     description?: string;
     mainPhoto?: string;
     otherPhotos?: string[];
@@ -1701,6 +1783,7 @@ export class CommonDescriptionExtrernalDto implements ICommonDescriptionExtrerna
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
+            this.brand = _data["brand"];
             this.description = _data["description"];
             this.mainPhoto = _data["mainPhoto"];
             if (Array.isArray(_data["otherPhotos"])) {
@@ -1721,6 +1804,7 @@ export class CommonDescriptionExtrernalDto implements ICommonDescriptionExtrerna
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
+        data["brand"] = this.brand;
         data["description"] = this.description;
         data["mainPhoto"] = this.mainPhoto;
         if (Array.isArray(this.otherPhotos)) {
@@ -1734,6 +1818,7 @@ export class CommonDescriptionExtrernalDto implements ICommonDescriptionExtrerna
 
 export interface ICommonDescriptionExtrernalDto {
     name?: string;
+    brand?: string;
     description?: string;
     mainPhoto?: string;
     otherPhotos?: string[];
@@ -1997,10 +2082,13 @@ export class CreateMobilePhoneExternalDto implements ICreateMobilePhoneExternalD
     connectivity!: CreateConnectivityExternalDto;
     satelliteNavigationSystems!: CreateSatelliteNavigationSystemExternalDto;
     sensors!: CreateSensorsExternalDto;
-    fingerPrint?: boolean;
-    faceId?: boolean;
-    categoryId?: string;
+    camera!: string;
+    fingerPrint!: boolean;
+    faceId!: boolean;
+    categoryId!: string;
     price!: CreateMoneyExternalDto;
+    description2!: string;
+    description3!: string;
 
     constructor(data?: ICreateMobilePhoneExternalDto) {
         if (data) {
@@ -2026,10 +2114,13 @@ export class CreateMobilePhoneExternalDto implements ICreateMobilePhoneExternalD
             this.connectivity = _data["connectivity"] ? CreateConnectivityExternalDto.fromJS(_data["connectivity"]) : new CreateConnectivityExternalDto();
             this.satelliteNavigationSystems = _data["satelliteNavigationSystems"] ? CreateSatelliteNavigationSystemExternalDto.fromJS(_data["satelliteNavigationSystems"]) : new CreateSatelliteNavigationSystemExternalDto();
             this.sensors = _data["sensors"] ? CreateSensorsExternalDto.fromJS(_data["sensors"]) : new CreateSensorsExternalDto();
+            this.camera = _data["camera"];
             this.fingerPrint = _data["fingerPrint"];
             this.faceId = _data["faceId"];
             this.categoryId = _data["categoryId"];
             this.price = _data["price"] ? CreateMoneyExternalDto.fromJS(_data["price"]) : new CreateMoneyExternalDto();
+            this.description2 = _data["description2"];
+            this.description3 = _data["description3"];
         }
     }
 
@@ -2047,10 +2138,13 @@ export class CreateMobilePhoneExternalDto implements ICreateMobilePhoneExternalD
         data["connectivity"] = this.connectivity ? this.connectivity.toJSON() : undefined as any;
         data["satelliteNavigationSystems"] = this.satelliteNavigationSystems ? this.satelliteNavigationSystems.toJSON() : undefined as any;
         data["sensors"] = this.sensors ? this.sensors.toJSON() : undefined as any;
+        data["camera"] = this.camera;
         data["fingerPrint"] = this.fingerPrint;
         data["faceId"] = this.faceId;
         data["categoryId"] = this.categoryId;
         data["price"] = this.price ? this.price.toJSON() : undefined as any;
+        data["description2"] = this.description2;
+        data["description3"] = this.description3;
         return data;
     }
 }
@@ -2061,10 +2155,13 @@ export interface ICreateMobilePhoneExternalDto {
     connectivity: CreateConnectivityExternalDto;
     satelliteNavigationSystems: CreateSatelliteNavigationSystemExternalDto;
     sensors: CreateSensorsExternalDto;
-    fingerPrint?: boolean;
-    faceId?: boolean;
-    categoryId?: string;
+    camera: string;
+    fingerPrint: boolean;
+    faceId: boolean;
+    categoryId: string;
     price: CreateMoneyExternalDto;
+    description2: string;
+    description3: string;
 }
 
 export class CreateMoneyExternalDto implements ICreateMoneyExternalDto {
@@ -2445,9 +2542,12 @@ export class MobilePhoneDto implements IMobilePhoneDto {
     connectivity!: ConnectivityDto;
     satelliteNavigationSystems!: SatelliteNavigationSystemDto;
     sensors!: SensorsDto;
+    camera!: string;
     price!: MoneyDto;
     fingerPrint!: boolean;
     faceId!: boolean;
+    description2!: string;
+    description3!: string;
     categoryId!: string;
     id!: string;
     isActive!: boolean;
@@ -2476,9 +2576,12 @@ export class MobilePhoneDto implements IMobilePhoneDto {
             this.connectivity = _data["connectivity"] ? ConnectivityDto.fromJS(_data["connectivity"]) : new ConnectivityDto();
             this.satelliteNavigationSystems = _data["satelliteNavigationSystems"] ? SatelliteNavigationSystemDto.fromJS(_data["satelliteNavigationSystems"]) : new SatelliteNavigationSystemDto();
             this.sensors = _data["sensors"] ? SensorsDto.fromJS(_data["sensors"]) : new SensorsDto();
+            this.camera = _data["camera"];
             this.price = _data["price"] ? MoneyDto.fromJS(_data["price"]) : new MoneyDto();
             this.fingerPrint = _data["fingerPrint"];
             this.faceId = _data["faceId"];
+            this.description2 = _data["description2"];
+            this.description3 = _data["description3"];
             this.categoryId = _data["categoryId"];
             this.id = _data["id"];
             this.isActive = _data["isActive"];
@@ -2499,9 +2602,12 @@ export class MobilePhoneDto implements IMobilePhoneDto {
         data["connectivity"] = this.connectivity ? this.connectivity.toJSON() : undefined as any;
         data["satelliteNavigationSystems"] = this.satelliteNavigationSystems ? this.satelliteNavigationSystems.toJSON() : undefined as any;
         data["sensors"] = this.sensors ? this.sensors.toJSON() : undefined as any;
+        data["camera"] = this.camera;
         data["price"] = this.price ? this.price.toJSON() : undefined as any;
         data["fingerPrint"] = this.fingerPrint;
         data["faceId"] = this.faceId;
+        data["description2"] = this.description2;
+        data["description3"] = this.description3;
         data["categoryId"] = this.categoryId;
         data["id"] = this.id;
         data["isActive"] = this.isActive;
@@ -2515,12 +2621,123 @@ export interface IMobilePhoneDto {
     connectivity: ConnectivityDto;
     satelliteNavigationSystems: SatelliteNavigationSystemDto;
     sensors: SensorsDto;
+    camera: string;
     price: MoneyDto;
     fingerPrint: boolean;
     faceId: boolean;
+    description2: string;
+    description3: string;
     categoryId: string;
     id: string;
     isActive: boolean;
+}
+
+export class MobilePhoneHistoryDto implements IMobilePhoneHistoryDto {
+    id!: string;
+    mobilePhoneId!: string;
+    commonDescription!: CommonDescriptionDto;
+    electronicDetails!: ElectronicDetailsDto;
+    connectivity!: ConnectivityDto;
+    satelliteNavigationSystems!: SatelliteNavigationSystemDto;
+    sensors!: SensorsDto;
+    camera!: string;
+    price!: MoneyDto;
+    fingerPrint!: boolean;
+    faceId!: boolean;
+    description2!: string;
+    description3!: string;
+    categoryId!: string;
+    isActive!: boolean;
+    changedAt!: Date;
+    operation!: Operation;
+
+    constructor(data?: IMobilePhoneHistoryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.commonDescription = new CommonDescriptionDto();
+            this.electronicDetails = new ElectronicDetailsDto();
+            this.connectivity = new ConnectivityDto();
+            this.satelliteNavigationSystems = new SatelliteNavigationSystemDto();
+            this.sensors = new SensorsDto();
+            this.price = new MoneyDto();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.mobilePhoneId = _data["mobilePhoneId"];
+            this.commonDescription = _data["commonDescription"] ? CommonDescriptionDto.fromJS(_data["commonDescription"]) : new CommonDescriptionDto();
+            this.electronicDetails = _data["electronicDetails"] ? ElectronicDetailsDto.fromJS(_data["electronicDetails"]) : new ElectronicDetailsDto();
+            this.connectivity = _data["connectivity"] ? ConnectivityDto.fromJS(_data["connectivity"]) : new ConnectivityDto();
+            this.satelliteNavigationSystems = _data["satelliteNavigationSystems"] ? SatelliteNavigationSystemDto.fromJS(_data["satelliteNavigationSystems"]) : new SatelliteNavigationSystemDto();
+            this.sensors = _data["sensors"] ? SensorsDto.fromJS(_data["sensors"]) : new SensorsDto();
+            this.camera = _data["camera"];
+            this.price = _data["price"] ? MoneyDto.fromJS(_data["price"]) : new MoneyDto();
+            this.fingerPrint = _data["fingerPrint"];
+            this.faceId = _data["faceId"];
+            this.description2 = _data["description2"];
+            this.description3 = _data["description3"];
+            this.categoryId = _data["categoryId"];
+            this.isActive = _data["isActive"];
+            this.changedAt = _data["changedAt"] ? new Date(_data["changedAt"].toString()) : undefined as any;
+            this.operation = _data["operation"];
+        }
+    }
+
+    static fromJS(data: any): MobilePhoneHistoryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MobilePhoneHistoryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["mobilePhoneId"] = this.mobilePhoneId;
+        data["commonDescription"] = this.commonDescription ? this.commonDescription.toJSON() : undefined as any;
+        data["electronicDetails"] = this.electronicDetails ? this.electronicDetails.toJSON() : undefined as any;
+        data["connectivity"] = this.connectivity ? this.connectivity.toJSON() : undefined as any;
+        data["satelliteNavigationSystems"] = this.satelliteNavigationSystems ? this.satelliteNavigationSystems.toJSON() : undefined as any;
+        data["sensors"] = this.sensors ? this.sensors.toJSON() : undefined as any;
+        data["camera"] = this.camera;
+        data["price"] = this.price ? this.price.toJSON() : undefined as any;
+        data["fingerPrint"] = this.fingerPrint;
+        data["faceId"] = this.faceId;
+        data["description2"] = this.description2;
+        data["description3"] = this.description3;
+        data["categoryId"] = this.categoryId;
+        data["isActive"] = this.isActive;
+        data["changedAt"] = this.changedAt ? this.changedAt.toISOString() : undefined as any;
+        data["operation"] = this.operation;
+        return data;
+    }
+}
+
+export interface IMobilePhoneHistoryDto {
+    id: string;
+    mobilePhoneId: string;
+    commonDescription: CommonDescriptionDto;
+    electronicDetails: ElectronicDetailsDto;
+    connectivity: ConnectivityDto;
+    satelliteNavigationSystems: SatelliteNavigationSystemDto;
+    sensors: SensorsDto;
+    camera: string;
+    price: MoneyDto;
+    fingerPrint: boolean;
+    faceId: boolean;
+    description2: string;
+    description3: string;
+    categoryId: string;
+    isActive: boolean;
+    changedAt: Date;
+    operation: Operation;
 }
 
 export class MoneyDto implements IMoneyDto {
@@ -2629,6 +2846,12 @@ export interface INotFoundProblemDetails {
     traceId?: string;
 
     [key: string]: any;
+}
+
+export enum Operation {
+    _0 = 0,
+    _1 = 1,
+    _2 = 2,
 }
 
 export class ProblemDetails implements IProblemDetails {
@@ -3076,10 +3299,13 @@ export class UpdateMobilePhoneExternalDto implements IUpdateMobilePhoneExternalD
     connectivity!: UpdateConnectivityExternalDto;
     satelliteNavigationSystems!: UpdateSatelliteNavigationSystemExternalDto;
     sensors!: UpdateSensorsExternalDto;
-    fingerPrint?: boolean;
-    faceId?: boolean;
-    categoryId?: string;
+    camera!: string;
+    fingerPrint!: boolean;
+    faceId!: boolean;
+    categoryId!: string;
     price!: UpdateMoneyExternalDto;
+    description2!: string;
+    description3!: string;
 
     constructor(data?: IUpdateMobilePhoneExternalDto) {
         if (data) {
@@ -3105,10 +3331,13 @@ export class UpdateMobilePhoneExternalDto implements IUpdateMobilePhoneExternalD
             this.connectivity = _data["connectivity"] ? UpdateConnectivityExternalDto.fromJS(_data["connectivity"]) : new UpdateConnectivityExternalDto();
             this.satelliteNavigationSystems = _data["satelliteNavigationSystems"] ? UpdateSatelliteNavigationSystemExternalDto.fromJS(_data["satelliteNavigationSystems"]) : new UpdateSatelliteNavigationSystemExternalDto();
             this.sensors = _data["sensors"] ? UpdateSensorsExternalDto.fromJS(_data["sensors"]) : new UpdateSensorsExternalDto();
+            this.camera = _data["camera"];
             this.fingerPrint = _data["fingerPrint"];
             this.faceId = _data["faceId"];
             this.categoryId = _data["categoryId"];
             this.price = _data["price"] ? UpdateMoneyExternalDto.fromJS(_data["price"]) : new UpdateMoneyExternalDto();
+            this.description2 = _data["description2"];
+            this.description3 = _data["description3"];
         }
     }
 
@@ -3126,10 +3355,13 @@ export class UpdateMobilePhoneExternalDto implements IUpdateMobilePhoneExternalD
         data["connectivity"] = this.connectivity ? this.connectivity.toJSON() : undefined as any;
         data["satelliteNavigationSystems"] = this.satelliteNavigationSystems ? this.satelliteNavigationSystems.toJSON() : undefined as any;
         data["sensors"] = this.sensors ? this.sensors.toJSON() : undefined as any;
+        data["camera"] = this.camera;
         data["fingerPrint"] = this.fingerPrint;
         data["faceId"] = this.faceId;
         data["categoryId"] = this.categoryId;
         data["price"] = this.price ? this.price.toJSON() : undefined as any;
+        data["description2"] = this.description2;
+        data["description3"] = this.description3;
         return data;
     }
 }
@@ -3140,10 +3372,13 @@ export interface IUpdateMobilePhoneExternalDto {
     connectivity: UpdateConnectivityExternalDto;
     satelliteNavigationSystems: UpdateSatelliteNavigationSystemExternalDto;
     sensors: UpdateSensorsExternalDto;
-    fingerPrint?: boolean;
-    faceId?: boolean;
-    categoryId?: string;
+    camera: string;
+    fingerPrint: boolean;
+    faceId: boolean;
+    categoryId: string;
     price: UpdateMoneyExternalDto;
+    description2: string;
+    description3: string;
 }
 
 export class UpdateMoneyExternalDto implements IUpdateMoneyExternalDto {
