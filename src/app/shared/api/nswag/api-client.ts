@@ -794,7 +794,7 @@ export class Client {
      * Get mobile phone by Id
      * @return OK
      */
-    getMobilePhoneById(id: string): Observable<MobilePhoneDto> {
+    getMobilePhoneById(id: string): Observable<MobilePhoneDetailsDto> {
         let url_ = this.baseUrl + "/mobile-phones/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
@@ -816,14 +816,14 @@ export class Client {
                 try {
                     return this.processGetMobilePhoneById(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<MobilePhoneDto>;
+                    return _observableThrow(e) as any as Observable<MobilePhoneDetailsDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<MobilePhoneDto>;
+                return _observableThrow(response_) as any as Observable<MobilePhoneDetailsDto>;
         }));
     }
 
-    protected processGetMobilePhoneById(response: HttpResponseBase): Observable<MobilePhoneDto> {
+    protected processGetMobilePhoneById(response: HttpResponseBase): Observable<MobilePhoneDetailsDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -834,7 +834,7 @@ export class Client {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = MobilePhoneDto.fromJS(resultData200);
+            result200 = MobilePhoneDetailsDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
@@ -863,7 +863,7 @@ export class Client {
      * Update mobile phone
      * @return OK
      */
-    updateMobilePhone(id: string, body: UpdateMobilePhoneExternalDto): Observable<MobilePhoneDto> {
+    updateMobilePhone(id: string, body: UpdateMobilePhoneExternalDto): Observable<MobilePhoneDetailsDto> {
         let url_ = this.baseUrl + "/mobile-phones/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
@@ -889,14 +889,14 @@ export class Client {
                 try {
                     return this.processUpdateMobilePhone(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<MobilePhoneDto>;
+                    return _observableThrow(e) as any as Observable<MobilePhoneDetailsDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<MobilePhoneDto>;
+                return _observableThrow(response_) as any as Observable<MobilePhoneDetailsDto>;
         }));
     }
 
-    protected processUpdateMobilePhone(response: HttpResponseBase): Observable<MobilePhoneDto> {
+    protected processUpdateMobilePhone(response: HttpResponseBase): Observable<MobilePhoneDetailsDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -907,7 +907,7 @@ export class Client {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = MobilePhoneDto.fromJS(resultData200);
+            result200 = MobilePhoneDetailsDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -936,7 +936,7 @@ export class Client {
      * Delete mobile phone
      * @return OK
      */
-    deleteMobilePhone(id: string): Observable<MobilePhoneDto> {
+    deleteMobilePhone(id: string): Observable<MobilePhoneDetailsDto> {
         let url_ = this.baseUrl + "/mobile-phones/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
@@ -958,14 +958,14 @@ export class Client {
                 try {
                     return this.processDeleteMobilePhone(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<MobilePhoneDto>;
+                    return _observableThrow(e) as any as Observable<MobilePhoneDetailsDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<MobilePhoneDto>;
+                return _observableThrow(response_) as any as Observable<MobilePhoneDetailsDto>;
         }));
     }
 
-    protected processDeleteMobilePhone(response: HttpResponseBase): Observable<MobilePhoneDto> {
+    protected processDeleteMobilePhone(response: HttpResponseBase): Observable<MobilePhoneDetailsDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -976,7 +976,7 @@ export class Client {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = MobilePhoneDto.fromJS(resultData200);
+            result200 = MobilePhoneDetailsDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -1075,7 +1075,7 @@ export class Client {
      * Create mobile phone
      * @return Created
      */
-    createMobilePhone(body: CreateMobilePhoneExternalDto): Observable<MobilePhoneDto> {
+    createMobilePhone(body: CreateMobilePhoneExternalDto): Observable<MobilePhoneDetailsDto> {
         let url_ = this.baseUrl + "/mobile-phones";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1098,14 +1098,14 @@ export class Client {
                 try {
                     return this.processCreateMobilePhone(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<MobilePhoneDto>;
+                    return _observableThrow(e) as any as Observable<MobilePhoneDetailsDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<MobilePhoneDto>;
+                return _observableThrow(response_) as any as Observable<MobilePhoneDetailsDto>;
         }));
     }
 
-    protected processCreateMobilePhone(response: HttpResponseBase): Observable<MobilePhoneDto> {
+    protected processCreateMobilePhone(response: HttpResponseBase): Observable<MobilePhoneDetailsDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1116,7 +1116,7 @@ export class Client {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result201: any = null;
             let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result201 = MobilePhoneDto.fromJS(resultData201);
+            result201 = MobilePhoneDetailsDto.fromJS(resultData201);
             return _observableOf(result201);
             }));
         } else if (status === 400) {
@@ -2536,7 +2536,7 @@ export interface IFlowDescription {
     steps?: string[];
 }
 
-export class MobilePhoneDto implements IMobilePhoneDto {
+export class MobilePhoneDetailsDto implements IMobilePhoneDetailsDto {
     commonDescription!: CommonDescriptionDto;
     electronicDetails!: ElectronicDetailsDto;
     connectivity!: ConnectivityDto;
@@ -2552,7 +2552,7 @@ export class MobilePhoneDto implements IMobilePhoneDto {
     id!: string;
     isActive!: boolean;
 
-    constructor(data?: IMobilePhoneDto) {
+    constructor(data?: IMobilePhoneDetailsDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2588,9 +2588,9 @@ export class MobilePhoneDto implements IMobilePhoneDto {
         }
     }
 
-    static fromJS(data: any): MobilePhoneDto {
+    static fromJS(data: any): MobilePhoneDetailsDto {
         data = typeof data === 'object' ? data : {};
-        let result = new MobilePhoneDto();
+        let result = new MobilePhoneDetailsDto();
         result.init(data);
         return result;
     }
@@ -2615,7 +2615,7 @@ export class MobilePhoneDto implements IMobilePhoneDto {
     }
 }
 
-export interface IMobilePhoneDto {
+export interface IMobilePhoneDetailsDto {
     commonDescription: CommonDescriptionDto;
     electronicDetails: ElectronicDetailsDto;
     connectivity: ConnectivityDto;
@@ -2630,6 +2630,65 @@ export interface IMobilePhoneDto {
     categoryId: string;
     id: string;
     isActive: boolean;
+}
+
+export class MobilePhoneDto implements IMobilePhoneDto {
+    id?: string;
+    name?: string;
+    displayType!: string;
+    screenSizeInches!: number;
+    camera!: string;
+    price!: MoneyDto;
+
+    constructor(data?: IMobilePhoneDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.price = new MoneyDto();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.displayType = _data["displayType"];
+            this.screenSizeInches = _data["screenSizeInches"];
+            this.camera = _data["camera"];
+            this.price = _data["price"] ? MoneyDto.fromJS(_data["price"]) : new MoneyDto();
+        }
+    }
+
+    static fromJS(data: any): MobilePhoneDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MobilePhoneDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["displayType"] = this.displayType;
+        data["screenSizeInches"] = this.screenSizeInches;
+        data["camera"] = this.camera;
+        data["price"] = this.price ? this.price.toJSON() : undefined as any;
+        return data;
+    }
+}
+
+export interface IMobilePhoneDto {
+    id?: string;
+    name?: string;
+    displayType: string;
+    screenSizeInches: number;
+    camera: string;
+    price: MoneyDto;
 }
 
 export class MobilePhoneHistoryDto implements IMobilePhoneHistoryDto {

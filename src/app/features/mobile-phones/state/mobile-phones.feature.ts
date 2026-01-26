@@ -1,13 +1,14 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import * as Actions from './mobile-phones.actions';
 import { MobilePhone } from '../domain/model/mobile-phone';
+import { MobilePhoneDetails } from '../domain/model/mobile-phone-details';
 
 export type LoadStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
 export interface MobilePhonesState {
     status: LoadStatus;
     items: MobilePhone[];
-    selectedItem: MobilePhone | null;
+    selectedItem: MobilePhoneDetails | null;
     error: string | null;
 }
 
@@ -35,9 +36,7 @@ export const mobilePhonesFeature = createFeature({
         on(Actions.createMobilePhone, s => ({ ...s, status: 'loading', error: null })),
         on(Actions.createMobilePhoneSuccess, (s, { item }) => ({
             ...s,
-            status: 'loaded',
-            items: [item, ...s.items],
-            selectedItem: item,
+            status: 'loaded'
         })),
         on(Actions.createMobilePhoneFailure, (s, { error }) => ({ ...s, status: 'error', error })),
     ),
