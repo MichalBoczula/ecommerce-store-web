@@ -7,6 +7,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MobilePhoneList } from "../mobile-phone.list/mobile-phone.list";
 import { MobilePhoneFilter } from "../mobile-phone.filter/mobile-phone.filter";
+import { MobilePhoneDetails } from "../mobile-phone.details/mobile-phone.details";
 
 @Component({
   selector: 'app-mobile-phone-container',
@@ -18,7 +19,8 @@ import { MobilePhoneFilter } from "../mobile-phone.filter/mobile-phone.filter";
     MatButtonModule,
     MatDividerModule,
     MobilePhoneList,
-    MobilePhoneFilter
+    MobilePhoneFilter,
+    MobilePhoneDetails
   ],
   templateUrl: './mobile-phone.container.html',
   styleUrl: './mobile-phone.container.scss',

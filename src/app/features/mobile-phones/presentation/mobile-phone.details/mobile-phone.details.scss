@@ -1,13 +1,8 @@
 .container {
     display: grid;
     grid-template-columns: 1fr 2fr;
-    align-items: start;
     margin-top: 20px;
     border-radius: 20px;
-
-    border-radius: 20px;
-    background: #fff;
-    border: 1px solid #e0e0e0;
     overflow: hidden;
 }
 
@@ -19,9 +14,6 @@
 .image {
     grid-column: 1;
     background-color: blueviolet;
-}
-
-.image {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -37,28 +29,15 @@
 .content-container {
     grid-column: 2;
     display: grid;
-    grid-template-columns: 2fr 1fr;
     background-color: aqua;
     height: 100%;
-}
-
-.grid-list {
-    margin-left: 25%;
-    margin-right: 25%;
-}
-
-.sub-content {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    justify-content: space-evenly;
 }
 
 .content {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
+    margin: 0% 10%
 }
 
 .grid-list {
@@ -66,13 +45,44 @@
     margin-right: 20%;
 }
 
-.content-line {
-    display: flex;
-    flex-direction: row;
+.reverse-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-areas: "content image";
+    margin-top: 20px;
+    border-radius: 20px;
+    overflow: hidden;
+    width: 100%;
 }
 
-.content-specific {
-    padding-left: 5px;
+.reverse-content-container {
+    grid-area: content;
+    background-color: aqua;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.reverse-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0% 10%
+}
+
+.reverse-image {
+    grid-area: image;
+    background-color: blueviolet;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.reverse-image img {
+    max-width: 300px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 50px;
 }
 
 @media (max-width: 2100px) {
