@@ -15,6 +15,8 @@ import { CurrencyRepository } from './features/currencies/domain/interfaces/curr
 import { MobilePhonesRepository } from './features/mobile-phones/domain/interfaces/mobile-phones-repository.port';
 import { MobilePhonesNswagRepository } from './features/mobile-phones/infrastructure/api/mobile-phones-nswag.repository';
 import { MobilePhonesFacade } from './features/mobile-phones/application/mobile-phones.facade';
+import { mobilePhonesFeature } from './features/mobile-phones/state/mobile-phones.feature';
+import { MobilePhonesEffects } from './features/mobile-phones/state/mobile-phones-effects';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -29,6 +31,8 @@ export const appConfig: ApplicationConfig = {
     provideEffects(CurrenciesEffects),
     { provide: MobilePhonesRepository, useClass: MobilePhonesNswagRepository },
     MobilePhonesFacade,
+    provideState(mobilePhonesFeature),
+    provideEffects(MobilePhonesEffects),
     isDevMode() ? provideStoreDevtools({ maxAge: 50 }) : [],
     { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
     Client,

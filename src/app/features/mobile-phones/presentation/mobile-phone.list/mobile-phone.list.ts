@@ -17,7 +17,11 @@ import { MobilePhoneDto } from '../../../../shared/api/nswag/api-client';
 export class MobilePhoneList {
   private readonly facade = inject(MobilePhonesFacade);
 
-  readonly phones$: Observable<MobilePhone[]> = this.facade.getAll(7);
+  readonly phones$ = this.facade.items$;
+
+  ngOnInit(): void {
+    this.facade.load(15);
+  }
 
   addToCart(_t3: MobilePhoneDto) {
     throw new Error('Method not implemented.');

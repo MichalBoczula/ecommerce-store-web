@@ -26,6 +26,10 @@ export const mobilePhonesFeature = createFeature({
         on(Actions.loadMobilePhones, s => ({ ...s, status: 'loading', error: null })),
         on(Actions.loadMobilePhonesSuccess, (s, { items }) => ({ ...s, status: 'loaded', items })),
         on(Actions.loadMobilePhonesFailure, (s, { error }) => ({ ...s, status: 'error', error })),
+
+
+
+
         on(Actions.loadMobilePhoneById, s => ({ ...s, status: 'loading', error: null })),
         on(Actions.loadMobilePhoneByIdSuccess, (s, { item }) => ({
             ...s,

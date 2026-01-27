@@ -1,23 +1,17 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { MobilePhonesRepository } from '../domain/interfaces/mobile-phones-repository.port';
-import { MobilePhone } from '../domain/model/mobile-phone';
-import { CreateMobilePhone } from '../domain/model/create-mobile-phone';
-import { MobilePhoneDetailsDto } from '../../../shared/api/nswag/api-client';
+import { Store } from '@ngrx/store';
+import { mobilePhonesFeature } from '../state/mobile-phones.feature';
+import * as Actions from '../state/mobile-phones.actions';
 
 @Injectable()
 export class MobilePhonesFacade {
-    private readonly repository = inject(MobilePhonesRepository);
+    private readonly store = inject(Store);
 
-    getAll(amount: number): Observable<MobilePhone[]> {
-        return this.repository.getAll(amount);
-    }
+    readonly items$ = this.store.select(mobilePhonesFeature.selectItems);
+    readonly status$ = this.store.select(mobilePhonesFeature.selectStatus);
+    readonly error$ = this.store.select(mobilePhonesFeature.selectError);
 
-    getById(id: string): Observable<MobilePhoneDetailsDto> {
-        return this.repository.getById(id);
-    }
-
-    create(body: CreateMobilePhone): Observable<MobilePhoneDetailsDto> {
-        return this.repository.create(body);
+    load(amount: number): void {
+        this.store.dispatch(Actions.loadMobilePhones({ amount }));
     }
 }
