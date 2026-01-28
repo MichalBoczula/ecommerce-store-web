@@ -1,3 +1,11 @@
+<swiper-container class="swiper" slides-per-view="1" loop="true" navigation="true" pagination="true">
+    @for (img of images; track img) {
+    <swiper-slide>
+        <img class="carousel-img" [src]="img" alt="Shiba Inu" />
+    </swiper-slide>
+    }
+</swiper-container>
+
 <article class="grid-list">
     <section class="container">
         <div class="image">

@@ -38,9 +38,8 @@
     "@ngrx/router-store": "^21.0.1",
     "@ngrx/store": "^21.0.1",
     "@ngrx/store-devtools": "^21.0.1",
-    "@primeuix/themes": "^2.0.3",
-    "primeng": "^21.1.1",
     "rxjs": "~7.8.0",
+    "swiper": "^12.0.3",
     "tslib": "^2.8.1"
   },
   "devDependencies": {
