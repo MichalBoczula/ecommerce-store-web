@@ -1,3 +1,5 @@
+@use '../../../../../styles.scss' as v;
+
 .container {
     display: grid;
     grid-template-columns: 1fr 2fr;
@@ -128,4 +130,50 @@
     height: 500px;
     object-fit: contain;
     display: block;
+}
+
+.title {
+    color: #fff;
+    font-size: 40px;
+    font-weight: 600;
+    margin: 0 0 16px;
+}
+
+.spec-table {
+    background: v.$nav-color;
+}
+
+table {
+    width: 100%;
+    background: transparent;
+    border-collapse: collapse;
+}
+
+td.mat-mdc-cell {
+    color: rgba(255, 255, 255, .90);
+    padding: 14px 18px;
+    vertical-align: top;
+}
+
+.label {
+    width: 42%;
+    font-weight: 600;
+    color: rgba(255, 255, 255, .92);
+}
+
+.value {
+    width: 58%;
+    color: rgba(255, 255, 255, .85);
+}
+
+.value-line {
+    line-height: 1.6;
+}
+
+.spec-table tr.mat-mdc-row:nth-child(odd) {
+    background: rgba(255, 255, 255, .06);
+}
+
+.spec-table tr.mat-mdc-row:nth-child(even) {
+    background: rgba(0, 0, 0, .06);
 }
