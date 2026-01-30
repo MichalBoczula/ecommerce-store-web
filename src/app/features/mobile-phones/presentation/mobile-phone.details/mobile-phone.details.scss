@@ -8,11 +8,6 @@
     overflow: hidden;
 }
 
-.container:hover {
-    cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, .3);
-}
-
 .image {
     grid-column: 1;
     background-color: blueviolet;
@@ -117,11 +112,6 @@
     .image img {
         max-width: 200px;
     }
-}
-
-.swiper {
-    padding-top: 20px;
-    width: 80%;
 }
 
 .carousel-img {

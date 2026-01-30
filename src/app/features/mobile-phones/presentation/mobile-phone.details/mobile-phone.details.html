@@ -1,12 +1,12 @@
-<swiper-container class="swiper" slides-per-view="1" loop="true" navigation="true" pagination="true">
-    @for (img of images; track img) {
-    <swiper-slide>
-        <img class="carousel-img" [src]="img" alt="Shiba Inu" />
-    </swiper-slide>
-    }
-</swiper-container>
-
 <article class="grid-list">
+    <swiper-container class="swiper" slides-per-view="1" loop="true" navigation="true" pagination="true">
+        @for (img of images; track img) {
+        <swiper-slide>
+            <img class="carousel-img" [src]="img" alt="Shiba Inu" />
+        </swiper-slide>
+        }
+    </swiper-container>
+
     <section class="container">
         <div class="image">
             <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu" />
