@@ -10,7 +10,7 @@
 
 .image {
     grid-column: 1;
-    background-color: blueviolet;
+    background-color: rgba(v.$nav-color, 0.9);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -26,7 +26,7 @@
 .content-container {
     grid-column: 2;
     display: grid;
-    background-color: aqua;
+    background-color: rgba(v.$nav-color, 0.4);
     height: 100%;
 }
 
@@ -54,7 +54,7 @@
 
 .reverse-content-container {
     grid-area: content;
-    background-color: aqua;
+    background-color: rgba(v.$nav-color, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -64,12 +64,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0% 10%
+    margin: 0% 10%;
 }
 
 .reverse-image {
     grid-area: image;
-    background-color: blueviolet;
+    background-color: rgba(v.$nav-color, 0.9);
     display: flex;
     justify-content: center;
     align-items: center;
