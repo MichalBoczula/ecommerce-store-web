@@ -6,6 +6,7 @@ import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
 import { CommonModule } from '@angular/common';
 import { MobilePhoneDto } from '../../../../shared/api/nswag/api-client';
 import { of } from 'rxjs';
+import { Router } from '@angular/router';
 
 const MOCK_PHONES: MobilePhoneDto[] = [
   { id: '1', name: 'iPhone 15', price: 4999 } as any,
@@ -31,6 +32,7 @@ const MOCK_PHONES: MobilePhoneDto[] = [
 })
 export class MobilePhoneList {
   private readonly facade = inject(MobilePhonesFacade);
+  private readonly router = inject(Router);
 
   readonly phones$ = this.facade.items$;
 
@@ -46,4 +48,7 @@ export class MobilePhoneList {
     throw new Error('Method not implemented.');
   }
 
+  openDetails(phoneId: string) {
+    this.router.navigate(['/details', phoneId])
+  }
 }

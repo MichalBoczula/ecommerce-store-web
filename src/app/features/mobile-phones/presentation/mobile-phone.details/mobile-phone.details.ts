@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
+import { ActivatedRoute } from '@angular/router';
 
 type SpecRow = {
   label: string;
@@ -16,6 +17,10 @@ type SpecRow = {
   standalone: true
 })
 export class MobilePhoneDetails {
+  private readonly route = inject(ActivatedRoute);
+
+  readonly id = this.route.snapshot.paramMap.get('id') ?? '';
+
   cards = [1, 2, 3];
 
   readonly images = [

@@ -1,7 +1,7 @@
 <article class="grid-list">
     @if (phones$ | async; as phones) {
     @for (phone of phones; track phone.id) {
-    <section class="container">
+    <section class="container" (click)="openDetails(phone.id!)">
         <div class="image">
             <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu" />
         </div>
