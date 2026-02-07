@@ -5,9 +5,8 @@ import { MatListModule } from "@angular/material/list";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
-import { MobilePhoneList } from "../mobile-phone.list/mobile-phone.list";
 import { MobilePhoneFilter } from "../mobile-phone.filter/mobile-phone.filter";
-import { MobilePhoneDetails } from "../mobile-phone.details/mobile-phone.details";
+import { RouterOutlet } from "@angular/router";
 
 @Component({
   selector: 'app-mobile-phone-container',
@@ -18,9 +17,8 @@ import { MobilePhoneDetails } from "../mobile-phone.details/mobile-phone.details
     MatIconModule,
     MatButtonModule,
     MatDividerModule,
-    MobilePhoneList,
     MobilePhoneFilter,
-    MobilePhoneDetails
+    RouterOutlet
   ],
   templateUrl: './mobile-phone.container.html',
   styleUrl: './mobile-phone.container.scss',
