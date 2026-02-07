@@ -1,12 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
+import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
+import { MobilePhoneDetailsDto } from '../../../../shared/api/nswag/api-client';
+import { map, Observable } from 'rxjs';
 
-type SpecRow = {
-  label: string;
-  value: string | string[];
-};
+type SpecRow =
+  | { label: string; type?: 'text'; value: string | string[] }
+  | { label: string; type: 'bool'; value: boolean };
 
 @Component({
   selector: 'app-mobile-phone-details',
@@ -16,12 +18,24 @@ type SpecRow = {
   styleUrl: './mobile-phone.details.scss',
   standalone: true
 })
-export class MobilePhoneDetails {
+export class MobilePhoneDetails implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly facade = inject(MobilePhonesFacade);
+  specRows$!: Observable<SpecRow[]>;
+  descriptions$!: Observable<string[]>;
 
-  readonly id = this.route.snapshot.paramMap.get('id') ?? '';
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id') ?? '';
+    this.facade.loadById(id);
 
-  cards = [1, 2, 3];
+    this.specRows$ = this.facade.details$.pipe(
+      map(details => this.toSpecRows(details!))
+    );
+
+    this.descriptions$ = this.facade.details$.pipe(
+      map(details => this.toDescriptions(details!))
+    );
+  }
 
   readonly images = [
     'https://material.angular.dev/assets/img/examples/shiba2.jpg',
@@ -31,27 +45,82 @@ export class MobilePhoneDetails {
 
   displayedColumns = ['label', 'value'];
 
-  dataSource: SpecRow[] = [
-    { label: 'Procesor', value: 'Qualcomm Snapdragon 8 Elite (2x 4.32 GHz + 6x 3.5 GHz)' },
-    { label: 'Pamięć RAM', value: '12 GB' },
-    { label: 'Pamięć wbudowana', value: '256 GB' },
-    { label: 'Typ ekranu', value: 'Dotykowy, Dynamic AMOLED 2X' },
-    { label: 'Częstotliwość odświeżania ekranu', value: '120 Hz' },
-    { label: 'Przekątna ekranu', value: '6,9"' },
-    { label: 'Rozdzielczość ekranu', value: '3120 x 1440' },
-    {
-      label: 'Rozdzielczość aparatu - tył',
-      value: [
-        '200.0 Mpix',
-        '50.0 Mpix - ultraszerokokątny',
-        '50.0 Mpix - teleobiektyw',
-        '10.0 Mpix - teleobiektyw',
-      ],
-    },
-    { label: 'Rozdzielczość aparatu - przód', value: '12.0 Mpix' },
-  ];
-
   asLines(value: string | string[]): string[] {
     return Array.isArray(value) ? value : [value];
+  }
+
+  private toSpecRows(mobilePhone: MobilePhoneDetailsDto): SpecRow[] {
+    const rows: SpecRow[] = [];
+
+    const add = (label: string, value: unknown) => {
+      if (value === null || value === undefined) return;
+
+      if (Array.isArray(value)) {
+        const arr = value.map(x => String(x)).filter(x => x.trim().length > 0);
+        if (arr.length) rows.push({ label, value: arr });
+        return;
+      }
+
+      const s = String(value).trim();
+      if (s.length) rows.push({ label, value: s });
+    };
+
+    const addBool = (label: string, value: boolean | null | undefined) => {
+      if (value === null || value === undefined) return;
+      rows.push({ label, type: 'bool', value });
+    };
+
+    add('Cameras', mobilePhone?.camera);
+
+    add('CPU', mobilePhone?.electronicDetails.cpu);
+    add('GPU', mobilePhone?.electronicDetails.gpu);
+    add('RAM', mobilePhone?.electronicDetails.ram ? `${mobilePhone.electronicDetails.ram} GB` : null);
+    add('Storage', mobilePhone?.electronicDetails.storage ? `${mobilePhone.electronicDetails.storage} GB` : null);
+    add('Display type', mobilePhone?.electronicDetails.displayType);
+    add('Refresh rate', mobilePhone?.electronicDetails.refreshRateHz ? `${mobilePhone.electronicDetails.refreshRateHz} Hz` : null);
+    add('Screen size', mobilePhone?.electronicDetails.screenSizeInches ? `${mobilePhone.electronicDetails.screenSizeInches}"` : null);
+    add('Width', mobilePhone?.electronicDetails.width ? `${mobilePhone.electronicDetails.width} mm` : null);
+    add('Height', mobilePhone?.electronicDetails.height ? `${mobilePhone.electronicDetails.height} mm` : null);
+    add('Battery type', mobilePhone?.electronicDetails.batteryType);
+    add('Battery capacity', mobilePhone?.electronicDetails.batteryCapacity ? `${mobilePhone.electronicDetails.batteryCapacity} mAh` : null);
+
+    addBool('FingerPrint', mobilePhone?.fingerPrint);
+    addBool('FaceId', mobilePhone?.faceId);
+
+    addBool('5G', mobilePhone?.connectivity.has5G);
+    addBool('Wi-Fi', mobilePhone?.connectivity.wiFi);
+    addBool('NFC', mobilePhone?.connectivity.nfc);
+    addBool('Bluetooth', mobilePhone?.connectivity.bluetooth);
+
+    addBool('GPS', mobilePhone?.satelliteNavigationSystems.gps);
+    addBool('AGPD', mobilePhone?.satelliteNavigationSystems.agps);
+    addBool('Galileo', mobilePhone?.satelliteNavigationSystems.galileo);
+    addBool('Glonass', mobilePhone?.satelliteNavigationSystems.glonass);
+    addBool('QZSS', mobilePhone?.satelliteNavigationSystems.qzss);
+
+    addBool('Accelerometer', mobilePhone?.sensors.accelerometer);
+    addBool('Gyroscope', mobilePhone?.sensors.gyroscope);
+    addBool('Proximity', mobilePhone?.sensors.proximity);
+    addBool('Compass', mobilePhone?.sensors.compass);
+    addBool('Barometer', mobilePhone?.sensors.barometer);
+    addBool('Halla', mobilePhone?.sensors.halla);
+    addBool('AmbientLight', mobilePhone?.sensors.ambientLight);
+
+
+    return rows;
+  }
+
+  toDescriptions(details: MobilePhoneDetailsDto): string[] {
+    const arr: string[] = [];
+
+    arr.push(details?.commonDescription?.description!)
+    arr.push(details?.description2)
+    arr.push(details?.description3)
+
+    return arr;
+  }
+
+  isNotNullOrWhiteSpace(v: string | null | undefined): boolean {
+    return (v ?? '').trim().length > 0;
   }
 }
