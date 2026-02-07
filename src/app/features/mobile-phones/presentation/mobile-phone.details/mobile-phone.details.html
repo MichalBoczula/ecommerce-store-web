@@ -67,8 +67,12 @@
 
             <ng-container matColumnDef="value">
                 <td mat-cell *matCellDef="let row" class="value">
+                    @if (row.kind === 'bool') {
+                    <mat-checkbox class="spec-checkbox" [checked]="row.value" disabled></mat-checkbox>
+                    } @else {
                     @for (v of asLines(row.value); track v) {
                     <div class="value-line">{{ v }}</div>
+                    }
                     }
                 </td>
             </ng-container>

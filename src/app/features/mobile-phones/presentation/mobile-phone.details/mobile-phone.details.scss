@@ -123,7 +123,7 @@
 }
 
 .title {
-    color: #fff;
+    color: v.$nav-color;
     font-size: 40px;
     font-weight: 600;
     margin: 0 0 16px;
@@ -140,7 +140,7 @@ table {
 }
 
 td.mat-mdc-cell {
-    color: rgba(255, 255, 255, .90);
+    color: v.$font-color;
     padding: 14px 18px;
     vertical-align: top;
 }
@@ -148,12 +148,12 @@ td.mat-mdc-cell {
 .label {
     width: 42%;
     font-weight: 600;
-    color: rgba(255, 255, 255, .92);
+    color: v.$font-color
 }
 
 .value {
     width: 58%;
-    color: rgba(255, 255, 255, .85);
+    color: v.$font-color
 }
 
 .value-line {
@@ -166,4 +166,8 @@ td.mat-mdc-cell {
 
 .spec-table tr.mat-mdc-row:nth-child(even) {
     background: rgba(0, 0, 0, .06);
+}
+
+:host ::ng-deep .spec-checkbox.mat-mdc-checkbox-disabled .mdc-checkbox__background {
+    border-color: v.$font-color;
 }

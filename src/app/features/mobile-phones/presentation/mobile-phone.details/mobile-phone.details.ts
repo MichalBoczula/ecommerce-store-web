@@ -5,14 +5,15 @@ import { ActivatedRoute } from '@angular/router';
 import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
 import { MobilePhoneDetailsDto } from '../../../../shared/api/nswag/api-client';
 import { map, Observable } from 'rxjs';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
-type SpecRow =
-  | { label: string; type?: 'text'; value: string | string[] }
-  | { label: string; type: 'bool'; value: boolean };
+export type SpecRow =
+  | { label: string; kind: 'text'; value: string | string[] }
+  | { label: string; kind: 'bool'; value: boolean };
 
 @Component({
   selector: 'app-mobile-phone-details',
-  imports: [CommonModule, MatTableModule],
+  imports: [CommonModule, MatTableModule, MatCheckboxModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './mobile-phone.details.html',
   styleUrl: './mobile-phone.details.scss',
@@ -57,17 +58,17 @@ export class MobilePhoneDetails implements OnInit {
 
       if (Array.isArray(value)) {
         const arr = value.map(x => String(x)).filter(x => x.trim().length > 0);
-        if (arr.length) rows.push({ label, value: arr });
+        if (arr.length) rows.push({ label, kind: 'text', value: arr });
         return;
       }
 
       const s = String(value).trim();
-      if (s.length) rows.push({ label, value: s });
+      if (s.length) rows.push({ label, kind: 'text', value: s });
     };
 
     const addBool = (label: string, value: boolean | null | undefined) => {
       if (value === null || value === undefined) return;
-      rows.push({ label, type: 'bool', value });
+      rows.push({ label, kind: 'bool', value });
     };
 
     add('Cameras', mobilePhone?.camera);
