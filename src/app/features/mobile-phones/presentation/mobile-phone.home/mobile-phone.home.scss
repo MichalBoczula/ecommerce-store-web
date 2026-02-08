@@ -25,3 +25,13 @@ img:hover {
     cursor: pointer;
     box-shadow: 0px 10px 5px v.$nav-color;
 }
+
+.grid-list {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.home-btn {
+    margin: 10px;
+}

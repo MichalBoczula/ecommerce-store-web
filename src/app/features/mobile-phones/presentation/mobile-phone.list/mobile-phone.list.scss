@@ -1,3 +1,5 @@
+@use '../../../../../styles.scss' as v;
+
 .container {
     display: grid;
     grid-template-columns: 1fr 2fr;
@@ -18,7 +20,7 @@
 
 .image {
     grid-column: 1;
-    background-color: blueviolet;
+    background-color: rgba(v.$nav-color, 0.9);
 }
 
 .image {
@@ -38,7 +40,7 @@
     grid-column: 2;
     display: grid;
     grid-template-columns: 2fr 1fr;
-    background-color: aqua;
+    background-color: rgba(v.$nav-color, 0.4);
     height: 100%;
 }
 
