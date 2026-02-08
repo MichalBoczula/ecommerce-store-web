@@ -23,38 +23,5 @@
 
 img:hover {
     cursor: pointer;
-    box-shadow: 0px 10px 5px rgba(v.$nav-color, 1);
-}
-
-.grid-list {
-    margin-left: 20%;
-    margin-right: 20%;
-}
-
-@media (max-width: 2100px) {
-    .grid-list {
-        margin-left: 15%;
-        margin-right: 15%;
-    }
-}
-
-@media (max-width: 1600px) {
-    .grid-list {
-        margin-left: 10%;
-        margin-right: 10%;
-    }
-}
-
-@media (max-width: 1324px) {
-    .grid-list {
-        margin-left: 8%;
-        margin-right: 8%;
-    }
-}
-
-@media (max-width: 1024px) {
-    .grid-list {
-        margin-left: 16px;
-        margin-right: 16px;
-    }
+    box-shadow: 0px 10px 5px v.$nav-color;
 }

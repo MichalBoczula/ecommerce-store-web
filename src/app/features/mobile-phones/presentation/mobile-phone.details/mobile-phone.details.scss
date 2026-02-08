@@ -37,11 +37,6 @@
     margin: 0% 10%
 }
 
-.grid-list {
-    margin-left: 20%;
-    margin-right: 20%;
-}
-
 .reverse-container {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -82,33 +77,7 @@
     border-radius: 50px;
 }
 
-@media (max-width: 2100px) {
-    .grid-list {
-        margin-left: 15%;
-        margin-right: 15%;
-    }
-}
-
-@media (max-width: 1600px) {
-    .grid-list {
-        margin-left: 10%;
-        margin-right: 10%;
-    }
-}
-
-@media (max-width: 1324px) {
-    .grid-list {
-        margin-left: 8%;
-        margin-right: 8%;
-    }
-}
-
 @media (max-width: 1024px) {
-    .grid-list {
-        margin-left: 16px;
-        margin-right: 16px;
-    }
-
     .image img {
         max-width: 200px;
     }
