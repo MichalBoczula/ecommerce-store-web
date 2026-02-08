@@ -1,0 +1,60 @@
+@use '../../../../../styles.scss' as v;
+
+.grid-list {
+    display: flex;
+    flex-direction: row;
+    margin-top: 20px;
+    overflow: hidden;
+}
+
+.image {
+    margin: 5px;
+    border-radius: 10%;
+}
+
+.image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    border-radius: 10%;
+    transition: v.$transition;
+}
+
+img:hover {
+    cursor: pointer;
+    box-shadow: 0px 10px 5px rgba(v.$nav-color, 1);
+}
+
+.grid-list {
+    margin-left: 20%;
+    margin-right: 20%;
+}
+
+@media (max-width: 2100px) {
+    .grid-list {
+        margin-left: 15%;
+        margin-right: 15%;
+    }
+}
+
+@media (max-width: 1600px) {
+    .grid-list {
+        margin-left: 10%;
+        margin-right: 10%;
+    }
+}
+
+@media (max-width: 1324px) {
+    .grid-list {
+        margin-left: 8%;
+        margin-right: 8%;
+    }
+}
+
+@media (max-width: 1024px) {
+    .grid-list {
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+}
