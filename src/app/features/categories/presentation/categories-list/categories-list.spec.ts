@@ -1,23 +1,23 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { TestBed } from '@angular/core/testing';
 import { CategoriesList } from './categories-list';
+import { CategoriesFacade } from '../../application/categories.facade'; // dopasuj ścieżkę
+import { of } from 'rxjs';
+
+class CategoriesFacadeStub {
+  categories$ = of([]);
+  load = jasmine.createSpy('load');
+}
 
 describe('CategoriesList', () => {
-  let component: CategoriesList;
-  let fixture: ComponentFixture<CategoriesList>;
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CategoriesList]
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(CategoriesList);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
+      imports: [CategoriesList],
+      providers: [{ provide: CategoriesFacade, useClass: CategoriesFacadeStub }],
+    }).compileComponents();
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    const fixture = TestBed.createComponent(CategoriesList);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

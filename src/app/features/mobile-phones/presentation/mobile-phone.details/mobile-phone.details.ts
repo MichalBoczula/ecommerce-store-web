@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
 import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
@@ -17,7 +17,8 @@ export type SpecRow =
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './mobile-phone.details.html',
   styleUrl: './mobile-phone.details.scss',
-  standalone: true
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MobilePhoneDetails implements OnInit {
   private readonly route = inject(ActivatedRoute);

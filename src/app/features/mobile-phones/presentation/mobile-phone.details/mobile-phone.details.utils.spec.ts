@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import {
     asLines,
     isNotNullOrWhiteSpace,
@@ -46,7 +45,8 @@ describe('mobile-phone.details.utils', () => {
             } as any);
 
             expect(res).toEqual(['A', '', '']);
-            expect(res).toHaveLength(3);
+            expect(res.length).toBe(3);
+
             res.forEach(x => expect(typeof x).toBe('string'));
         });
 
