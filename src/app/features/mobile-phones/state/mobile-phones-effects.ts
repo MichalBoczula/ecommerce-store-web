@@ -104,4 +104,16 @@ export class MobilePhonesEffects {
             )
         )
     );
+
+    loadTop$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(ActionsSet.loadTopMobilePhone),
+            switchMap(() =>
+                this.repo.getTopMobilePhones().pipe(
+                    map(items => ActionsSet.loadTopMobilePhoneSuccess({ items })),
+                    catchError(e => of(ActionsSet.loadTopMobilePhoneFailure({ error: String(e) }))),
+                )
+            )
+        )
+    );
 }

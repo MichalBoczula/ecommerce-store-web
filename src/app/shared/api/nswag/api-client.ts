@@ -14,109 +14,15 @@ export class Client {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl ?? "//petstore.swagger.io/v2";
+        this.baseUrl = baseUrl ?? "";
     }
 
     /**
-     * Add a new pet to the store
-     * @param body Pet object that needs to be added to the store
-     * @param accept_Language (optional) The language you prefer for messages. Supported values are en-AU, en-CA, en-GB, en-US
-     * @param cookieParam Some cookie
+     * Get all categories
+     * @return OK
      */
-    addPet(body: Body, accept_Language: string | undefined, cookieParam: number): Promise<void> {
-        let url_ = this.baseUrl + "/pet";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Accept-Language": accept_Language !== undefined && accept_Language !== null ? "" + accept_Language : "",
-                "Content-Type": "application/json",
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processAddPet(_response);
-        });
-    }
-
-    protected processAddPet(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 405) {
-            return response.text().then((_responseText) => {
-            return throwException("Invalid input", status, _responseText, _headers);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    /**
-     * Update an existing pet
-     * @param body Pet object that needs to be added to the store
-     * @param accept_Language (optional) The language you prefer for messages. Supported values are en-AU, en-CA, en-GB, en-US
-     * @param cookieParam Some cookie
-     */
-    updatePet(body: Body, accept_Language: string | undefined, cookieParam: number): Promise<void> {
-        let url_ = this.baseUrl + "/pet";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
-            headers: {
-                "Accept-Language": accept_Language !== undefined && accept_Language !== null ? "" + accept_Language : "",
-                "Content-Type": "application/json",
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUpdatePet(_response);
-        });
-    }
-
-    protected processUpdatePet(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 400) {
-            return response.text().then((_responseText) => {
-            return throwException("Invalid ID supplied", status, _responseText, _headers);
-            });
-        } else if (status === 404) {
-            return response.text().then((_responseText) => {
-            return throwException("Pet not found", status, _responseText, _headers);
-            });
-        } else if (status === 405) {
-            return response.text().then((_responseText) => {
-            return throwException("Validation exception", status, _responseText, _headers);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    /**
-     * Find pet by ID
-     * @param petId ID of pet to return
-     * @return successful operation
-     */
-    getPetById(petId: number): Promise<Pet> {
-        let url_ = this.baseUrl + "/pet/{petId}";
-        if (petId === undefined || petId === null)
-            throw new globalThis.Error("The parameter 'petId' must be defined.");
-        url_ = url_.replace("{petId}", encodeURIComponent("" + petId));
+    getCategories(): Promise<CategoryDto[]> {
+        let url_ = this.baseUrl + "/categories";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -127,192 +33,11 @@ export class Client {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetPetById(_response);
+            return this.processGetCategories(_response);
         });
     }
 
-    protected processGetPetById(response: Response): Promise<Pet> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Pet.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-            return throwException("Invalid ID supplied", status, _responseText, _headers);
-            });
-        } else if (status === 404) {
-            return response.text().then((_responseText) => {
-            return throwException("Pet not found", status, _responseText, _headers);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Pet>(null as any);
-    }
-
-    /**
-     * Updates a pet in the store with form data
-     * @param petId ID of pet that needs to be updated
-     * @param body (optional) 
-     */
-    updatePetWithForm(petId: number, body: Body2 | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/pet/{petId}";
-        if (petId === undefined || petId === null)
-            throw new globalThis.Error("The parameter 'petId' must be defined.");
-        url_ = url_.replace("{petId}", encodeURIComponent("" + petId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = Object.keys(body as any).map((key) => {
-            return encodeURIComponent(key) + '=' + encodeURIComponent((body as any)[key]);
-        }).join('&')
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUpdatePetWithForm(_response);
-        });
-    }
-
-    protected processUpdatePetWithForm(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 405) {
-            return response.text().then((_responseText) => {
-            return throwException("Invalid input", status, _responseText, _headers);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    /**
-     * Deletes a pet
-     * @param api_key (optional) 
-     * @param petId Pet id to delete
-     */
-    deletePet(api_key: string | undefined, petId: number): Promise<void> {
-        let url_ = this.baseUrl + "/pet/{petId}";
-        if (petId === undefined || petId === null)
-            throw new globalThis.Error("The parameter 'petId' must be defined.");
-        url_ = url_.replace("{petId}", encodeURIComponent("" + petId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "DELETE",
-            headers: {
-                "api_key": api_key !== undefined && api_key !== null ? "" + api_key : "",
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processDeletePet(_response);
-        });
-    }
-
-    protected processDeletePet(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 400) {
-            return response.text().then((_responseText) => {
-            return throwException("Invalid pet value", status, _responseText, _headers);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    /**
-     * uploads an image
-     * @param petId ID of pet to update
-     * @param body (optional) 
-     * @return successful operation
-     */
-    uploadFile(petId: number, body: Blob | undefined): Promise<ApiResponse> {
-        let url_ = this.baseUrl + "/pet/{petId}/uploadImage";
-        if (petId === undefined || petId === null)
-            throw new globalThis.Error("The parameter 'petId' must be defined.");
-        url_ = url_.replace("{petId}", encodeURIComponent("" + petId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = body;
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/octet-stream",
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUploadFile(_response);
-        });
-    }
-
-    protected processUploadFile(response: Response): Promise<ApiResponse> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ApiResponse.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<ApiResponse>(null as any);
-    }
-
-    /**
-     * Finds Pets by status
-     * @param status Status values that need to be considered for filter
-     * @return successful operation
-     */
-    findPetsByStatus(status: Status[]): Promise<Pet[]> {
-        let url_ = this.baseUrl + "/pet/findByStatus?";
-        if (status === undefined || status === null)
-            throw new globalThis.Error("The parameter 'status' must be defined and cannot be null.");
-        else
-            status && status.forEach(item => { url_ += "status=" + encodeURIComponent("" + item) + "&"; });
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processFindPetsByStatus(_response);
-        });
-    }
-
-    protected processFindPetsByStatus(response: Response): Promise<Pet[]> {
+    protected processGetCategories(response: Response): Promise<CategoryDto[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -322,134 +47,38 @@ export class Client {
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
-                    result200!.push(Pet.fromJS(item));
+                    result200!.push(CategoryDto.fromJS(item));
             }
             else {
                 result200 = null as any;
             }
             return result200;
             });
-        } else if (status === 400) {
+        } else if (status === 404) {
             return response.text().then((_responseText) => {
-            return throwException("Invalid status value", status, _responseText, _headers);
+            return throwException("Not Found", status, _responseText, _headers);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<Pet[]>(null as any);
+        return Promise.resolve<CategoryDto[]>(null as any);
     }
 
     /**
-     * Finds Pets by tags
-     * @param tags Tags to filter by
-     * @return successful operation
-     * @deprecated
+     * Create category
+     * @return Created
      */
-    findPetsByTags(tags: string[]): Promise<Pet[]> {
-        let url_ = this.baseUrl + "/pet/findByTags?";
-        if (tags === undefined || tags === null)
-            throw new globalThis.Error("The parameter 'tags' must be defined and cannot be null.");
-        else
-            tags && tags.forEach(item => { url_ += "tags=" + encodeURIComponent("" + item) + "&"; });
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processFindPetsByTags(_response);
-        });
-    }
-
-    protected processFindPetsByTags(response: Response): Promise<Pet[]> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(Pet.fromJS(item));
-            }
-            else {
-                result200 = null as any;
-            }
-            return result200;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-            return throwException("Invalid tag value", status, _responseText, _headers);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Pet[]>(null as any);
-    }
-
-    /**
-     * Returns pet inventories by status
-     * @return successful operation
-     */
-    getInventory(): Promise<{ [key: string]: number; }> {
-        let url_ = this.baseUrl + "/store/inventory";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetInventory(_response);
-        });
-    }
-
-    protected processGetInventory(response: Response): Promise<{ [key: string]: number; }> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (resultData200) {
-                result200 = {} as any;
-                for (let key in resultData200) {
-                    if (resultData200.hasOwnProperty(key))
-                        (result200 as any)![key] = resultData200[key] !== undefined ? resultData200[key] : null as any;
-                }
-            }
-            else {
-                result200 = null as any;
-            }
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<{ [key: string]: number; }>(null as any);
-    }
-
-    /**
-     * Place an order for a pet
-     * @param body order placed for purchasing the pet
-     * @return successful operation
-     */
-    placeOrder(body: Order): Promise<Order> {
-        let url_ = this.baseUrl + "/store/order";
+    createCategory(body: CreateCategoryExternalDto): Promise<CategoryDto> {
+        let url_ = this.baseUrl + "/categories";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -464,210 +93,51 @@ export class Client {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processPlaceOrder(_response);
+            return this.processCreateCategory(_response);
         });
     }
 
-    protected processPlaceOrder(response: Response): Promise<Order> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Order.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-            return throwException("Invalid Order", status, _responseText, _headers);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Order>(null as any);
-    }
-
-    /**
-     * Find purchase order by ID
-     * @param orderId ID of pet that needs to be fetched
-     * @return successful operation
-     */
-    getOrderById(orderId: number): Promise<Order> {
-        let url_ = this.baseUrl + "/store/order/{orderId}";
-        if (orderId === undefined || orderId === null)
-            throw new globalThis.Error("The parameter 'orderId' must be defined.");
-        url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetOrderById(_response);
-        });
-    }
-
-    protected processGetOrderById(response: Response): Promise<Order> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Order.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-            return throwException("Invalid ID supplied", status, _responseText, _headers);
-            });
-        } else if (status === 404) {
-            return response.text().then((_responseText) => {
-            return throwException("Order not found", status, _responseText, _headers);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Order>(null as any);
-    }
-
-    /**
-     * Delete purchase order by ID
-     * @param orderId ID of the order that needs to be deleted
-     */
-    deleteOrder(orderId: string): Promise<void> {
-        let url_ = this.baseUrl + "/store/order/{orderId}";
-        if (orderId === undefined || orderId === null)
-            throw new globalThis.Error("The parameter 'orderId' must be defined.");
-        url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "DELETE",
-            headers: {
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processDeleteOrder(_response);
-        });
-    }
-
-    protected processDeleteOrder(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 400) {
-            return response.text().then((_responseText) => {
-            return throwException("Invalid ID supplied", status, _responseText, _headers);
-            });
-        } else if (status === 404) {
-            return response.text().then((_responseText) => {
-            return throwException("Order not found", status, _responseText, _headers);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    /**
-     * Subscribe to the Store events
-     * @param body (optional) 
-     * @return Subscription added
-     */
-    subscribe(body: Body3 | undefined): Promise<Anonymous> {
-        let url_ = this.baseUrl + "/store/subscribe";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processSubscribe(_response);
-        });
-    }
-
-    protected processSubscribe(response: Response): Promise<Anonymous> {
+    protected processCreateCategory(response: Response): Promise<CategoryDto> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 201) {
             return response.text().then((_responseText) => {
             let result201: any = null;
             let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result201 = Anonymous.fromJS(resultData201);
+            result201 = CategoryDto.fromJS(resultData201);
             return result201;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ApiProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<Anonymous>(null as any);
+        return Promise.resolve<CategoryDto>(null as any);
     }
 
     /**
-     * Create user
-     * @param body Created user object
-     * @return successful operation
+     * Get category by ID
+     * @return OK
      */
-    createUser(body: User): Promise<void> {
-        let url_ = this.baseUrl + "/user";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateUser(_response);
-        });
-    }
-
-    protected processCreateUser(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        }
-    }
-
-    /**
-     * Get user by user name
-     * @param username The name that needs to be fetched. Use user1 for testing.
-     * @return successful operation
-     */
-    getUserByName(username: string): Promise<User> {
-        let url_ = this.baseUrl + "/user/{username}";
-        if (username === undefined || username === null)
-            throw new globalThis.Error("The parameter 'username' must be defined.");
-        url_ = url_.replace("{username}", encodeURIComponent("" + username));
+    getCategoryById(id: string): Promise<CategoryDto> {
+        let url_ = this.baseUrl + "/categories/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -678,46 +148,51 @@ export class Client {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetUserByName(_response);
+            return this.processGetCategoryById(_response);
         });
     }
 
-    protected processGetUserByName(response: Response): Promise<User> {
+    protected processGetCategoryById(response: Response): Promise<CategoryDto> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = User.fromJS(resultData200);
+            result200 = CategoryDto.fromJS(resultData200);
             return result200;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-            return throwException("Invalid username supplied", status, _responseText, _headers);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
-            return throwException("User not found", status, _responseText, _headers);
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = NotFoundProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<User>(null as any);
+        return Promise.resolve<CategoryDto>(null as any);
     }
 
     /**
-     * Updated user
-     * @param username name that need to be deleted
-     * @param body Updated user object
+     * Update category
+     * @return OK
      */
-    updateUser(username: string, body: User): Promise<void> {
-        let url_ = this.baseUrl + "/user/{username}";
-        if (username === undefined || username === null)
-            throw new globalThis.Error("The parameter 'username' must be defined.");
-        url_ = url_.replace("{username}", encodeURIComponent("" + username));
+    updateCategory(id: string, body: UpdateCategoryExternalDto): Promise<CategoryDto> {
+        let url_ = this.baseUrl + "/categories/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -727,158 +202,108 @@ export class Client {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
+                "Accept": "application/json"
             }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUpdateUser(_response);
+            return this.processUpdateCategory(_response);
         });
     }
 
-    protected processUpdateUser(response: Response): Promise<void> {
+    protected processUpdateCategory(response: Response): Promise<CategoryDto> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 400) {
+        if (status === 200) {
             return response.text().then((_responseText) => {
-            return throwException("Invalid user supplied", status, _responseText, _headers);
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CategoryDto.fromJS(resultData200);
+            return result200;
             });
-        } else if (status === 404) {
+        } else if (status === 400) {
             return response.text().then((_responseText) => {
-            return throwException("User not found", status, _responseText, _headers);
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ApiProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<CategoryDto>(null as any);
     }
 
     /**
-     * Delete user
-     * @param username The name that needs to be deleted
+     * Delete category
+     * @return OK
      */
-    deleteUser(username: string): Promise<void> {
-        let url_ = this.baseUrl + "/user/{username}";
-        if (username === undefined || username === null)
-            throw new globalThis.Error("The parameter 'username' must be defined.");
-        url_ = url_.replace("{username}", encodeURIComponent("" + username));
+    removeCategory(id: string): Promise<CategoryDto> {
+        let url_ = this.baseUrl + "/categories/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
             method: "DELETE",
             headers: {
+                "Accept": "application/json"
             }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processDeleteUser(_response);
+            return this.processRemoveCategory(_response);
         });
     }
 
-    protected processDeleteUser(response: Response): Promise<void> {
+    protected processRemoveCategory(response: Response): Promise<CategoryDto> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 400) {
+        if (status === 200) {
             return response.text().then((_responseText) => {
-            return throwException("Invalid username supplied", status, _responseText, _headers);
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CategoryDto.fromJS(resultData200);
+            return result200;
             });
-        } else if (status === 404) {
+        } else if (status === 400) {
             return response.text().then((_responseText) => {
-            return throwException("User not found", status, _responseText, _headers);
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ApiProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<CategoryDto>(null as any);
     }
 
     /**
-     * Creates list of users with given input array
-     * @param body List of user object
-     * @return successful operation
+     * List currencies
+     * @return OK
      */
-    createUsersWithArrayInput(body: User[]): Promise<void> {
-        let url_ = this.baseUrl + "/user/createWithArray";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateUsersWithArrayInput(_response);
-        });
-    }
-
-    protected processCreateUsersWithArrayInput(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        }
-    }
-
-    /**
-     * Creates list of users with given input array
-     * @param body List of user object
-     * @return successful operation
-     */
-    createUsersWithListInput(body: User[]): Promise<void> {
-        let url_ = this.baseUrl + "/user/createWithList";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateUsersWithListInput(_response);
-        });
-    }
-
-    protected processCreateUsersWithListInput(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        }
-    }
-
-    /**
-     * Logs user into the system
-     * @param username The user name for login
-     * @param password The password for login in clear text
-     * @return successful operation
-     */
-    loginUser(username: string, password: string): Promise<string> {
-        let url_ = this.baseUrl + "/user/login?";
-        if (username === undefined || username === null)
-            throw new globalThis.Error("The parameter 'username' must be defined and cannot be null.");
-        else
-            url_ += "username=" + encodeURIComponent("" + username) + "&";
-        if (password === undefined || password === null)
-            throw new globalThis.Error("The parameter 'password' must be defined and cannot be null.");
-        else
-            url_ += "password=" + encodeURIComponent("" + password) + "&";
+    getCurrencies(): Promise<CurrencyDto[]> {
+        let url_ = this.baseUrl + "/currencies";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -889,71 +314,806 @@ export class Client {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processLoginUser(_response);
+            return this.processGetCurrencies(_response);
         });
     }
 
-    protected processLoginUser(response: Response): Promise<string> {
+    protected processGetCurrencies(response: Response): Promise<CurrencyDto[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 !== undefined ? resultData200 : null as any;
-    
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(CurrencyDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
             return result200;
             });
-        } else if (status === 400) {
+        } else if (status === 404) {
             return response.text().then((_responseText) => {
-            return throwException("Invalid username/password supplied", status, _responseText, _headers);
+            return throwException("Not Found", status, _responseText, _headers);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<string>(null as any);
+        return Promise.resolve<CurrencyDto[]>(null as any);
     }
 
     /**
-     * Logs out current logged in user session
-     * @return successful operation
+     * Create currency
+     * @return Created
      */
-    logoutUser(): Promise<void> {
-        let url_ = this.baseUrl + "/user/logout";
+    createCurrency(body: CreateCurrencyExternalDto): Promise<CurrencyDto> {
+        let url_ = this.baseUrl + "/currencies";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateCurrency(_response);
+        });
+    }
+
+    protected processCreateCurrency(response: Response): Promise<CurrencyDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = CurrencyDto.fromJS(resultData201);
+            return result201;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ApiProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CurrencyDto>(null as any);
+    }
+
+    /**
+     * Update currency
+     * @return OK
+     */
+    updateCurrency(id: string, body: UpdateCurrencyExternalDto): Promise<CurrencyDto> {
+        let url_ = this.baseUrl + "/currencies/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateCurrency(_response);
+        });
+    }
+
+    protected processUpdateCurrency(response: Response): Promise<CurrencyDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CurrencyDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ApiProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CurrencyDto>(null as any);
+    }
+
+    /**
+     * Delete currency
+     * @return OK
+     */
+    removeCurrency(id: string): Promise<CurrencyDto> {
+        let url_ = this.baseUrl + "/currencies/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRemoveCurrency(_response);
+        });
+    }
+
+    protected processRemoveCurrency(response: Response): Promise<CurrencyDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CurrencyDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ApiProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CurrencyDto>(null as any);
+    }
+
+    /**
+     * Describe all request flows
+     * @return OK
+     */
+    describeAllFlows(): Promise<FlowDescription[]> {
+        let url_ = this.baseUrl + "/documentation/flow";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                "Accept": "application/json"
             }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processLogoutUser(_response);
+            return this.processDescribeAllFlows(_response);
         });
     }
 
-    protected processLogoutUser(response: Response): Promise<void> {
+    protected processDescribeAllFlows(response: Response): Promise<FlowDescription[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        {
+        if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(FlowDescription.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
+        return Promise.resolve<FlowDescription[]>(null as any);
+    }
+
+    /**
+     * Describe all validation policies
+     * @return OK
+     */
+    describeValidationPolicies(): Promise<ValidationPolicyDescriptor[]> {
+        let url_ = this.baseUrl + "/documentation/validation-policies";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDescribeValidationPolicies(_response);
+        });
+    }
+
+    protected processDescribeValidationPolicies(response: Response): Promise<ValidationPolicyDescriptor[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ValidationPolicyDescriptor.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ValidationPolicyDescriptor[]>(null as any);
+    }
+
+    /**
+     * Get mobile phone by Id
+     * @return OK
+     */
+    getMobilePhoneById(id: string): Promise<MobilePhoneDetailsDto> {
+        let url_ = this.baseUrl + "/mobile-phones/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMobilePhoneById(_response);
+        });
+    }
+
+    protected processGetMobilePhoneById(response: Response): Promise<MobilePhoneDetailsDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MobilePhoneDetailsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = NotFoundProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<MobilePhoneDetailsDto>(null as any);
+    }
+
+    /**
+     * Update mobile phone
+     * @return OK
+     */
+    updateMobilePhone(id: string, body: UpdateMobilePhoneExternalDto): Promise<MobilePhoneDetailsDto> {
+        let url_ = this.baseUrl + "/mobile-phones/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateMobilePhone(_response);
+        });
+    }
+
+    protected processUpdateMobilePhone(response: Response): Promise<MobilePhoneDetailsDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MobilePhoneDetailsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ApiProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<MobilePhoneDetailsDto>(null as any);
+    }
+
+    /**
+     * Delete mobile phone
+     * @return OK
+     */
+    deleteMobilePhone(id: string): Promise<MobilePhoneDetailsDto> {
+        let url_ = this.baseUrl + "/mobile-phones/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteMobilePhone(_response);
+        });
+    }
+
+    protected processDeleteMobilePhone(response: Response): Promise<MobilePhoneDetailsDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MobilePhoneDetailsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ApiProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<MobilePhoneDetailsDto>(null as any);
+    }
+
+    /**
+     * Get mobile phones
+     * @return OK
+     */
+    getMobilePhones(amount: number): Promise<MobilePhoneDto[]> {
+        let url_ = this.baseUrl + "/mobile-phones?";
+        if (amount === undefined || amount === null)
+            throw new globalThis.Error("The parameter 'amount' must be defined and cannot be null.");
+        else
+            url_ += "amount=" + encodeURIComponent("" + amount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMobilePhones(_response);
+        });
+    }
+
+    protected processGetMobilePhones(response: Response): Promise<MobilePhoneDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(MobilePhoneDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<MobilePhoneDto[]>(null as any);
+    }
+
+    /**
+     * Create mobile phone
+     * @return Created
+     */
+    createMobilePhone(body: CreateMobilePhoneExternalDto): Promise<MobilePhoneDetailsDto> {
+        let url_ = this.baseUrl + "/mobile-phones";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateMobilePhone(_response);
+        });
+    }
+
+    protected processCreateMobilePhone(response: Response): Promise<MobilePhoneDetailsDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = MobilePhoneDetailsDto.fromJS(resultData201);
+            return result201;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ApiProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<MobilePhoneDetailsDto>(null as any);
+    }
+
+    /**
+     * Get mobile phone history
+     * @return OK
+     */
+    getMobilePhoneHistory(id: string, pageNumber: number, pageSize: number): Promise<MobilePhoneHistoryDto[]> {
+        let url_ = this.baseUrl + "/mobile-phones/{id}/history?";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        if (pageNumber === undefined || pageNumber === null)
+            throw new globalThis.Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new globalThis.Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMobilePhoneHistory(_response);
+        });
+    }
+
+    protected processGetMobilePhoneHistory(response: Response): Promise<MobilePhoneHistoryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(MobilePhoneHistoryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<MobilePhoneHistoryDto[]>(null as any);
+    }
+
+    /**
+     * Get top mobile phones
+     * @return OK
+     */
+    getTopMobilePhones(): Promise<TopMobilePhoneDto[]> {
+        let url_ = this.baseUrl + "/mobile-phones/top";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetTopMobilePhones(_response);
+        });
+    }
+
+    protected processGetTopMobilePhones(response: Response): Promise<TopMobilePhoneDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(TopMobilePhoneDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = NotFoundProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TopMobilePhoneDto[]>(null as any);
+    }
+
+    /**
+     * Get filtered mobile phones
+     * @return OK
+     */
+    getFiltered_MobilePhones(body: MobilePhoneFilterDto): Promise<MobilePhoneDto[]> {
+        let url_ = this.baseUrl + "/mobile-phones/filter";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetFiltered_MobilePhones(_response);
+        });
+    }
+
+    protected processGetFiltered_MobilePhones(response: Response): Promise<MobilePhoneDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(MobilePhoneDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ApiProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = NotFoundProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<MobilePhoneDto[]>(null as any);
     }
 }
 
-export class ApiResponse implements IApiResponse {
-    code?: number;
-    type?: string;
-    message?: string;
+export class ApiProblemDetails implements IApiProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+    errors?: ValidationError[];
+    traceId?: string;
 
     [key: string]: any;
 
-    constructor(data?: IApiResponse) {
+    constructor(data?: IApiProblemDetails) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -968,15 +1128,23 @@ export class ApiResponse implements IApiResponse {
                 if (_data.hasOwnProperty(property))
                     this[property] = _data[property];
             }
-            this.code = _data["code"];
             this.type = _data["type"];
-            this.message = _data["message"];
+            this.title = _data["title"];
+            this.status = _data["status"];
+            this.detail = _data["detail"];
+            this.instance = _data["instance"];
+            if (Array.isArray(_data["errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["errors"])
+                    this.errors!.push(ValidationError.fromJS(item));
+            }
+            this.traceId = _data["traceId"];
         }
     }
 
-    static fromJS(data: any): ApiResponse {
+    static fromJS(data: any): ApiProblemDetails {
         data = typeof data === 'object' ? data : {};
-        let result = new ApiResponse();
+        let result = new ApiProblemDetails();
         result.init(data);
         return result;
     }
@@ -987,212 +1155,89 @@ export class ApiResponse implements IApiResponse {
             if (this.hasOwnProperty(property))
                 data[property] = this[property];
         }
-        data["code"] = this.code;
         data["type"] = this.type;
-        data["message"] = this.message;
+        data["title"] = this.title;
+        data["status"] = this.status;
+        data["detail"] = this.detail;
+        data["instance"] = this.instance;
+        if (Array.isArray(this.errors)) {
+            data["errors"] = [];
+            for (let item of this.errors)
+                data["errors"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["traceId"] = this.traceId;
         return data;
     }
 }
 
-export interface IApiResponse {
-    code?: number;
-    type?: string;
-    message?: string;
+export interface IApiProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+    errors?: ValidationError[];
+    traceId?: string;
 
     [key: string]: any;
 }
 
-export class Pet implements IPet {
-    /** Pet ID */
-    id?: number;
-    /** Categories this pet belongs to */
-    category?: Category;
-    /** The name given to a pet */
+export class CategoryDto implements ICategoryDto {
+    id!: string;
+    code!: string;
     name!: string;
-    /** The list of URL to a cute photos featuring pet */
-    photoUrls!: string[];
-    friend?: Pet;
-    /** Tags attached to the pet */
-    tags?: Tag[];
-    /** Pet status in the store */
-    status?: PetStatus;
+    isActive!: boolean;
 
-    [key: string]: any;
-
-    protected _discriminator: string;
-
-    constructor(data?: IPet) {
+    constructor(data?: ICategoryDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
                     (this as any)[property] = (data as any)[property];
             }
         }
-        if (!data) {
-            this.photoUrls = [];
-        }
-        this._discriminator = "Pet";
     }
 
     init(_data?: any) {
         if (_data) {
-            for (var property in _data) {
-                if (_data.hasOwnProperty(property))
-                    this[property] = _data[property];
-            }
             this.id = _data["id"];
-            this.category = _data["category"] ? Category.fromJS(_data["category"]) : undefined as any;
+            this.code = _data["code"];
             this.name = _data["name"];
-            if (Array.isArray(_data["photoUrls"])) {
-                this.photoUrls = [] as any;
-                for (let item of _data["photoUrls"])
-                    this.photoUrls!.push(item);
-            }
-            this.friend = _data["friend"] ? Pet.fromJS(_data["friend"]) : undefined as any;
-            if (Array.isArray(_data["tags"])) {
-                this.tags = [] as any;
-                for (let item of _data["tags"])
-                    this.tags!.push(Tag.fromJS(item));
-            }
-            this.status = _data["status"];
+            this.isActive = _data["isActive"];
         }
     }
 
-    static fromJS(data: any): Pet {
+    static fromJS(data: any): CategoryDto {
         data = typeof data === 'object' ? data : {};
-        if (data["petType"] === "cat") {
-            let result = new Cat();
-            result.init(data);
-            return result;
-        }
-        if (data["petType"] === "dog") {
-            let result = new Dog();
-            result.init(data);
-            return result;
-        }
-        if (data["petType"] === "bee") {
-            let result = new HoneyBee();
-            result.init(data);
-            return result;
-        }
-        if (data["petType"] === "schema") {
-            let result = new Body();
-            result.init(data);
-            return result;
-        }
-        let result = new Pet();
+        let result = new CategoryDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        for (var property in this) {
-            if (this.hasOwnProperty(property))
-                data[property] = this[property];
-        }
-        data["petType"] = this._discriminator;
         data["id"] = this.id;
-        data["category"] = this.category ? this.category.toJSON() : undefined as any;
+        data["code"] = this.code;
         data["name"] = this.name;
-        if (Array.isArray(this.photoUrls)) {
-            data["photoUrls"] = [];
-            for (let item of this.photoUrls)
-                data["photoUrls"].push(item);
-        }
-        data["friend"] = this.friend ? this.friend.toJSON() : undefined as any;
-        if (Array.isArray(this.tags)) {
-            data["tags"] = [];
-            for (let item of this.tags)
-                data["tags"].push(item ? item.toJSON() : undefined as any);
-        }
-        data["status"] = this.status;
+        data["isActive"] = this.isActive;
         return data;
     }
 }
 
-export interface IPet {
-    /** Pet ID */
-    id?: number;
-    /** Categories this pet belongs to */
-    category?: Category;
-    /** The name given to a pet */
+export interface ICategoryDto {
+    id: string;
+    code: string;
     name: string;
-    /** The list of URL to a cute photos featuring pet */
-    photoUrls: string[];
-    friend?: Pet;
-    /** Tags attached to the pet */
-    tags?: Tag[];
-    /** Pet status in the store */
-    status?: PetStatus;
-
-    [key: string]: any;
+    isActive: boolean;
 }
 
-/** A representation of a cat */
-export class Cat extends Pet implements ICat {
-    /** The measured skill for hunting */
-    huntingSkill!: CatHuntingSkill;
-
-    [key: string]: any;
-
-    constructor(data?: ICat) {
-        super(data);
-        if (!data) {
-            this.huntingSkill = CatHuntingSkill.Lazy;
-        }
-        this._discriminator = "cat";
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            for (var property in _data) {
-                if (_data.hasOwnProperty(property))
-                    this[property] = _data[property];
-            }
-            this.huntingSkill = _data["huntingSkill"] !== undefined ? _data["huntingSkill"] : CatHuntingSkill.Lazy;
-        }
-    }
-
-    static override fromJS(data: any): Cat {
-        data = typeof data === 'object' ? data : {};
-        let result = new Cat();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        for (var property in this) {
-            if (this.hasOwnProperty(property))
-                data[property] = this[property];
-        }
-        data["huntingSkill"] = this.huntingSkill;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-/** A representation of a cat */
-export interface ICat extends IPet {
-    /** The measured skill for hunting */
-    huntingSkill: CatHuntingSkill;
-
-    [key: string]: any;
-}
-
-export class Category implements ICategory {
-    /** Category ID */
-    id?: number;
-    /** Category name */
+export class CommonDescriptionDto implements ICommonDescriptionDto {
     name?: string;
-    /** Test Sub Category */
-    sub?: Sub;
+    brand?: string;
+    description?: string;
+    mainPhoto?: string;
+    otherPhotos?: string[];
 
-    [key: string]: any;
-
-    constructor(data?: ICategory) {
+    constructor(data?: ICommonDescriptionDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1203,168 +1248,375 @@ export class Category implements ICategory {
 
     init(_data?: any) {
         if (_data) {
-            for (var property in _data) {
-                if (_data.hasOwnProperty(property))
-                    this[property] = _data[property];
-            }
-            this.id = _data["id"];
             this.name = _data["name"];
-            this.sub = _data["sub"] ? Sub.fromJS(_data["sub"]) : undefined as any;
+            this.brand = _data["brand"];
+            this.description = _data["description"];
+            this.mainPhoto = _data["mainPhoto"];
+            if (Array.isArray(_data["otherPhotos"])) {
+                this.otherPhotos = [] as any;
+                for (let item of _data["otherPhotos"])
+                    this.otherPhotos!.push(item);
+            }
         }
     }
 
-    static fromJS(data: any): Category {
+    static fromJS(data: any): CommonDescriptionDto {
         data = typeof data === 'object' ? data : {};
-        let result = new Category();
+        let result = new CommonDescriptionDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        for (var property in this) {
-            if (this.hasOwnProperty(property))
-                data[property] = this[property];
-        }
-        data["id"] = this.id;
         data["name"] = this.name;
-        data["sub"] = this.sub ? this.sub.toJSON() : undefined as any;
+        data["brand"] = this.brand;
+        data["description"] = this.description;
+        data["mainPhoto"] = this.mainPhoto;
+        if (Array.isArray(this.otherPhotos)) {
+            data["otherPhotos"] = [];
+            for (let item of this.otherPhotos)
+                data["otherPhotos"].push(item);
+        }
         return data;
     }
 }
 
-export interface ICategory {
-    /** Category ID */
-    id?: number;
-    /** Category name */
+export interface ICommonDescriptionDto {
     name?: string;
-    /** Test Sub Category */
-    sub?: Sub;
-
-    [key: string]: any;
+    brand?: string;
+    description?: string;
+    mainPhoto?: string;
+    otherPhotos?: string[];
 }
 
-/** A representation of a dog */
-export class Dog extends Pet implements IDog {
-    /** The size of the pack the dog is from */
-    packSize!: number;
+export class CommonDescriptionExtrernalDto implements ICommonDescriptionExtrernalDto {
+    name?: string;
+    brand?: string;
+    description?: string;
+    mainPhoto?: string;
+    otherPhotos?: string[];
 
-    [key: string]: any;
-
-    constructor(data?: IDog) {
-        super(data);
-        if (!data) {
-            this.packSize = 1;
-        }
-        this._discriminator = "dog";
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            for (var property in _data) {
-                if (_data.hasOwnProperty(property))
-                    this[property] = _data[property];
+    constructor(data?: ICommonDescriptionExtrernalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
             }
-            this.packSize = _data["packSize"] !== undefined ? _data["packSize"] : 1;
         }
     }
 
-    static override fromJS(data: any): Dog {
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.brand = _data["brand"];
+            this.description = _data["description"];
+            this.mainPhoto = _data["mainPhoto"];
+            if (Array.isArray(_data["otherPhotos"])) {
+                this.otherPhotos = [] as any;
+                for (let item of _data["otherPhotos"])
+                    this.otherPhotos!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): CommonDescriptionExtrernalDto {
         data = typeof data === 'object' ? data : {};
-        let result = new Dog();
+        let result = new CommonDescriptionExtrernalDto();
         result.init(data);
         return result;
     }
 
-    override toJSON(data?: any) {
+    toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        for (var property in this) {
-            if (this.hasOwnProperty(property))
-                data[property] = this[property];
+        data["name"] = this.name;
+        data["brand"] = this.brand;
+        data["description"] = this.description;
+        data["mainPhoto"] = this.mainPhoto;
+        if (Array.isArray(this.otherPhotos)) {
+            data["otherPhotos"] = [];
+            for (let item of this.otherPhotos)
+                data["otherPhotos"].push(item);
         }
-        data["packSize"] = this.packSize;
-        super.toJSON(data);
         return data;
     }
 }
 
-/** A representation of a dog */
-export interface IDog extends IPet {
-    /** The size of the pack the dog is from */
-    packSize: number;
-
-    [key: string]: any;
+export interface ICommonDescriptionExtrernalDto {
+    name?: string;
+    brand?: string;
+    description?: string;
+    mainPhoto?: string;
+    otherPhotos?: string[];
 }
 
-/** A representation of a honey bee */
-export class HoneyBee extends Pet implements IHoneyBee {
-    /** Average amount of honey produced per day in ounces */
-    honeyPerDay!: number;
+export class ConnectivityDto implements IConnectivityDto {
+    has5G!: boolean;
+    wiFi!: boolean;
+    nfc!: boolean;
+    bluetooth!: boolean;
 
-    [key: string]: any;
-
-    constructor(data?: IHoneyBee) {
-        super(data);
-        this._discriminator = "bee";
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            for (var property in _data) {
-                if (_data.hasOwnProperty(property))
-                    this[property] = _data[property];
+    constructor(data?: IConnectivityDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
             }
-            this.honeyPerDay = _data["honeyPerDay"];
         }
     }
 
-    static override fromJS(data: any): HoneyBee {
+    init(_data?: any) {
+        if (_data) {
+            this.has5G = _data["has5G"];
+            this.wiFi = _data["wiFi"];
+            this.nfc = _data["nfc"];
+            this.bluetooth = _data["bluetooth"];
+        }
+    }
+
+    static fromJS(data: any): ConnectivityDto {
         data = typeof data === 'object' ? data : {};
-        let result = new HoneyBee();
+        let result = new ConnectivityDto();
         result.init(data);
         return result;
     }
 
-    override toJSON(data?: any) {
+    toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        for (var property in this) {
-            if (this.hasOwnProperty(property))
-                data[property] = this[property];
-        }
-        data["honeyPerDay"] = this.honeyPerDay;
-        super.toJSON(data);
+        data["has5G"] = this.has5G;
+        data["wiFi"] = this.wiFi;
+        data["nfc"] = this.nfc;
+        data["bluetooth"] = this.bluetooth;
         return data;
     }
 }
 
-/** A representation of a honey bee */
-export interface IHoneyBee extends IPet {
-    /** Average amount of honey produced per day in ounces */
-    honeyPerDay: number;
-
-    [key: string]: any;
+export interface IConnectivityDto {
+    has5G: boolean;
+    wiFi: boolean;
+    nfc: boolean;
+    bluetooth: boolean;
 }
 
-export class Order implements IOrder {
-    /** Order ID */
-    id?: number;
-    /** Pet ID */
-    petId?: number;
-    quantity?: number;
-    /** Estimated ship date */
-    shipDate?: Date;
-    /** Order Status */
-    status?: OrderStatus;
-    /** Indicates whenever order was completed or not */
-    readonly complete?: boolean;
-    /** Unique Request Id */
-    requestId?: string;
+export class CreateCategoryExternalDto implements ICreateCategoryExternalDto {
+    code?: string;
+    name?: string;
 
-    [key: string]: any;
+    constructor(data?: ICreateCategoryExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
 
-    constructor(data?: IOrder) {
+    init(_data?: any) {
+        if (_data) {
+            this.code = _data["code"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): CreateCategoryExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCategoryExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["code"] = this.code;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface ICreateCategoryExternalDto {
+    code?: string;
+    name?: string;
+}
+
+export class CreateConnectivityExternalDto implements ICreateConnectivityExternalDto {
+    has5G!: boolean;
+    wiFi!: boolean;
+    nfc!: boolean;
+    bluetooth!: boolean;
+
+    constructor(data?: ICreateConnectivityExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.has5G = _data["has5G"];
+            this.wiFi = _data["wiFi"];
+            this.nfc = _data["nfc"];
+            this.bluetooth = _data["bluetooth"];
+        }
+    }
+
+    static fromJS(data: any): CreateConnectivityExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateConnectivityExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["has5G"] = this.has5G;
+        data["wiFi"] = this.wiFi;
+        data["nfc"] = this.nfc;
+        data["bluetooth"] = this.bluetooth;
+        return data;
+    }
+}
+
+export interface ICreateConnectivityExternalDto {
+    has5G: boolean;
+    wiFi: boolean;
+    nfc: boolean;
+    bluetooth: boolean;
+}
+
+export class CreateCurrencyExternalDto implements ICreateCurrencyExternalDto {
+    code?: string;
+    description?: string;
+
+    constructor(data?: ICreateCurrencyExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.code = _data["code"];
+            this.description = _data["description"];
+        }
+    }
+
+    static fromJS(data: any): CreateCurrencyExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCurrencyExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["code"] = this.code;
+        data["description"] = this.description;
+        return data;
+    }
+}
+
+export interface ICreateCurrencyExternalDto {
+    code?: string;
+    description?: string;
+}
+
+export class CreateElectronicDetailsExternalDto implements ICreateElectronicDetailsExternalDto {
+    cpu?: string;
+    gpu?: string;
+    ram?: string;
+    storage?: string;
+    displayType?: string;
+    refreshRateHz?: number;
+    screenSizeInches?: number;
+    width?: number;
+    height?: number;
+    batteryType?: string;
+    batteryCapacity?: number;
+
+    constructor(data?: ICreateElectronicDetailsExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.cpu = _data["cpu"];
+            this.gpu = _data["gpu"];
+            this.ram = _data["ram"];
+            this.storage = _data["storage"];
+            this.displayType = _data["displayType"];
+            this.refreshRateHz = _data["refreshRateHz"];
+            this.screenSizeInches = _data["screenSizeInches"];
+            this.width = _data["width"];
+            this.height = _data["height"];
+            this.batteryType = _data["batteryType"];
+            this.batteryCapacity = _data["batteryCapacity"];
+        }
+    }
+
+    static fromJS(data: any): CreateElectronicDetailsExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateElectronicDetailsExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["cpu"] = this.cpu;
+        data["gpu"] = this.gpu;
+        data["ram"] = this.ram;
+        data["storage"] = this.storage;
+        data["displayType"] = this.displayType;
+        data["refreshRateHz"] = this.refreshRateHz;
+        data["screenSizeInches"] = this.screenSizeInches;
+        data["width"] = this.width;
+        data["height"] = this.height;
+        data["batteryType"] = this.batteryType;
+        data["batteryCapacity"] = this.batteryCapacity;
+        return data;
+    }
+}
+
+export interface ICreateElectronicDetailsExternalDto {
+    cpu?: string;
+    gpu?: string;
+    ram?: string;
+    storage?: string;
+    displayType?: string;
+    refreshRateHz?: number;
+    screenSizeInches?: number;
+    width?: number;
+    height?: number;
+    batteryType?: string;
+    batteryCapacity?: number;
+}
+
+export class CreateMobilePhoneExternalDto implements ICreateMobilePhoneExternalDto {
+    commonDescription!: CommonDescriptionExtrernalDto;
+    electronicDetails!: CreateElectronicDetailsExternalDto;
+    connectivity!: CreateConnectivityExternalDto;
+    satelliteNavigationSystems!: CreateSatelliteNavigationSystemExternalDto;
+    sensors!: CreateSensorsExternalDto;
+    camera!: string;
+    fingerPrint!: boolean;
+    faceId!: boolean;
+    categoryId!: string;
+    price!: CreateMoneyExternalDto;
+    description2!: string;
+    description3!: string;
+
+    constructor(data?: ICreateMobilePhoneExternalDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1372,8 +1624,770 @@ export class Order implements IOrder {
             }
         }
         if (!data) {
-            this.quantity = 1;
-            this.complete = false;
+            this.commonDescription = new CommonDescriptionExtrernalDto();
+            this.electronicDetails = new CreateElectronicDetailsExternalDto();
+            this.connectivity = new CreateConnectivityExternalDto();
+            this.satelliteNavigationSystems = new CreateSatelliteNavigationSystemExternalDto();
+            this.sensors = new CreateSensorsExternalDto();
+            this.price = new CreateMoneyExternalDto();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.commonDescription = _data["commonDescription"] ? CommonDescriptionExtrernalDto.fromJS(_data["commonDescription"]) : new CommonDescriptionExtrernalDto();
+            this.electronicDetails = _data["electronicDetails"] ? CreateElectronicDetailsExternalDto.fromJS(_data["electronicDetails"]) : new CreateElectronicDetailsExternalDto();
+            this.connectivity = _data["connectivity"] ? CreateConnectivityExternalDto.fromJS(_data["connectivity"]) : new CreateConnectivityExternalDto();
+            this.satelliteNavigationSystems = _data["satelliteNavigationSystems"] ? CreateSatelliteNavigationSystemExternalDto.fromJS(_data["satelliteNavigationSystems"]) : new CreateSatelliteNavigationSystemExternalDto();
+            this.sensors = _data["sensors"] ? CreateSensorsExternalDto.fromJS(_data["sensors"]) : new CreateSensorsExternalDto();
+            this.camera = _data["camera"];
+            this.fingerPrint = _data["fingerPrint"];
+            this.faceId = _data["faceId"];
+            this.categoryId = _data["categoryId"];
+            this.price = _data["price"] ? CreateMoneyExternalDto.fromJS(_data["price"]) : new CreateMoneyExternalDto();
+            this.description2 = _data["description2"];
+            this.description3 = _data["description3"];
+        }
+    }
+
+    static fromJS(data: any): CreateMobilePhoneExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateMobilePhoneExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["commonDescription"] = this.commonDescription ? this.commonDescription.toJSON() : undefined as any;
+        data["electronicDetails"] = this.electronicDetails ? this.electronicDetails.toJSON() : undefined as any;
+        data["connectivity"] = this.connectivity ? this.connectivity.toJSON() : undefined as any;
+        data["satelliteNavigationSystems"] = this.satelliteNavigationSystems ? this.satelliteNavigationSystems.toJSON() : undefined as any;
+        data["sensors"] = this.sensors ? this.sensors.toJSON() : undefined as any;
+        data["camera"] = this.camera;
+        data["fingerPrint"] = this.fingerPrint;
+        data["faceId"] = this.faceId;
+        data["categoryId"] = this.categoryId;
+        data["price"] = this.price ? this.price.toJSON() : undefined as any;
+        data["description2"] = this.description2;
+        data["description3"] = this.description3;
+        return data;
+    }
+}
+
+export interface ICreateMobilePhoneExternalDto {
+    commonDescription: CommonDescriptionExtrernalDto;
+    electronicDetails: CreateElectronicDetailsExternalDto;
+    connectivity: CreateConnectivityExternalDto;
+    satelliteNavigationSystems: CreateSatelliteNavigationSystemExternalDto;
+    sensors: CreateSensorsExternalDto;
+    camera: string;
+    fingerPrint: boolean;
+    faceId: boolean;
+    categoryId: string;
+    price: CreateMoneyExternalDto;
+    description2: string;
+    description3: string;
+}
+
+export class CreateMoneyExternalDto implements ICreateMoneyExternalDto {
+    amount?: number;
+    currency?: string;
+
+    constructor(data?: ICreateMoneyExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.amount = _data["amount"];
+            this.currency = _data["currency"];
+        }
+    }
+
+    static fromJS(data: any): CreateMoneyExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateMoneyExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["amount"] = this.amount;
+        data["currency"] = this.currency;
+        return data;
+    }
+}
+
+export interface ICreateMoneyExternalDto {
+    amount?: number;
+    currency?: string;
+}
+
+export class CreateSatelliteNavigationSystemExternalDto implements ICreateSatelliteNavigationSystemExternalDto {
+    gps!: boolean;
+    agps!: boolean;
+    galileo!: boolean;
+    glonass!: boolean;
+    qzss!: boolean;
+
+    constructor(data?: ICreateSatelliteNavigationSystemExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.gps = _data["gps"];
+            this.agps = _data["agps"];
+            this.galileo = _data["galileo"];
+            this.glonass = _data["glonass"];
+            this.qzss = _data["qzss"];
+        }
+    }
+
+    static fromJS(data: any): CreateSatelliteNavigationSystemExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateSatelliteNavigationSystemExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["gps"] = this.gps;
+        data["agps"] = this.agps;
+        data["galileo"] = this.galileo;
+        data["glonass"] = this.glonass;
+        data["qzss"] = this.qzss;
+        return data;
+    }
+}
+
+export interface ICreateSatelliteNavigationSystemExternalDto {
+    gps: boolean;
+    agps: boolean;
+    galileo: boolean;
+    glonass: boolean;
+    qzss: boolean;
+}
+
+export class CreateSensorsExternalDto implements ICreateSensorsExternalDto {
+    accelerometer!: boolean;
+    gyroscope!: boolean;
+    proximity!: boolean;
+    compass!: boolean;
+    barometer!: boolean;
+    halla!: boolean;
+    ambientLight!: boolean;
+
+    constructor(data?: ICreateSensorsExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.accelerometer = _data["accelerometer"];
+            this.gyroscope = _data["gyroscope"];
+            this.proximity = _data["proximity"];
+            this.compass = _data["compass"];
+            this.barometer = _data["barometer"];
+            this.halla = _data["halla"];
+            this.ambientLight = _data["ambientLight"];
+        }
+    }
+
+    static fromJS(data: any): CreateSensorsExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateSensorsExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["accelerometer"] = this.accelerometer;
+        data["gyroscope"] = this.gyroscope;
+        data["proximity"] = this.proximity;
+        data["compass"] = this.compass;
+        data["barometer"] = this.barometer;
+        data["halla"] = this.halla;
+        data["ambientLight"] = this.ambientLight;
+        return data;
+    }
+}
+
+export interface ICreateSensorsExternalDto {
+    accelerometer: boolean;
+    gyroscope: boolean;
+    proximity: boolean;
+    compass: boolean;
+    barometer: boolean;
+    halla: boolean;
+    ambientLight: boolean;
+}
+
+export class CurrencyDto implements ICurrencyDto {
+    id!: string;
+    code!: string;
+    description!: string;
+    isActive!: boolean;
+
+    constructor(data?: ICurrencyDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.code = _data["code"];
+            this.description = _data["description"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): CurrencyDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CurrencyDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["code"] = this.code;
+        data["description"] = this.description;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface ICurrencyDto {
+    id: string;
+    code: string;
+    description: string;
+    isActive: boolean;
+}
+
+export class ElectronicDetailsDto implements IElectronicDetailsDto {
+    cpu!: string;
+    gpu!: string;
+    ram!: string;
+    storage!: string;
+    displayType!: string;
+    refreshRateHz!: number;
+    screenSizeInches!: number;
+    width!: number;
+    height!: number;
+    batteryType!: string;
+    batteryCapacity!: number;
+
+    constructor(data?: IElectronicDetailsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.cpu = _data["cpu"];
+            this.gpu = _data["gpu"];
+            this.ram = _data["ram"];
+            this.storage = _data["storage"];
+            this.displayType = _data["displayType"];
+            this.refreshRateHz = _data["refreshRateHz"];
+            this.screenSizeInches = _data["screenSizeInches"];
+            this.width = _data["width"];
+            this.height = _data["height"];
+            this.batteryType = _data["batteryType"];
+            this.batteryCapacity = _data["batteryCapacity"];
+        }
+    }
+
+    static fromJS(data: any): ElectronicDetailsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ElectronicDetailsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["cpu"] = this.cpu;
+        data["gpu"] = this.gpu;
+        data["ram"] = this.ram;
+        data["storage"] = this.storage;
+        data["displayType"] = this.displayType;
+        data["refreshRateHz"] = this.refreshRateHz;
+        data["screenSizeInches"] = this.screenSizeInches;
+        data["width"] = this.width;
+        data["height"] = this.height;
+        data["batteryType"] = this.batteryType;
+        data["batteryCapacity"] = this.batteryCapacity;
+        return data;
+    }
+}
+
+export interface IElectronicDetailsDto {
+    cpu: string;
+    gpu: string;
+    ram: string;
+    storage: string;
+    displayType: string;
+    refreshRateHz: number;
+    screenSizeInches: number;
+    width: number;
+    height: number;
+    batteryType: string;
+    batteryCapacity: number;
+}
+
+export class FlowDescription implements IFlowDescription {
+    actionName!: string;
+    steps?: string[];
+
+    constructor(data?: IFlowDescription) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.actionName = _data["actionName"];
+            if (Array.isArray(_data["steps"])) {
+                this.steps = [] as any;
+                for (let item of _data["steps"])
+                    this.steps!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): FlowDescription {
+        data = typeof data === 'object' ? data : {};
+        let result = new FlowDescription();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["actionName"] = this.actionName;
+        if (Array.isArray(this.steps)) {
+            data["steps"] = [];
+            for (let item of this.steps)
+                data["steps"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IFlowDescription {
+    actionName: string;
+    steps?: string[];
+}
+
+export class MobilePhoneDetailsDto implements IMobilePhoneDetailsDto {
+    commonDescription!: CommonDescriptionDto;
+    electronicDetails!: ElectronicDetailsDto;
+    connectivity!: ConnectivityDto;
+    satelliteNavigationSystems!: SatelliteNavigationSystemDto;
+    sensors!: SensorsDto;
+    camera!: string;
+    price!: MoneyDto;
+    fingerPrint!: boolean;
+    faceId!: boolean;
+    description2!: string;
+    description3!: string;
+    categoryId!: string;
+    id!: string;
+    isActive!: boolean;
+
+    constructor(data?: IMobilePhoneDetailsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.commonDescription = new CommonDescriptionDto();
+            this.electronicDetails = new ElectronicDetailsDto();
+            this.connectivity = new ConnectivityDto();
+            this.satelliteNavigationSystems = new SatelliteNavigationSystemDto();
+            this.sensors = new SensorsDto();
+            this.price = new MoneyDto();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.commonDescription = _data["commonDescription"] ? CommonDescriptionDto.fromJS(_data["commonDescription"]) : new CommonDescriptionDto();
+            this.electronicDetails = _data["electronicDetails"] ? ElectronicDetailsDto.fromJS(_data["electronicDetails"]) : new ElectronicDetailsDto();
+            this.connectivity = _data["connectivity"] ? ConnectivityDto.fromJS(_data["connectivity"]) : new ConnectivityDto();
+            this.satelliteNavigationSystems = _data["satelliteNavigationSystems"] ? SatelliteNavigationSystemDto.fromJS(_data["satelliteNavigationSystems"]) : new SatelliteNavigationSystemDto();
+            this.sensors = _data["sensors"] ? SensorsDto.fromJS(_data["sensors"]) : new SensorsDto();
+            this.camera = _data["camera"];
+            this.price = _data["price"] ? MoneyDto.fromJS(_data["price"]) : new MoneyDto();
+            this.fingerPrint = _data["fingerPrint"];
+            this.faceId = _data["faceId"];
+            this.description2 = _data["description2"];
+            this.description3 = _data["description3"];
+            this.categoryId = _data["categoryId"];
+            this.id = _data["id"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): MobilePhoneDetailsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MobilePhoneDetailsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["commonDescription"] = this.commonDescription ? this.commonDescription.toJSON() : undefined as any;
+        data["electronicDetails"] = this.electronicDetails ? this.electronicDetails.toJSON() : undefined as any;
+        data["connectivity"] = this.connectivity ? this.connectivity.toJSON() : undefined as any;
+        data["satelliteNavigationSystems"] = this.satelliteNavigationSystems ? this.satelliteNavigationSystems.toJSON() : undefined as any;
+        data["sensors"] = this.sensors ? this.sensors.toJSON() : undefined as any;
+        data["camera"] = this.camera;
+        data["price"] = this.price ? this.price.toJSON() : undefined as any;
+        data["fingerPrint"] = this.fingerPrint;
+        data["faceId"] = this.faceId;
+        data["description2"] = this.description2;
+        data["description3"] = this.description3;
+        data["categoryId"] = this.categoryId;
+        data["id"] = this.id;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface IMobilePhoneDetailsDto {
+    commonDescription: CommonDescriptionDto;
+    electronicDetails: ElectronicDetailsDto;
+    connectivity: ConnectivityDto;
+    satelliteNavigationSystems: SatelliteNavigationSystemDto;
+    sensors: SensorsDto;
+    camera: string;
+    price: MoneyDto;
+    fingerPrint: boolean;
+    faceId: boolean;
+    description2: string;
+    description3: string;
+    categoryId: string;
+    id: string;
+    isActive: boolean;
+}
+
+export class MobilePhoneDto implements IMobilePhoneDto {
+    id?: string;
+    name?: string;
+    brand?: string;
+    displayType!: string;
+    screenSizeInches!: number;
+    camera!: string;
+    price!: MoneyDto;
+
+    constructor(data?: IMobilePhoneDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.price = new MoneyDto();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.brand = _data["brand"];
+            this.displayType = _data["displayType"];
+            this.screenSizeInches = _data["screenSizeInches"];
+            this.camera = _data["camera"];
+            this.price = _data["price"] ? MoneyDto.fromJS(_data["price"]) : new MoneyDto();
+        }
+    }
+
+    static fromJS(data: any): MobilePhoneDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MobilePhoneDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["brand"] = this.brand;
+        data["displayType"] = this.displayType;
+        data["screenSizeInches"] = this.screenSizeInches;
+        data["camera"] = this.camera;
+        data["price"] = this.price ? this.price.toJSON() : undefined as any;
+        return data;
+    }
+}
+
+export interface IMobilePhoneDto {
+    id?: string;
+    name?: string;
+    brand?: string;
+    displayType: string;
+    screenSizeInches: number;
+    camera: string;
+    price: MoneyDto;
+}
+
+export class MobilePhoneFilterDto implements IMobilePhoneFilterDto {
+    brand?: MobilePhonesBrand;
+    minimalPrice?: number | undefined;
+    maximalPrice?: number | undefined;
+
+    constructor(data?: IMobilePhoneFilterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.brand = _data["brand"];
+            this.minimalPrice = _data["minimalPrice"];
+            this.maximalPrice = _data["maximalPrice"];
+        }
+    }
+
+    static fromJS(data: any): MobilePhoneFilterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MobilePhoneFilterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["brand"] = this.brand;
+        data["minimalPrice"] = this.minimalPrice;
+        data["maximalPrice"] = this.maximalPrice;
+        return data;
+    }
+}
+
+export interface IMobilePhoneFilterDto {
+    brand?: MobilePhonesBrand;
+    minimalPrice?: number | undefined;
+    maximalPrice?: number | undefined;
+}
+
+export class MobilePhoneHistoryDto implements IMobilePhoneHistoryDto {
+    id!: string;
+    mobilePhoneId!: string;
+    commonDescription!: CommonDescriptionDto;
+    electronicDetails!: ElectronicDetailsDto;
+    connectivity!: ConnectivityDto;
+    satelliteNavigationSystems!: SatelliteNavigationSystemDto;
+    sensors!: SensorsDto;
+    camera!: string;
+    price!: MoneyDto;
+    fingerPrint!: boolean;
+    faceId!: boolean;
+    description2!: string;
+    description3!: string;
+    categoryId!: string;
+    isActive!: boolean;
+    changedAt!: Date;
+    operation!: Operation;
+
+    constructor(data?: IMobilePhoneHistoryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.commonDescription = new CommonDescriptionDto();
+            this.electronicDetails = new ElectronicDetailsDto();
+            this.connectivity = new ConnectivityDto();
+            this.satelliteNavigationSystems = new SatelliteNavigationSystemDto();
+            this.sensors = new SensorsDto();
+            this.price = new MoneyDto();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.mobilePhoneId = _data["mobilePhoneId"];
+            this.commonDescription = _data["commonDescription"] ? CommonDescriptionDto.fromJS(_data["commonDescription"]) : new CommonDescriptionDto();
+            this.electronicDetails = _data["electronicDetails"] ? ElectronicDetailsDto.fromJS(_data["electronicDetails"]) : new ElectronicDetailsDto();
+            this.connectivity = _data["connectivity"] ? ConnectivityDto.fromJS(_data["connectivity"]) : new ConnectivityDto();
+            this.satelliteNavigationSystems = _data["satelliteNavigationSystems"] ? SatelliteNavigationSystemDto.fromJS(_data["satelliteNavigationSystems"]) : new SatelliteNavigationSystemDto();
+            this.sensors = _data["sensors"] ? SensorsDto.fromJS(_data["sensors"]) : new SensorsDto();
+            this.camera = _data["camera"];
+            this.price = _data["price"] ? MoneyDto.fromJS(_data["price"]) : new MoneyDto();
+            this.fingerPrint = _data["fingerPrint"];
+            this.faceId = _data["faceId"];
+            this.description2 = _data["description2"];
+            this.description3 = _data["description3"];
+            this.categoryId = _data["categoryId"];
+            this.isActive = _data["isActive"];
+            this.changedAt = _data["changedAt"] ? new Date(_data["changedAt"].toString()) : undefined as any;
+            this.operation = _data["operation"];
+        }
+    }
+
+    static fromJS(data: any): MobilePhoneHistoryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MobilePhoneHistoryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["mobilePhoneId"] = this.mobilePhoneId;
+        data["commonDescription"] = this.commonDescription ? this.commonDescription.toJSON() : undefined as any;
+        data["electronicDetails"] = this.electronicDetails ? this.electronicDetails.toJSON() : undefined as any;
+        data["connectivity"] = this.connectivity ? this.connectivity.toJSON() : undefined as any;
+        data["satelliteNavigationSystems"] = this.satelliteNavigationSystems ? this.satelliteNavigationSystems.toJSON() : undefined as any;
+        data["sensors"] = this.sensors ? this.sensors.toJSON() : undefined as any;
+        data["camera"] = this.camera;
+        data["price"] = this.price ? this.price.toJSON() : undefined as any;
+        data["fingerPrint"] = this.fingerPrint;
+        data["faceId"] = this.faceId;
+        data["description2"] = this.description2;
+        data["description3"] = this.description3;
+        data["categoryId"] = this.categoryId;
+        data["isActive"] = this.isActive;
+        data["changedAt"] = this.changedAt ? this.changedAt.toISOString() : undefined as any;
+        data["operation"] = this.operation;
+        return data;
+    }
+}
+
+export interface IMobilePhoneHistoryDto {
+    id: string;
+    mobilePhoneId: string;
+    commonDescription: CommonDescriptionDto;
+    electronicDetails: ElectronicDetailsDto;
+    connectivity: ConnectivityDto;
+    satelliteNavigationSystems: SatelliteNavigationSystemDto;
+    sensors: SensorsDto;
+    camera: string;
+    price: MoneyDto;
+    fingerPrint: boolean;
+    faceId: boolean;
+    description2: string;
+    description3: string;
+    categoryId: string;
+    isActive: boolean;
+    changedAt: Date;
+    operation: Operation;
+}
+
+export enum MobilePhonesBrand {
+    _0 = 0,
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+}
+
+export class MoneyDto implements IMoneyDto {
+    amount!: number;
+    currency!: string;
+
+    constructor(data?: IMoneyDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.amount = _data["amount"];
+            this.currency = _data["currency"];
+        }
+    }
+
+    static fromJS(data: any): MoneyDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MoneyDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["amount"] = this.amount;
+        data["currency"] = this.currency;
+        return data;
+    }
+}
+
+export interface IMoneyDto {
+    amount: number;
+    currency: string;
+}
+
+export class NotFoundProblemDetails implements INotFoundProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+    traceId?: string;
+
+    [key: string]: any;
+
+    constructor(data?: INotFoundProblemDetails) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
         }
     }
 
@@ -1383,19 +2397,18 @@ export class Order implements IOrder {
                 if (_data.hasOwnProperty(property))
                     this[property] = _data[property];
             }
-            this.id = _data["id"];
-            this.petId = _data["petId"];
-            this.quantity = _data["quantity"] !== undefined ? _data["quantity"] : 1;
-            this.shipDate = _data["shipDate"] ? new Date(_data["shipDate"].toString()) : undefined as any;
+            this.type = _data["type"];
+            this.title = _data["title"];
             this.status = _data["status"];
-            (this as any).complete = _data["complete"] !== undefined ? _data["complete"] : false;
-            this.requestId = _data["requestId"];
+            this.detail = _data["detail"];
+            this.instance = _data["instance"];
+            this.traceId = _data["traceId"];
         }
     }
 
-    static fromJS(data: any): Order {
+    static fromJS(data: any): NotFoundProblemDetails {
         data = typeof data === 'object' ? data : {};
-        let result = new Order();
+        let result = new NotFoundProblemDetails();
         result.init(data);
         return result;
     }
@@ -1406,44 +2419,43 @@ export class Order implements IOrder {
             if (this.hasOwnProperty(property))
                 data[property] = this[property];
         }
-        data["id"] = this.id;
-        data["petId"] = this.petId;
-        data["quantity"] = this.quantity;
-        data["shipDate"] = this.shipDate ? this.shipDate.toISOString() : undefined as any;
+        data["type"] = this.type;
+        data["title"] = this.title;
         data["status"] = this.status;
-        data["complete"] = this.complete;
-        data["requestId"] = this.requestId;
+        data["detail"] = this.detail;
+        data["instance"] = this.instance;
+        data["traceId"] = this.traceId;
         return data;
     }
 }
 
-export interface IOrder {
-    /** Order ID */
-    id?: number;
-    /** Pet ID */
-    petId?: number;
-    quantity?: number;
-    /** Estimated ship date */
-    shipDate?: Date;
-    /** Order Status */
-    status?: OrderStatus;
-    /** Indicates whenever order was completed or not */
-    complete?: boolean;
-    /** Unique Request Id */
-    requestId?: string;
+export interface INotFoundProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+    traceId?: string;
 
     [key: string]: any;
 }
 
-export class Tag implements ITag {
-    /** Tag ID */
-    id?: number;
-    /** Tag name */
-    name?: string;
+export enum Operation {
+    _0 = 0,
+    _1 = 1,
+    _2 = 2,
+}
+
+export class ProblemDetails implements IProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
 
     [key: string]: any;
 
-    constructor(data?: ITag) {
+    constructor(data?: IProblemDetails) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1458,212 +2470,17 @@ export class Tag implements ITag {
                 if (_data.hasOwnProperty(property))
                     this[property] = _data[property];
             }
-            this.id = _data["id"];
-            this.name = _data["name"];
-        }
-    }
-
-    static fromJS(data: any): Tag {
-        data = typeof data === 'object' ? data : {};
-        let result = new Tag();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        for (var property in this) {
-            if (this.hasOwnProperty(property))
-                data[property] = this[property];
-        }
-        data["id"] = this.id;
-        data["name"] = this.name;
-        return data;
-    }
-}
-
-export interface ITag {
-    /** Tag ID */
-    id?: number;
-    /** Tag name */
-    name?: string;
-
-    [key: string]: any;
-}
-
-export class User implements IUser {
-    id?: number;
-    pet?: Pet;
-    /** User supplied username */
-    username?: string;
-    /** User first name */
-    firstName?: string;
-    /** User last name */
-    lastName?: string;
-    /** User email address */
-    email?: string;
-    /** User password, MUST contain a mix of upper and lower case letters, as well as digits */
-    password?: string;
-    /** User phone number in international format */
-    phone?: string;
-    /** User status */
-    userStatus?: number;
-    addresses?: [Anonymous2, number];
-
-    [key: string]: any;
-
-    constructor(data?: IUser) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            for (var property in _data) {
-                if (_data.hasOwnProperty(property))
-                    this[property] = _data[property];
-            }
-            this.id = _data["id"];
-            this.pet = _data["pet"] ? Pet.fromJS(_data["pet"]) : undefined as any;
-            this.username = _data["username"];
-            this.firstName = _data["firstName"];
-            this.lastName = _data["lastName"];
-            this.email = _data["email"];
-            this.password = _data["password"];
-            this.phone = _data["phone"];
-            this.userStatus = _data["userStatus"];
-            this.addresses = _data["addresses"];
-        }
-    }
-
-    static fromJS(data: any): User {
-        data = typeof data === 'object' ? data : {};
-        let result = new User();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        for (var property in this) {
-            if (this.hasOwnProperty(property))
-                data[property] = this[property];
-        }
-        data["id"] = this.id;
-        data["pet"] = this.pet ? this.pet.toJSON() : undefined as any;
-        data["username"] = this.username;
-        data["firstName"] = this.firstName;
-        data["lastName"] = this.lastName;
-        data["email"] = this.email;
-        data["password"] = this.password;
-        data["phone"] = this.phone;
-        data["userStatus"] = this.userStatus;
-        data["addresses"] = this.addresses;
-        return data;
-    }
-}
-
-export interface IUser {
-    id?: number;
-    pet?: Pet;
-    /** User supplied username */
-    username?: string;
-    /** User first name */
-    firstName?: string;
-    /** User last name */
-    lastName?: string;
-    /** User email address */
-    email?: string;
-    /** User password, MUST contain a mix of upper and lower case letters, as well as digits */
-    password?: string;
-    /** User phone number in international format */
-    phone?: string;
-    /** User status */
-    userStatus?: number;
-    addresses?: [Anonymous2, number];
-
-    [key: string]: any;
-}
-
-/** My Pet */
-export class Body extends Pet implements IBody {
-
-    [key: string]: any;
-
-    constructor(data?: IBody) {
-        super(data);
-        this._discriminator = "Body";
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            for (var property in _data) {
-                if (_data.hasOwnProperty(property))
-                    this[property] = _data[property];
-            }
-        }
-    }
-
-    static override fromJS(data: any): Body {
-        data = typeof data === 'object' ? data : {};
-        let result = new Body();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        for (var property in this) {
-            if (this.hasOwnProperty(property))
-                data[property] = this[property];
-        }
-        super.toJSON(data);
-        return data;
-    }
-}
-
-/** My Pet */
-export interface IBody extends IPet {
-
-    [key: string]: any;
-}
-
-export class Body2 implements IBody2 {
-    /** Updated name of the pet */
-    name?: string;
-    /** Updated status of the pet */
-    status?: string;
-
-    [key: string]: any;
-
-    constructor(data?: IBody2) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            for (var property in _data) {
-                if (_data.hasOwnProperty(property))
-                    this[property] = _data[property];
-            }
-            this.name = _data["name"];
+            this.type = _data["type"];
+            this.title = _data["title"];
             this.status = _data["status"];
+            this.detail = _data["detail"];
+            this.instance = _data["instance"];
         }
     }
 
-    static fromJS(data: any): Body2 {
+    static fromJS(data: any): ProblemDetails {
         data = typeof data === 'object' ? data : {};
-        let result = new Body2();
+        let result = new ProblemDetails();
         result.init(data);
         return result;
     }
@@ -1674,36 +2491,192 @@ export class Body2 implements IBody2 {
             if (this.hasOwnProperty(property))
                 data[property] = this[property];
         }
-        data["name"] = this.name;
+        data["type"] = this.type;
+        data["title"] = this.title;
         data["status"] = this.status;
+        data["detail"] = this.detail;
+        data["instance"] = this.instance;
         return data;
     }
 }
 
-export interface IBody2 {
-    /** Updated name of the pet */
+export interface IProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+
+    [key: string]: any;
+}
+
+export class SatelliteNavigationSystemDto implements ISatelliteNavigationSystemDto {
+    gps!: boolean;
+    agps!: boolean;
+    galileo!: boolean;
+    glonass!: boolean;
+    qzss!: boolean;
+
+    constructor(data?: ISatelliteNavigationSystemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.gps = _data["gps"];
+            this.agps = _data["agps"];
+            this.galileo = _data["galileo"];
+            this.glonass = _data["glonass"];
+            this.qzss = _data["qzss"];
+        }
+    }
+
+    static fromJS(data: any): SatelliteNavigationSystemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SatelliteNavigationSystemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["gps"] = this.gps;
+        data["agps"] = this.agps;
+        data["galileo"] = this.galileo;
+        data["glonass"] = this.glonass;
+        data["qzss"] = this.qzss;
+        return data;
+    }
+}
+
+export interface ISatelliteNavigationSystemDto {
+    gps: boolean;
+    agps: boolean;
+    galileo: boolean;
+    glonass: boolean;
+    qzss: boolean;
+}
+
+export class SensorsDto implements ISensorsDto {
+    accelerometer!: boolean;
+    gyroscope!: boolean;
+    proximity!: boolean;
+    compass!: boolean;
+    barometer!: boolean;
+    halla!: boolean;
+    ambientLight!: boolean;
+
+    constructor(data?: ISensorsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.accelerometer = _data["accelerometer"];
+            this.gyroscope = _data["gyroscope"];
+            this.proximity = _data["proximity"];
+            this.compass = _data["compass"];
+            this.barometer = _data["barometer"];
+            this.halla = _data["halla"];
+            this.ambientLight = _data["ambientLight"];
+        }
+    }
+
+    static fromJS(data: any): SensorsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SensorsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["accelerometer"] = this.accelerometer;
+        data["gyroscope"] = this.gyroscope;
+        data["proximity"] = this.proximity;
+        data["compass"] = this.compass;
+        data["barometer"] = this.barometer;
+        data["halla"] = this.halla;
+        data["ambientLight"] = this.ambientLight;
+        return data;
+    }
+}
+
+export interface ISensorsDto {
+    accelerometer: boolean;
+    gyroscope: boolean;
+    proximity: boolean;
+    compass: boolean;
+    barometer: boolean;
+    halla: boolean;
+    ambientLight: boolean;
+}
+
+export class TopMobilePhoneDto implements ITopMobilePhoneDto {
+    commonDescription!: TopMobilePhonesCommonDescriptionDto;
+    price!: MoneyDto;
+    id!: string;
+
+    constructor(data?: ITopMobilePhoneDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.commonDescription = new TopMobilePhonesCommonDescriptionDto();
+            this.price = new MoneyDto();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.commonDescription = _data["commonDescription"] ? TopMobilePhonesCommonDescriptionDto.fromJS(_data["commonDescription"]) : new TopMobilePhonesCommonDescriptionDto();
+            this.price = _data["price"] ? MoneyDto.fromJS(_data["price"]) : new MoneyDto();
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): TopMobilePhoneDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TopMobilePhoneDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["commonDescription"] = this.commonDescription ? this.commonDescription.toJSON() : undefined as any;
+        data["price"] = this.price ? this.price.toJSON() : undefined as any;
+        data["id"] = this.id;
+        return data;
+    }
+}
+
+export interface ITopMobilePhoneDto {
+    commonDescription: TopMobilePhonesCommonDescriptionDto;
+    price: MoneyDto;
+    id: string;
+}
+
+export class TopMobilePhonesCommonDescriptionDto implements ITopMobilePhonesCommonDescriptionDto {
     name?: string;
-    /** Updated status of the pet */
-    status?: string;
+    brand?: string;
+    description?: string;
+    mainPhoto?: string;
 
-    [key: string]: any;
-}
-
-export enum Status {
-    Available = "available",
-    Pending = "pending",
-    Sold = "sold",
-}
-
-export class Body3 implements IBody3 {
-    /** This URL will be called by the server when the desired event will occur */
-    callbackUrl!: string;
-    /** Event name for the subscription */
-    eventName!: Body3EventName;
-
-    [key: string]: any;
-
-    constructor(data?: IBody3) {
+    constructor(data?: ITopMobilePhonesCommonDescriptionDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1714,49 +2687,42 @@ export class Body3 implements IBody3 {
 
     init(_data?: any) {
         if (_data) {
-            for (var property in _data) {
-                if (_data.hasOwnProperty(property))
-                    this[property] = _data[property];
-            }
-            this.callbackUrl = _data["callbackUrl"];
-            this.eventName = _data["eventName"];
+            this.name = _data["name"];
+            this.brand = _data["brand"];
+            this.description = _data["description"];
+            this.mainPhoto = _data["mainPhoto"];
         }
     }
 
-    static fromJS(data: any): Body3 {
+    static fromJS(data: any): TopMobilePhonesCommonDescriptionDto {
         data = typeof data === 'object' ? data : {};
-        let result = new Body3();
+        let result = new TopMobilePhonesCommonDescriptionDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        for (var property in this) {
-            if (this.hasOwnProperty(property))
-                data[property] = this[property];
-        }
-        data["callbackUrl"] = this.callbackUrl;
-        data["eventName"] = this.eventName;
+        data["name"] = this.name;
+        data["brand"] = this.brand;
+        data["description"] = this.description;
+        data["mainPhoto"] = this.mainPhoto;
         return data;
     }
 }
 
-export interface IBody3 {
-    /** This URL will be called by the server when the desired event will occur */
-    callbackUrl: string;
-    /** Event name for the subscription */
-    eventName: Body3EventName;
-
-    [key: string]: any;
+export interface ITopMobilePhonesCommonDescriptionDto {
+    name?: string;
+    brand?: string;
+    description?: string;
+    mainPhoto?: string;
 }
 
-export class Anonymous implements IAnonymous {
-    subscriptionId?: string;
+export class UpdateCategoryExternalDto implements IUpdateCategoryExternalDto {
+    code?: string;
+    name?: string;
 
-    [key: string]: any;
-
-    constructor(data?: IAnonymous) {
+    constructor(data?: IUpdateCategoryExternalDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1767,52 +2733,38 @@ export class Anonymous implements IAnonymous {
 
     init(_data?: any) {
         if (_data) {
-            for (var property in _data) {
-                if (_data.hasOwnProperty(property))
-                    this[property] = _data[property];
-            }
-            this.subscriptionId = _data["subscriptionId"];
+            this.code = _data["code"];
+            this.name = _data["name"];
         }
     }
 
-    static fromJS(data: any): Anonymous {
+    static fromJS(data: any): UpdateCategoryExternalDto {
         data = typeof data === 'object' ? data : {};
-        let result = new Anonymous();
+        let result = new UpdateCategoryExternalDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        for (var property in this) {
-            if (this.hasOwnProperty(property))
-                data[property] = this[property];
-        }
-        data["subscriptionId"] = this.subscriptionId;
+        data["code"] = this.code;
+        data["name"] = this.name;
         return data;
     }
 }
 
-export interface IAnonymous {
-    subscriptionId?: string;
-
-    [key: string]: any;
+export interface IUpdateCategoryExternalDto {
+    code?: string;
+    name?: string;
 }
 
-export enum CatHuntingSkill {
-    Clueless = "clueless",
-    Lazy = "lazy",
-    Adventurous = "adventurous",
-    Aggressive = "aggressive",
-}
+export class UpdateConnectivityExternalDto implements IUpdateConnectivityExternalDto {
+    has5G!: boolean;
+    wiFi!: boolean;
+    nfc!: boolean;
+    bluetooth!: boolean;
 
-export class Sub implements ISub {
-    /** Dumb Property */
-    prop1?: string;
-
-    [key: string]: any;
-
-    constructor(data?: ISub) {
+    constructor(data?: IUpdateConnectivityExternalDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1823,60 +2775,42 @@ export class Sub implements ISub {
 
     init(_data?: any) {
         if (_data) {
-            for (var property in _data) {
-                if (_data.hasOwnProperty(property))
-                    this[property] = _data[property];
-            }
-            this.prop1 = _data["prop1"];
+            this.has5G = _data["has5G"];
+            this.wiFi = _data["wiFi"];
+            this.nfc = _data["nfc"];
+            this.bluetooth = _data["bluetooth"];
         }
     }
 
-    static fromJS(data: any): Sub {
+    static fromJS(data: any): UpdateConnectivityExternalDto {
         data = typeof data === 'object' ? data : {};
-        let result = new Sub();
+        let result = new UpdateConnectivityExternalDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        for (var property in this) {
-            if (this.hasOwnProperty(property))
-                data[property] = this[property];
-        }
-        data["prop1"] = this.prop1;
+        data["has5G"] = this.has5G;
+        data["wiFi"] = this.wiFi;
+        data["nfc"] = this.nfc;
+        data["bluetooth"] = this.bluetooth;
         return data;
     }
 }
 
-export interface ISub {
-    /** Dumb Property */
-    prop1?: string;
-
-    [key: string]: any;
+export interface IUpdateConnectivityExternalDto {
+    has5G: boolean;
+    wiFi: boolean;
+    nfc: boolean;
+    bluetooth: boolean;
 }
 
-export enum OrderStatus {
-    Placed = "placed",
-    Approved = "approved",
-    Delivered = "delivered",
-}
+export class UpdateCurrencyExternalDto implements IUpdateCurrencyExternalDto {
+    code?: string;
+    description?: string;
 
-export enum PetStatus {
-    Available = "available",
-    Pending = "pending",
-    Sold = "sold",
-}
-
-export class Anonymous2 implements IAnonymous2 {
-    city?: string;
-    country?: string;
-    /** includes build/apartment number */
-    street?: string;
-
-    [key: string]: any;
-
-    constructor(data?: IAnonymous2) {
+    constructor(data?: IUpdateCurrencyExternalDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1887,54 +2821,491 @@ export class Anonymous2 implements IAnonymous2 {
 
     init(_data?: any) {
         if (_data) {
-            for (var property in _data) {
-                if (_data.hasOwnProperty(property))
-                    this[property] = _data[property];
-            }
-            this.city = _data["city"];
-            this.country = _data["country"];
-            this.street = _data["street"];
+            this.code = _data["code"];
+            this.description = _data["description"];
         }
     }
 
-    static fromJS(data: any): Anonymous2 {
+    static fromJS(data: any): UpdateCurrencyExternalDto {
         data = typeof data === 'object' ? data : {};
-        let result = new Anonymous2();
+        let result = new UpdateCurrencyExternalDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        for (var property in this) {
-            if (this.hasOwnProperty(property))
-                data[property] = this[property];
-        }
-        data["city"] = this.city;
-        data["country"] = this.country;
-        data["street"] = this.street;
+        data["code"] = this.code;
+        data["description"] = this.description;
         return data;
     }
 }
 
-export interface IAnonymous2 {
-    city?: string;
-    country?: string;
-    /** includes build/apartment number */
-    street?: string;
-
-    [key: string]: any;
+export interface IUpdateCurrencyExternalDto {
+    code?: string;
+    description?: string;
 }
 
-export enum Body3EventName {
-    OrderInProgress = "orderInProgress",
-    OrderShipped = "orderShipped",
-    OrderDelivered = "orderDelivered",
+export class UpdateElectronicDetailsExternalDto implements IUpdateElectronicDetailsExternalDto {
+    cpu?: string;
+    gpu?: string;
+    ram?: string;
+    storage?: string;
+    displayType?: string;
+    refreshRateHz?: number;
+    screenSizeInches?: number;
+    width?: number;
+    height?: number;
+    batteryType?: string;
+    batteryCapacity?: number;
+
+    constructor(data?: IUpdateElectronicDetailsExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.cpu = _data["cpu"];
+            this.gpu = _data["gpu"];
+            this.ram = _data["ram"];
+            this.storage = _data["storage"];
+            this.displayType = _data["displayType"];
+            this.refreshRateHz = _data["refreshRateHz"];
+            this.screenSizeInches = _data["screenSizeInches"];
+            this.width = _data["width"];
+            this.height = _data["height"];
+            this.batteryType = _data["batteryType"];
+            this.batteryCapacity = _data["batteryCapacity"];
+        }
+    }
+
+    static fromJS(data: any): UpdateElectronicDetailsExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateElectronicDetailsExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["cpu"] = this.cpu;
+        data["gpu"] = this.gpu;
+        data["ram"] = this.ram;
+        data["storage"] = this.storage;
+        data["displayType"] = this.displayType;
+        data["refreshRateHz"] = this.refreshRateHz;
+        data["screenSizeInches"] = this.screenSizeInches;
+        data["width"] = this.width;
+        data["height"] = this.height;
+        data["batteryType"] = this.batteryType;
+        data["batteryCapacity"] = this.batteryCapacity;
+        return data;
+    }
 }
 
-export interface FileParameter {
-    data: any;
-    fileName: string;
+export interface IUpdateElectronicDetailsExternalDto {
+    cpu?: string;
+    gpu?: string;
+    ram?: string;
+    storage?: string;
+    displayType?: string;
+    refreshRateHz?: number;
+    screenSizeInches?: number;
+    width?: number;
+    height?: number;
+    batteryType?: string;
+    batteryCapacity?: number;
+}
+
+export class UpdateMobilePhoneExternalDto implements IUpdateMobilePhoneExternalDto {
+    commonDescription!: CommonDescriptionExtrernalDto;
+    electronicDetails!: UpdateElectronicDetailsExternalDto;
+    connectivity!: UpdateConnectivityExternalDto;
+    satelliteNavigationSystems!: UpdateSatelliteNavigationSystemExternalDto;
+    sensors!: UpdateSensorsExternalDto;
+    camera!: string;
+    fingerPrint!: boolean;
+    faceId!: boolean;
+    categoryId!: string;
+    price!: UpdateMoneyExternalDto;
+    description2!: string;
+    description3!: string;
+
+    constructor(data?: IUpdateMobilePhoneExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.commonDescription = new CommonDescriptionExtrernalDto();
+            this.electronicDetails = new UpdateElectronicDetailsExternalDto();
+            this.connectivity = new UpdateConnectivityExternalDto();
+            this.satelliteNavigationSystems = new UpdateSatelliteNavigationSystemExternalDto();
+            this.sensors = new UpdateSensorsExternalDto();
+            this.price = new UpdateMoneyExternalDto();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.commonDescription = _data["commonDescription"] ? CommonDescriptionExtrernalDto.fromJS(_data["commonDescription"]) : new CommonDescriptionExtrernalDto();
+            this.electronicDetails = _data["electronicDetails"] ? UpdateElectronicDetailsExternalDto.fromJS(_data["electronicDetails"]) : new UpdateElectronicDetailsExternalDto();
+            this.connectivity = _data["connectivity"] ? UpdateConnectivityExternalDto.fromJS(_data["connectivity"]) : new UpdateConnectivityExternalDto();
+            this.satelliteNavigationSystems = _data["satelliteNavigationSystems"] ? UpdateSatelliteNavigationSystemExternalDto.fromJS(_data["satelliteNavigationSystems"]) : new UpdateSatelliteNavigationSystemExternalDto();
+            this.sensors = _data["sensors"] ? UpdateSensorsExternalDto.fromJS(_data["sensors"]) : new UpdateSensorsExternalDto();
+            this.camera = _data["camera"];
+            this.fingerPrint = _data["fingerPrint"];
+            this.faceId = _data["faceId"];
+            this.categoryId = _data["categoryId"];
+            this.price = _data["price"] ? UpdateMoneyExternalDto.fromJS(_data["price"]) : new UpdateMoneyExternalDto();
+            this.description2 = _data["description2"];
+            this.description3 = _data["description3"];
+        }
+    }
+
+    static fromJS(data: any): UpdateMobilePhoneExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateMobilePhoneExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["commonDescription"] = this.commonDescription ? this.commonDescription.toJSON() : undefined as any;
+        data["electronicDetails"] = this.electronicDetails ? this.electronicDetails.toJSON() : undefined as any;
+        data["connectivity"] = this.connectivity ? this.connectivity.toJSON() : undefined as any;
+        data["satelliteNavigationSystems"] = this.satelliteNavigationSystems ? this.satelliteNavigationSystems.toJSON() : undefined as any;
+        data["sensors"] = this.sensors ? this.sensors.toJSON() : undefined as any;
+        data["camera"] = this.camera;
+        data["fingerPrint"] = this.fingerPrint;
+        data["faceId"] = this.faceId;
+        data["categoryId"] = this.categoryId;
+        data["price"] = this.price ? this.price.toJSON() : undefined as any;
+        data["description2"] = this.description2;
+        data["description3"] = this.description3;
+        return data;
+    }
+}
+
+export interface IUpdateMobilePhoneExternalDto {
+    commonDescription: CommonDescriptionExtrernalDto;
+    electronicDetails: UpdateElectronicDetailsExternalDto;
+    connectivity: UpdateConnectivityExternalDto;
+    satelliteNavigationSystems: UpdateSatelliteNavigationSystemExternalDto;
+    sensors: UpdateSensorsExternalDto;
+    camera: string;
+    fingerPrint: boolean;
+    faceId: boolean;
+    categoryId: string;
+    price: UpdateMoneyExternalDto;
+    description2: string;
+    description3: string;
+}
+
+export class UpdateMoneyExternalDto implements IUpdateMoneyExternalDto {
+    amount?: number;
+    currency?: string;
+
+    constructor(data?: IUpdateMoneyExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.amount = _data["amount"];
+            this.currency = _data["currency"];
+        }
+    }
+
+    static fromJS(data: any): UpdateMoneyExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateMoneyExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["amount"] = this.amount;
+        data["currency"] = this.currency;
+        return data;
+    }
+}
+
+export interface IUpdateMoneyExternalDto {
+    amount?: number;
+    currency?: string;
+}
+
+export class UpdateSatelliteNavigationSystemExternalDto implements IUpdateSatelliteNavigationSystemExternalDto {
+    gps!: boolean;
+    agps!: boolean;
+    galileo!: boolean;
+    glonass!: boolean;
+    qzss!: boolean;
+
+    constructor(data?: IUpdateSatelliteNavigationSystemExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.gps = _data["gps"];
+            this.agps = _data["agps"];
+            this.galileo = _data["galileo"];
+            this.glonass = _data["glonass"];
+            this.qzss = _data["qzss"];
+        }
+    }
+
+    static fromJS(data: any): UpdateSatelliteNavigationSystemExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateSatelliteNavigationSystemExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["gps"] = this.gps;
+        data["agps"] = this.agps;
+        data["galileo"] = this.galileo;
+        data["glonass"] = this.glonass;
+        data["qzss"] = this.qzss;
+        return data;
+    }
+}
+
+export interface IUpdateSatelliteNavigationSystemExternalDto {
+    gps: boolean;
+    agps: boolean;
+    galileo: boolean;
+    glonass: boolean;
+    qzss: boolean;
+}
+
+export class UpdateSensorsExternalDto implements IUpdateSensorsExternalDto {
+    accelerometer!: boolean;
+    gyroscope!: boolean;
+    proximity!: boolean;
+    compass!: boolean;
+    barometer!: boolean;
+    halla!: boolean;
+    ambientLight!: boolean;
+
+    constructor(data?: IUpdateSensorsExternalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.accelerometer = _data["accelerometer"];
+            this.gyroscope = _data["gyroscope"];
+            this.proximity = _data["proximity"];
+            this.compass = _data["compass"];
+            this.barometer = _data["barometer"];
+            this.halla = _data["halla"];
+            this.ambientLight = _data["ambientLight"];
+        }
+    }
+
+    static fromJS(data: any): UpdateSensorsExternalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateSensorsExternalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["accelerometer"] = this.accelerometer;
+        data["gyroscope"] = this.gyroscope;
+        data["proximity"] = this.proximity;
+        data["compass"] = this.compass;
+        data["barometer"] = this.barometer;
+        data["halla"] = this.halla;
+        data["ambientLight"] = this.ambientLight;
+        return data;
+    }
+}
+
+export interface IUpdateSensorsExternalDto {
+    accelerometer: boolean;
+    gyroscope: boolean;
+    proximity: boolean;
+    compass: boolean;
+    barometer: boolean;
+    halla: boolean;
+    ambientLight: boolean;
+}
+
+export class ValidationError implements IValidationError {
+    message!: string;
+    name!: string;
+    entity!: string;
+
+    constructor(data?: IValidationError) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.message = _data["message"];
+            this.name = _data["name"];
+            this.entity = _data["entity"];
+        }
+    }
+
+    static fromJS(data: any): ValidationError {
+        data = typeof data === 'object' ? data : {};
+        let result = new ValidationError();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["message"] = this.message;
+        data["name"] = this.name;
+        data["entity"] = this.entity;
+        return data;
+    }
+}
+
+export interface IValidationError {
+    message: string;
+    name: string;
+    entity: string;
+}
+
+export class ValidationPolicyDescriptor implements IValidationPolicyDescriptor {
+    policyName!: string;
+    rules!: ValidationRuleDescriptor[];
+
+    constructor(data?: IValidationPolicyDescriptor) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.rules = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.policyName = _data["policyName"];
+            if (Array.isArray(_data["rules"])) {
+                this.rules = [] as any;
+                for (let item of _data["rules"])
+                    this.rules!.push(ValidationRuleDescriptor.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ValidationPolicyDescriptor {
+        data = typeof data === 'object' ? data : {};
+        let result = new ValidationPolicyDescriptor();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["policyName"] = this.policyName;
+        if (Array.isArray(this.rules)) {
+            data["rules"] = [];
+            for (let item of this.rules)
+                data["rules"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IValidationPolicyDescriptor {
+    policyName: string;
+    rules: ValidationRuleDescriptor[];
+}
+
+export class ValidationRuleDescriptor implements IValidationRuleDescriptor {
+    ruleName!: string;
+    rules!: ValidationError[];
+
+    constructor(data?: IValidationRuleDescriptor) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.rules = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ruleName = _data["ruleName"];
+            if (Array.isArray(_data["rules"])) {
+                this.rules = [] as any;
+                for (let item of _data["rules"])
+                    this.rules!.push(ValidationError.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ValidationRuleDescriptor {
+        data = typeof data === 'object' ? data : {};
+        let result = new ValidationRuleDescriptor();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ruleName"] = this.ruleName;
+        if (Array.isArray(this.rules)) {
+            data["rules"] = [];
+            for (let item of this.rules)
+                data["rules"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IValidationRuleDescriptor {
+    ruleName: string;
+    rules: ValidationError[];
 }
 
 export class ApiException extends Error {

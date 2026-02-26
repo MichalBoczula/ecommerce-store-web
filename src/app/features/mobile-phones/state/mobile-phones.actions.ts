@@ -1,6 +1,7 @@
 import { createAction, props } from '@ngrx/store';
 import { MobilePhone } from '../domain/model/mobile-phone';
 import { MobilePhoneDetails } from '../domain/model/mobile-phone-details';
+import { TopMobilePhone } from '../domain/model/top-mobile-phone';
 
 export const loadMobilePhones = createAction(
     '[MobilePhones] Load',
@@ -35,5 +36,17 @@ export const createMobilePhoneSuccess = createAction(
 );
 export const createMobilePhoneFailure = createAction(
     '[MobilePhones] Create Failure',
+    props<{ error: string }>()
+);
+
+export const loadTopMobilePhone = createAction(
+    '[MobilePhones] Load Top'
+);
+export const loadTopMobilePhoneSuccess = createAction(
+    '[MobilePhones] Load By Id Success',
+    props<{ items: TopMobilePhone[] }>()
+);
+export const loadTopMobilePhoneFailure = createAction(
+    '[MobilePhones] Load By Id Failure',
     props<{ error: string }>()
 );

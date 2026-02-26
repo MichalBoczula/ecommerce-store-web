@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
 
 @Component({
   selector: 'app-mobile-phone-home',
@@ -10,5 +11,7 @@ import { RouterLink } from '@angular/router';
   styleUrl: './mobile-phone.home.scss',
 })
 export class MobilePhoneHome {
+  private readonly facade = inject(MobilePhonesFacade);
+
 
 }

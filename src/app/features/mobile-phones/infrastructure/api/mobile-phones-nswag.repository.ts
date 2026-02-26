@@ -4,9 +4,9 @@ import { MobilePhonesRepository } from '../../domain/interfaces/mobile-phones-re
 import { MobilePhone } from '../../domain/model/mobile-phone';
 import { CreateMobilePhone } from '../../domain/model/create-mobile-phone';
 import { mapCreateMobilePhoneToDto, mapMobilePhoneDtoToMobilePhones, mapMobilePhoneDtoToMobilePhonesDetails } from '../mappers/mobile-phone.mapper';
-
 import { Client, MobilePhoneDetailsDto } from '../../../../shared/api/nswag/api-client';
 import { MobilePhoneDetails } from '../../domain/model/mobile-phone-details';
+import { TopMobilePhone } from '../../domain/model/top-mobile-phone';
 
 @Injectable()
 export class MobilePhonesNswagRepository implements MobilePhonesRepository {
@@ -26,6 +26,12 @@ export class MobilePhonesNswagRepository implements MobilePhonesRepository {
 
     create(body: CreateMobilePhone): Observable<MobilePhoneDetailsDto> {
         return this.api.createMobilePhone(mapCreateMobilePhoneToDto(body)).pipe(
+            map(mapMobilePhoneDtoToMobilePhonesDetails),
+        );
+    }
+
+    getTopMobilePhones(): Observable<TopMobilePhone[]> {
+        return this.api.getTopMobilePhones().pipe(
             map(mapMobilePhoneDtoToMobilePhonesDetails),
         );
     }
