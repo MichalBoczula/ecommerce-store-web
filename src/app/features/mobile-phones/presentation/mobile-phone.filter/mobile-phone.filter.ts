@@ -4,6 +4,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { Router } from '@angular/router';
+import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
+import { FilterMobilePhone } from '../../domain/model/filter-mobile-phones';
+import { MobilePhoneFilterDto, MobilePhonesBrand } from '../../../../shared/api/nswag/api-client';
 
 @Component({
   selector: 'app-mobile-phone-filter',
@@ -20,18 +24,25 @@ import { MatSelectModule } from '@angular/material/select';
 })
 export class MobilePhoneFilter {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly facade = inject(MobilePhonesFacade);
+  protected readonly MobilePhonesBrand = MobilePhonesBrand;
 
   readonly form = this.formBuilder.group({
-    brand: [''],
-    minimalPrice: [null as number | null],
-    maxPrice: [null as number | null]
+    brand: this.formBuilder.control<MobilePhonesBrand | null>(null),
+    minimalPrice: this.formBuilder.control<number | null>(null),
+    maxPrice: this.formBuilder.control<number | null>(null),
   });
 
   onSubmit(): void {
-    this.send(this.form.getRawValue());
-  }
+    const raw = this.form.getRawValue();
 
-  send(body: unknown): void {
-    console.log(body);
+    const filter: FilterMobilePhone = new MobilePhoneFilterDto();
+    filter.brand = raw.brand ?? undefined;
+    filter.minimalPrice = raw.minimalPrice ?? undefined;
+    filter.maximalPrice = raw.maxPrice ?? undefined;
+
+    this.facade.loadByFilter(filter);
+    this.router.navigate(['/list']);
   }
 }

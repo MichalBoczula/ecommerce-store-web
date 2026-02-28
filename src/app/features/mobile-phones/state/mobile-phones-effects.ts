@@ -116,4 +116,16 @@ export class MobilePhonesEffects {
             )
         )
     );
+
+    loadByFilter$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(ActionsSet.loadMobilePhoneByFilter),
+            switchMap(({ filter }) =>
+                this.repo.getFilteredMobilePhones(filter).pipe(
+                    map(items => ActionsSet.loadMobilePhoneByFilterSuccess({ items })),
+                    catchError(e => of(ActionsSet.loadMobilePhoneByFilterFailure({ error: String(e) }))),
+                )
+            )
+        )
+    );
 }

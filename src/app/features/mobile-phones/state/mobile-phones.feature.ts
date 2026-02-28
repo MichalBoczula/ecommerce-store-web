@@ -42,7 +42,9 @@ export const mobilePhonesFeature = createFeature({
         on(Actions.loadTopMobilePhoneSuccess, (s, { items }) => ({ ...s, status: 'loaded', topMobilePhones: items })),
         on(Actions.loadTopMobilePhoneFailure, (s, { error }) => ({ ...s, status: 'error', error })),
 
-
+        on(Actions.loadMobilePhoneByFilter, s => ({ ...s, status: 'loading', error: null })),
+        on(Actions.loadMobilePhoneByFilterSuccess, (s, { items }) => ({ ...s, status: 'loaded', items: items })),
+        on(Actions.loadMobilePhoneByFilterFailure, (s, { error }) => ({ ...s, status: 'error', error })),
 
 
         on(Actions.createMobilePhone, s => ({ ...s, status: 'loading', error: null })),

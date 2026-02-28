@@ -2,6 +2,7 @@ import { createAction, props } from '@ngrx/store';
 import { MobilePhone } from '../domain/model/mobile-phone';
 import { MobilePhoneDetails } from '../domain/model/mobile-phone-details';
 import { TopMobilePhone } from '../domain/model/top-mobile-phone';
+import { FilterMobilePhone } from '../domain/model/filter-mobile-phones';
 
 export const loadMobilePhones = createAction(
     '[MobilePhones] Load',
@@ -48,5 +49,18 @@ export const loadTopMobilePhoneSuccess = createAction(
 );
 export const loadTopMobilePhoneFailure = createAction(
     '[MobilePhones] Load By Id Failure',
+    props<{ error: string }>()
+);
+
+export const loadMobilePhoneByFilter = createAction(
+    '[MobilePhones] Load Mobile Phones By Filter',
+    props<{ filter: FilterMobilePhone }>()
+);
+export const loadMobilePhoneByFilterSuccess = createAction(
+    '[MobilePhones] [MobilePhones] Load Mobile Phones By Filter Success',
+    props<{ items: MobilePhone[] }>()
+);
+export const loadMobilePhoneByFilterFailure = createAction(
+    '[MobilePhones] [MobilePhones] Load Mobile Phones By Filter Failure',
     props<{ error: string }>()
 );

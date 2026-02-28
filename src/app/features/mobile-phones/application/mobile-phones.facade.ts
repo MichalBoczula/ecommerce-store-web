@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { mobilePhonesFeature } from '../state/mobile-phones.feature';
 import * as Actions from '../state/mobile-phones.actions';
+import { FilterMobilePhone } from '../domain/model/filter-mobile-phones';
 
 @Injectable()
 export class MobilePhonesFacade {
@@ -23,5 +24,9 @@ export class MobilePhonesFacade {
 
     loadTop(): void {
         this.store.dispatch(Actions.loadTopMobilePhone());
+    }
+
+    loadByFilter(filter: FilterMobilePhone): void {
+        this.store.dispatch(Actions.loadMobilePhoneByFilter({ filter }));
     }
 }

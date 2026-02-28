@@ -12,6 +12,7 @@ import {
 import { Client, MobilePhoneDetailsDto } from '../../../../shared/api/nswag/api-client';
 import { MobilePhoneDetails } from '../../domain/model/mobile-phone-details';
 import { TopMobilePhone } from '../../domain/model/top-mobile-phone';
+import { FilterMobilePhone } from '../../domain/model/filter-mobile-phones';
 
 @Injectable()
 export class MobilePhonesNswagRepository implements MobilePhonesRepository {
@@ -38,6 +39,12 @@ export class MobilePhonesNswagRepository implements MobilePhonesRepository {
     getTopMobilePhones(): Observable<TopMobilePhone[]> {
         return this.api.getTopMobilePhones().pipe(
             map(dtos => dtos.map(mapTopMobilePhoneDtoToTopMobilePhone)),
+        );
+    }
+
+    getFilteredMobilePhones(filter: FilterMobilePhone): Observable<MobilePhone[]> {
+        return this.api.getFiltered_MobilePhones(filter).pipe(
+            map(dtos => dtos.map(mapMobilePhoneDtoToMobilePhones)),
         );
     }
 }
