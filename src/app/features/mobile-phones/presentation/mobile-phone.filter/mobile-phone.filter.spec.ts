@@ -9,15 +9,32 @@ describe('MobilePhoneFilter', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [MobilePhoneFilter]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(MobilePhoneFilter);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should send form body on submit', () => {
+    const sendSpy = spyOn(component, 'send');
+
+    component.form.patchValue({
+      brand: 'Apple',
+      minimalPrice: 100,
+      maxPrice: 1200
+    });
+
+    component.onSubmit();
+
+    expect(sendSpy).toHaveBeenCalledWith({
+      brand: 'Apple',
+      minimalPrice: 100,
+      maxPrice: 1200
+    });
   });
 });
