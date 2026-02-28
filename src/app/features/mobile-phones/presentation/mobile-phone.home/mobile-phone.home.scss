@@ -35,9 +35,21 @@
     border-radius: 30px;
     transition: v.$transition;
     margin: 5px;
+    height: 420px;
 }
 
 .container:hover {
     cursor: pointer;
     box-shadow: 5px 10px 5px v.$nav-color;
+}
+
+.phone-name-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+h4 {
+    margin: 5px;
 }

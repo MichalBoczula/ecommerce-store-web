@@ -27,6 +27,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 290px;
 }
 
 .image img {
@@ -67,13 +68,32 @@
     padding-left: 5px;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
     .grid-list {
         margin-left: 16px;
         margin-right: 16px;
     }
 
-    .image img {
-        max-width: 200px;
+
+    .image {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 330px;
+    }
+}
+
+@media (max-width: 900px) {
+    .grid-list {
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+
+
+    .image {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 450px;
     }
 }
