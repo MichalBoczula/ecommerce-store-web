@@ -11,6 +11,7 @@ export class MobilePhonesFacade {
     readonly status$ = this.store.select(mobilePhonesFeature.selectStatus);
     readonly error$ = this.store.select(mobilePhonesFeature.selectError);
     readonly details$ = this.store.select(mobilePhonesFeature.selectSelectedItem);
+    readonly top$ = this.store.select(mobilePhonesFeature.selectTopMobilePhones);
 
     load(amount: number): void {
         this.store.dispatch(Actions.loadMobilePhones({ amount }));
@@ -18,5 +19,9 @@ export class MobilePhonesFacade {
 
     loadById(id: string): void {
         this.store.dispatch(Actions.loadMobilePhoneById({ id }));
+    }
+
+    loadTop(): void {
+        this.store.dispatch(Actions.loadTopMobilePhone());
     }
 }

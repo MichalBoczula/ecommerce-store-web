@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,7 +29,7 @@ const MOCK_PHONES: MobilePhoneDto[] = [
   //   },
   // ],
 })
-export class MobilePhoneList {
+export class MobilePhoneList implements OnInit {
   private readonly facade = inject(MobilePhonesFacade);
   private readonly router = inject(Router);
 

@@ -1,21 +1,16 @@
 <article class="grid-list">
+    @if (top$ | async; as phones) {
+    @for (phone of phones; track phone.id) {
     <section class="container">
         <div class="image">
             <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu" />
         </div>
+        <p>{{phone.commonDescription.name}}</p>
+        <!-- <p>{{phone.commonDescription.mainPhoto}}</p> -->
+        <p>{{phone.price.amount}}$</p>
     </section>
-
-    <section class="container">
-        <div class="image">
-            <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu" />
-        </div>
-    </section>
-
-    <section class="container">
-        <div class="image">
-            <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu" />
-        </div>
-    </section>
+    }
+    }
 </article>
 <article class="grid-list">
     <button matFab extended routerLink="/list" class="home-btn">

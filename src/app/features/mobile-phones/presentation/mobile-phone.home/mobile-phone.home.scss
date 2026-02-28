@@ -18,12 +18,6 @@
     object-fit: contain;
     object-position: center;
     border-radius: 10%;
-    transition: v.$transition;
-}
-
-img:hover {
-    cursor: pointer;
-    box-shadow: 0px 10px 5px v.$nav-color;
 }
 
 .grid-list {
@@ -34,4 +28,16 @@ img:hover {
 
 .home-btn {
     margin: 10px;
+}
+
+.container {
+    border: solid 1px v.$font-color;
+    border-radius: 30px;
+    transition: v.$transition;
+    margin: 5px;
+}
+
+.container:hover {
+    cursor: pointer;
+    box-shadow: 5px 10px 5px v.$nav-color;
 }
