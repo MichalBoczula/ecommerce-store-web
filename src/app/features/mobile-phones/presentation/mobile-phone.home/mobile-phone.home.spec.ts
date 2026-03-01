@@ -1,15 +1,23 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+import { of } from 'rxjs';
 
+import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
 import { MobilePhoneHome } from './mobile-phone.home';
 
 describe('MobilePhoneHome (component)', () => {
   let router: Router;
+  const facade = {
+    top$: of([]),
+    loadTop: jasmine.createSpy('loadTop'),
+  } satisfies Partial<MobilePhonesFacade>;
 
   beforeEach(async () => {
+    facade.loadTop.calls.reset();
+
     await TestBed.configureTestingModule({
       imports: [MobilePhoneHome],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), { provide: MobilePhonesFacade, useValue: facade }],
     }).compileComponents();
 
     router = TestBed.inject(Router);
@@ -20,6 +28,7 @@ describe('MobilePhoneHome (component)', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance).toBeTruthy();
+    expect(facade.loadTop).toHaveBeenCalledTimes(1);
   });
 
   it('renders 3 preview cards with images', () => {
