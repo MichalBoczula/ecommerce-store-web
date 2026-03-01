@@ -41,14 +41,14 @@ export const createMobilePhoneFailure = createAction(
 );
 
 export const loadTopMobilePhone = createAction(
-    '[MobilePhones] Load Top'
+    '[MobilePhones] Load Top Mobile Phones'
 );
 export const loadTopMobilePhoneSuccess = createAction(
-    '[MobilePhones] Load By Id Success',
+    '[MobilePhones] Load Top Mobile Phones Success',
     props<{ items: TopMobilePhone[] }>()
 );
 export const loadTopMobilePhoneFailure = createAction(
-    '[MobilePhones] Load By Id Failure',
+    '[MobilePhones] Load Top Mobile Phones Failure',
     props<{ error: string }>()
 );
 
@@ -57,10 +57,10 @@ export const loadMobilePhoneByFilter = createAction(
     props<{ filter: FilterMobilePhone }>()
 );
 export const loadMobilePhoneByFilterSuccess = createAction(
-    '[MobilePhones] [MobilePhones] Load Mobile Phones By Filter Success',
+    '[MobilePhones] Load Mobile Phones By Filter Success',
     props<{ items: MobilePhone[] }>()
 );
 export const loadMobilePhoneByFilterFailure = createAction(
-    '[MobilePhones] [MobilePhones] Load Mobile Phones By Filter Failure',
+    '[MobilePhones] Load Mobile Phones By Filter Failure',
     props<{ error: string }>()
 );
