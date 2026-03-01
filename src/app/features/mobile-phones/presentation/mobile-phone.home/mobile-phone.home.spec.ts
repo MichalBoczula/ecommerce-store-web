@@ -3,12 +3,18 @@ import { provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
 
 import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
+import { TopMobilePhoneDto } from '../../../../shared/api/nswag/api-client';
 import { MobilePhoneHome } from './mobile-phone.home';
 
 describe('MobilePhoneHome (component)', () => {
   let router: Router;
+  const topPhones = [
+    TopMobilePhoneDto.fromJS({ id: 'phone-1', commonDescription: { name: 'Phone 1' }, price: { amount: 100 } }),
+    TopMobilePhoneDto.fromJS({ id: 'phone-2', commonDescription: { name: 'Phone 2' }, price: { amount: 200 } }),
+    TopMobilePhoneDto.fromJS({ id: 'phone-3', commonDescription: { name: 'Phone 3' }, price: { amount: 300 } }),
+  ];
   const facade = {
-    top$: of([]),
+    top$: of(topPhones),
     loadTop: jasmine.createSpy('loadTop'),
   } satisfies Partial<MobilePhonesFacade>;
 
