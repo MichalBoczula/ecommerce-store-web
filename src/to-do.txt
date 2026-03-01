@@ -1,0 +1,4 @@
+1.  comp tests for container
+2. add test for repo
+3. add test for facade
+4. refactor tests
