@@ -4,7 +4,11 @@ import {
     MobilePhonesState,
 } from './mobile-phones.feature';
 import { MobilePhone } from '../domain/model/mobile-phone';
+<<<<<<< HEAD
 import { MobilePhoneDetails } from '../domain/model/mobile-phone-details';
+=======
+import { TopMobilePhone } from '../domain/model/top-mobile-phone';
+>>>>>>> 24d10a3 (Added test for loadTopMobilePhone feature)
 
 describe('mobilePhonesFeature reducer', () => {
     const reducer = mobilePhonesFeature.reducer;
@@ -53,40 +57,6 @@ describe('mobilePhonesFeature reducer', () => {
         const result = reducer(
             initialState,
             Actions.loadMobilePhonesFailure({ error: 'boom' })
-        );
-
-        expect(result.status).toBe('error');
-        expect(result.error).toBe('boom');
-    });
-
-    it('should set loading and clear error on loadMobilePhoneById', () => {
-        const state: MobilePhonesState = {
-            ...initialState,
-            error: 'old error',
-        };
-
-        const result = reducer(state, Actions.loadMobilePhoneById({ id: '1' }));
-
-        expect(result.status).toBe('loading');
-        expect(result.error).toBeNull();
-    });
-
-    it('should set selectedItem and loaded on loadMobilePhoneByIdSuccess', () => {
-        const item = { id: '1' } as MobilePhoneDetails;
-
-        const result = reducer(
-            initialState,
-            Actions.loadMobilePhoneByIdSuccess({ item })
-        );
-
-        expect(result.status).toBe('loaded');
-        expect(result.selectedItem).toEqual(item);
-    });
-
-    it('should set error and error status on loadMobilePhoneByIdFailure', () => {
-        const result = reducer(
-            initialState,
-            Actions.loadMobilePhoneByIdFailure({ error: 'boom' })
         );
 
         expect(result.status).toBe('error');
