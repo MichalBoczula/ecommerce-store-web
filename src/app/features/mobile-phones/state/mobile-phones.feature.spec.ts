@@ -126,4 +126,43 @@ describe('mobilePhonesFeature reducer', () => {
         expect(result.status).toBe('error');
         expect(result.error).toBe('boom');
     });
+
+    it('should set loading and clear error on loadMobilePhoneByFilter', () => {
+        const state: MobilePhonesState = {
+            ...initialState,
+            error: 'old error',
+        };
+
+        const result = reducer(
+            state,
+            Actions.loadMobilePhoneByFilter({
+                filter: {} as any,
+            })
+        );
+
+        expect(result.status).toBe('loading');
+        expect(result.error).toBeNull();
+    });
+
+    it('should set items and loaded on loadMobilePhoneByFilterSuccess', () => {
+        const items = [{ id: '1' }, { id: '2' }] as MobilePhone[];
+
+        const result = reducer(
+            initialState,
+            Actions.loadMobilePhoneByFilterSuccess({ items })
+        );
+
+        expect(result.status).toBe('loaded');
+        expect(result.items).toEqual(items);
+    });
+
+    it('should set error and error status on loadMobilePhoneByFilterFailure', () => {
+        const result = reducer(
+            initialState,
+            Actions.loadMobilePhoneByFilterFailure({ error: 'boom' })
+        );
+
+        expect(result.status).toBe('error');
+        expect(result.error).toBe('boom');
+    });
 });
