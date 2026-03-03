@@ -7,6 +7,7 @@ import { MobilePhonesRepository } from '../domain/interfaces/mobile-phones-repos
 import { MobilePhone } from '../domain/model/mobile-phone';
 import { FilterMobilePhone } from '../domain/model/filter-mobile-phones';
 import { MobilePhoneFilterDto } from '../../../shared/api/nswag/api-client';
+import { TopMobilePhone } from '../domain/model/top-mobile-phone';
 
 describe('MobilePhonesEffects', () => {
     let actions$: ReplaySubject<any>;
@@ -91,6 +92,32 @@ describe('MobilePhonesEffects', () => {
         effects.loadByFilter$.subscribe(action => {
             expect(action).toEqual(
                 Actions.loadMobilePhoneByFilterFailure({ error: 'Error: api failed' })
+            );
+            done();
+        });
+    });
+
+    it('loadTop$ should return loadTopMobilePhoneSuccess', (done) => {
+        const items = [{ id: '1' }] as TopMobilePhone[];
+        repo.getTopMobilePhones.and.returnValue(of(items));
+
+        actions$.next(Actions.loadTopMobilePhone());
+
+        effects.loadTop$.subscribe(action => {
+            expect(repo.getTopMobilePhones).toHaveBeenCalled();
+            expect(action).toEqual(Actions.loadTopMobilePhoneSuccess({ items }));
+            done();
+        });
+    });
+
+    it('loadTop$ should return loadTopMobilePhoneFailure on error', (done) => {
+        repo.getTopMobilePhones.and.returnValue(throwError(() => new Error('api failed')));
+
+        actions$.next(Actions.loadTopMobilePhone());
+
+        effects.loadTop$.subscribe(action => {
+            expect(action).toEqual(
+                Actions.loadTopMobilePhoneFailure({ error: 'Error: api failed' })
             );
             done();
         });
