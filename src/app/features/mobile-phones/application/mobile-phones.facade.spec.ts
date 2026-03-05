@@ -1,10 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
-
 import { MobilePhonesFacade } from './mobile-phones.facade';
 import * as Actions from '../state/mobile-phones.actions';
 import { mobilePhonesFeature, MobilePhonesState } from '../state/mobile-phones.feature';
 import { firstValueFrom } from 'rxjs';
+import { MobilePhoneDetails } from '../domain/model/mobile-phone-details';
+import { TopMobilePhone } from '../domain/model/top-mobile-phone';
+import { MobilePhone } from '../domain/model/mobile-phone';
 
 describe('MobilePhonesFacade', () => {
     let facade: MobilePhonesFacade;
@@ -71,7 +73,7 @@ describe('MobilePhonesFacade', () => {
     });
 
     it('should expose items$ from store', async () => {
-        const items = [{ id: '1' }] as any[];
+        const items = [{ id: '1' }] as MobilePhone[];
 
         store.overrideSelector(mobilePhonesFeature.selectItems, items);
         store.refreshState();
@@ -97,5 +99,27 @@ describe('MobilePhonesFacade', () => {
         const result = await firstValueFrom(facade.error$);
 
         expect(result).toBe('boom');
+    });
+
+    it('should expose details$ from store', async () => {
+        const selectedItem = { id: 'details-1' } as MobilePhoneDetails;
+
+        store.overrideSelector(mobilePhonesFeature.selectSelectedItem, selectedItem);
+        store.refreshState();
+
+        const result = await firstValueFrom(facade.details$);
+
+        expect(result).toEqual(selectedItem);
+    });
+
+    it('should expose top$ from store', async () => {
+        const topMobilePhones = [{ id: 'top-1' }] as TopMobilePhone[];
+
+        store.overrideSelector(mobilePhonesFeature.selectTopMobilePhones, topMobilePhones);
+        store.refreshState();
+
+        const result = await firstValueFrom(facade.top$);
+
+        expect(result).toEqual(topMobilePhones);
     });
 });
