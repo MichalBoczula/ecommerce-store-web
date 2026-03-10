@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 jobs:
   build:
@@ -42,3 +42,122 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Run unit tests
+        continue-on-error: true
+        run: npm test -- --watch=false --browsers=ChromeHeadless
+
+      - name: Add Jasmine tests summary
+        if: always()
+        shell: pwsh
+        run: |
+          $report = Get-ChildItem ./TestResults -Filter *.xml -Recurse | Select-Object -First 1
+
+          Add-Content $env:GITHUB_STEP_SUMMARY "## Jasmine unit tests"
+          Add-Content $env:GITHUB_STEP_SUMMARY ""
+
+          if (-not $report) {
+            Add-Content $env:GITHUB_STEP_SUMMARY "No JUnit XML file found."
+            exit 0
+          }
+
+          [xml]$xml = Get-Content $report.FullName
+
+          $testSuites = @()
+          if ($xml.testsuites) {
+            $testSuites = @($xml.testsuites.testsuite)
+          }
+          elseif ($xml.testsuite) {
+            $testSuites = @($xml.testsuite)
+          }
+
+          if ($testSuites.Count -eq 0) {
+            Add-Content $env:GITHUB_STEP_SUMMARY "No test suites found in XML report."
+            exit 0
+          }
+
+          $total = 0
+          $failed = 0
+          $skipped = 0
+
+          $failedTests = @()
+
+          foreach ($suite in $testSuites) {
+            $total += [int]$suite.tests
+            $failed += [int]$suite.failures
+            if ($suite.skipped) {
+              $skipped += [int]$suite.skipped
+            }
+
+            $testCases = @($suite.testcase)
+            foreach ($testCase in $testCases) {
+              if ($testCase.failure) {
+                $failureMessage = ""
+                if ($testCase.failure.message) {
+                  $failureMessage = $testCase.failure.message
+                }
+                elseif ($testCase.failure.'#text') {
+                  $failureMessage = $testCase.failure.'#text'
+                }
+
+                $testName = "$($testCase.classname) $($testCase.name)".Trim()
+                $testName = $testName -replace '\|', '/' -replace "`r", ' ' -replace "`n", ' '
+                $failureMessage = $failureMessage -replace '\|', '/' -replace "`r", ' ' -replace "`n", ' '
+
+                $failedTests += [PSCustomObject]@{
+                  Test = $testName
+                  Error = $failureMessage
+                }
+              }
+            }
+          }
+
+          $passed = $total - $failed - $skipped
+
+          Add-Content $env:GITHUB_STEP_SUMMARY "| Total | Passed | Failed | Skipped |"
+          Add-Content $env:GITHUB_STEP_SUMMARY "|-------|--------|--------|---------|"
+          Add-Content $env:GITHUB_STEP_SUMMARY "| $total | $passed | $failed | $skipped |"
+          Add-Content $env:GITHUB_STEP_SUMMARY ""
+
+          if ($failedTests.Count -eq 0) {
+            Add-Content $env:GITHUB_STEP_SUMMARY "All Jasmine unit tests passed."
+            exit 0
+          }
+
+          Add-Content $env:GITHUB_STEP_SUMMARY "### Failed tests"
+          Add-Content $env:GITHUB_STEP_SUMMARY ""
+          Add-Content $env:GITHUB_STEP_SUMMARY "| Test | Error |"
+          Add-Content $env:GITHUB_STEP_SUMMARY "|------|-------|"
+
+          foreach ($item in $failedTests) {
+            Add-Content $env:GITHUB_STEP_SUMMARY "| $($item.Test) | $($item.Error) |"
+          }
+
+      - name: Fail job if Jasmine tests failed
+        if: always()
+        shell: pwsh
+        run: |
+          $report = Get-ChildItem ./TestResults -Filter *.xml -Recurse | Select-Object -First 1
+
+          if (-not $report) {
+            throw "Jasmine JUnit XML file not found."
+          }
+
+          [xml]$xml = Get-Content $report.FullName
+
+          $testSuites = @()
+          if ($xml.testsuites) {
+            $testSuites = @($xml.testsuites.testsuite)
+          }
+          elseif ($xml.testsuite) {
+            $testSuites = @($xml.testsuite)
+          }
+
+          $failed = 0
+          foreach ($suite in $testSuites) {
+            $failed += [int]$suite.failures
+          }
+
+          if ($failed -gt 0) {
+            throw "$failed Jasmine test(s) failed."
+          }
