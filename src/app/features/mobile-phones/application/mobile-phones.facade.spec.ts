@@ -38,6 +38,10 @@ describe('MobilePhonesFacade', () => {
         dispatchSpy = spyOn(store, 'dispatch');
     });
 
+    afterEach(() => {
+        store.resetSelectors();
+    });
+
     it('should dispatch loadMobilePhones', () => {
         facade.load(10);
 
