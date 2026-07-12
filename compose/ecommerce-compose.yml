@@ -1,0 +1,124 @@
+services:
+  product-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: product-catalog-db
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "YourStrong@Password123!"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'YourStrong@Password123!' -C -Q 'SELECT 1' || exit 1"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  compose-mongodb:
+    image: mongo:8.0
+    container_name: local-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--username",
+          "admin",
+          "--password",
+          "admin123",
+          "--authenticationDatabase",
+          "admin",
+          "--eval",
+          "db.adminCommand('ping')"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  productcatalogapi:
+    image: productcatalogapi:latest
+    pull_policy: never
+    container_name: product-catalog-api
+    restart: unless-stopped
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__ProductCatalogDb: "Server=product-db;Database=ProductsDb;User Id=sa;Password=YourStrong@Password123!;TrustServerCertificate=True"
+    depends_on:
+      product-db:
+        condition: service_healthy
+
+  ecommercestoreusers.api:
+    image: ecommercestoreusersapi:latest
+    pull_policy: never
+    container_name: ecommerce-store-users-api
+    restart: unless-stopped
+    ports:
+      - "6500:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      MongoDbSettings__ConnectionString: "mongodb://admin:admin123@compose-mongodb:27017/?authSource=admin"
+      MongoDbSettings__DatabaseName: ecommerce-store-users-db
+      MongoDbSettings__CustomerCollectionName: customers
+      MongoDbSettings__CustomersHistoryCollectionName: customers-history
+      MongoDbSettings__AdminCollectionName: admins
+      MongoDbSettings__AdminsHistoryCollectionName: admins-history
+    depends_on:
+      compose-mongodb:
+        condition: service_healthy
+
+  ecommercestoreinvoice.api:
+    image: ecommercestoreinvoiceapi:latest
+    pull_policy: never
+    container_name: ecommerce-store-invoice-api
+    restart: unless-stopped
+    ports:
+      - "7000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      MongoDbSettings__ConnectionString: "mongodb://admin:admin123@compose-mongodb:27017/?authSource=admin"
+      MongoDbSettings__DatabaseName: ecommerce-store-invoice-db
+      MongoDbSettings__ShoppingCartsCollectionName: shopping-carts
+      MongoDbSettings__OrdersCollectionName: orders
+      MongoDbSettings__ProductVersionsCollectionName: product-versions
+      MongoDbSettings__InvoicesCollectionName: invoices
+    shm_size: "2gb"
+    depends_on:
+      compose-mongodb:
+        condition: service_healthy
+
+  ecommercestoreweb:
+    image: ecommerce-store-web:latest
+    pull_policy: never
+    container_name: ecommerce-store-web
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    depends_on:
+      - productcatalogapi
+      - ecommercestoreusers.api
+      - ecommercestoreinvoice.api
+
+volumes:
+  mssql_data:
+  mongo-data:
