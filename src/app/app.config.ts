@@ -34,7 +34,7 @@ export const appConfig: ApplicationConfig = {
     provideState(mobilePhonesFeature),
     provideEffects(MobilePhonesEffects),
     isDevMode() ? provideStoreDevtools({ maxAge: 50 }) : [],
-    { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
+    { provide: API_BASE_URL, useValue: environment.productsUrl },
     Client,
   ],
 };

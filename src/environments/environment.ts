@@ -1,3 +1,5 @@
 export const environment = {
-    apiBaseUrl: 'http://localhost:5237'
+    productsUrl: 'http://localhost:5000',
+    usersUrl: 'http://localhost:6500',
+    invoicetsUrl: 'http://localhost:7000'
 };
