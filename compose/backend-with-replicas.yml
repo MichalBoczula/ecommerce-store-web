@@ -1,0 +1,273 @@
+name: ecommerce-store
+
+services:
+  product-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: product-catalog-db-2
+    restart: unless-stopped
+
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "YourStrong@Password123!"
+
+    ports:
+      - "1433:1433"
+
+    volumes:
+      - mssql_data:/var/opt/mssql
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"SELECT 1\" || exit 1"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  mongo-keyfile-init:
+    image: busybox:latest
+    container_name: ecommerce-store-mongodb-keyfile-init-2
+    restart: "no"
+    user: root
+
+    volumes:
+      - mongo-keyfile:/mongo-keyfile
+
+    command:
+      - sh
+      - -c
+      - |
+        if [ ! -f /mongo-keyfile/keyfile ]; then
+          echo "Generating MongoDB replica-set keyfile..."
+
+          head -c 96 /dev/urandom \
+            | base64 \
+            | tr -d '\n' \
+            > /mongo-keyfile/keyfile
+
+          chown 999:999 /mongo-keyfile/keyfile
+          chmod 400 /mongo-keyfile/keyfile
+        else
+          echo "MongoDB keyfile already exists."
+        fi
+
+  compose-mongodb:
+    image: mongo:8.0
+    container_name: local-mongodb-2
+    restart: unless-stopped
+
+    depends_on:
+      mongo-keyfile-init:
+        condition: service_completed_successfully
+
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+
+    ports:
+      - "27017:27017"
+
+    volumes:
+      - mongo-data:/data/db
+      - mongo-keyfile:/etc/mongo-keyfile:ro
+
+    command:
+      - mongod
+      - --replSet
+      - rs0
+      - --bind_ip_all
+      - --keyFile
+      - /etc/mongo-keyfile/keyfile
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mongosh 'mongodb://admin:admin123@localhost:27017/admin?authSource=admin&directConnection=true' --quiet --eval 'db.adminCommand({ ping: 1 }).ok' | grep 1"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  mongo-replica-init:
+    image: mongo:8.0
+    container_name: ecommerce-store-mongodb-replica-init-2
+    restart: "no"
+
+    depends_on:
+      compose-mongodb:
+        condition: service_healthy
+
+    entrypoint:
+      - /bin/bash
+      - -c
+
+    command:
+      - |
+        MONGO_URI="mongodb://admin:admin123@compose-mongodb:27017/admin?authSource=admin&directConnection=true"
+
+        echo "Checking MongoDB replica-set configuration..."
+
+        mongosh "$$MONGO_URI" --quiet --eval '
+          try {
+            const status = rs.status();
+
+            if (status.ok === 1) {
+              print("Replica set is already initialized.");
+            }
+          } catch (error) {
+            print("Replica set is not initialized. Initializing rs0...");
+
+            rs.initiate({
+              _id: "rs0",
+              members: [
+                {
+                  _id: 0,
+                  host: "compose-mongodb:27017"
+                }
+              ]
+            });
+          }
+        '
+
+        echo "Waiting for MongoDB to become PRIMARY..."
+
+        for attempt in {1..60}; do
+          IS_PRIMARY=$$(mongosh "$$MONGO_URI" --quiet --eval '
+            try {
+              print(db.hello().isWritablePrimary);
+            } catch (error) {
+              print(false);
+            }
+          ')
+
+          if [ "$$IS_PRIMARY" = "true" ]; then
+            echo "MongoDB replica set rs0 is ready and PRIMARY."
+            exit 0
+          fi
+
+          echo "MongoDB is not PRIMARY yet. Attempt $$attempt/60..."
+          sleep 2
+        done
+
+        echo "MongoDB replica-set initialization failed."
+        exit 1
+
+  productcatalogapi:
+    image: productcatalogapi:latest
+    pull_policy: never
+    container_name: product-catalog-api-2
+    restart: unless-stopped
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+
+      ConnectionStrings__ProductCatalogDb: >-
+        Server=product-db;
+        Database=ProductsDb;
+        User Id=sa;
+        Password=YourStrong@Password123!;
+        TrustServerCertificate=True
+
+    ports:
+      - "5000:8080"
+
+    depends_on:
+      product-db:
+        condition: service_healthy
+
+  ecommercestoreusers.api:
+    image: ecommercestoreusersapi:latest
+    pull_policy: never
+    container_name: ecommerce-store-users-api-2
+    restart: unless-stopped
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+
+      MongoDbSettings__ConnectionString: >-
+        mongodb://admin:admin123@compose-mongodb:27017/?authSource=admin&replicaSet=rs0
+
+      MongoDbSettings__DatabaseName: ecommerce-store-users-db
+      MongoDbSettings__CustomerCollectionName: customers
+      MongoDbSettings__CustomersHistoryCollectionName: customers-history
+      MongoDbSettings__AdminCollectionName: admins
+      MongoDbSettings__AdminsHistoryCollectionName: admins-history
+
+    ports:
+      - "6500:8080"
+
+    depends_on:
+      mongo-replica-init:
+        condition: service_completed_successfully
+
+  ecommercestoreinvoice.api:
+    image: ecommercestoreinvoiceapi:latest
+    pull_policy: never
+    container_name: ecommerce-store-invoice-api-2
+    restart: unless-stopped
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+
+      MongoDbSettings__ConnectionString: >-
+        mongodb://admin:admin123@compose-mongodb:27017/?authSource=admin&replicaSet=rs0
+
+      MongoDbSettings__DatabaseName: ecommerce-store-invoice-db
+      MongoDbSettings__ShoppingCartsCollectionName: shopping-carts
+      MongoDbSettings__OrdersCollectionName: orders
+      MongoDbSettings__ProductVersionsCollectionName: product-versions
+      MongoDbSettings__InvoicesCollectionName: invoices
+
+    ports:
+      - "7000:8080"
+
+    shm_size: "2gb"
+
+    depends_on:
+      mongo-replica-init:
+        condition: service_completed_successfully
+
+  ecommercestore.bff:
+    image: ecommercestorebffapi:latest
+    pull_policy: never
+    container_name: ecommerce-store-bff-5
+    restart: unless-stopped
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+
+      ReverseProxy__Clusters__products-cluster__Destinations__destination1__Address: >-
+        http://productcatalogapi:8080
+
+      ReverseProxy__Clusters__users-cluster__Destinations__destination1__Address: >-
+        http://ecommercestoreusers.api:8080
+
+      ReverseProxy__Clusters__orders-cluster__Destinations__destination1__Address: >-
+        http://ecommercestoreinvoice.api:8080
+
+    ports:
+      - "3000:8080"
+
+    depends_on:
+      productcatalogapi:
+        condition: service_started
+
+      ecommercestoreusers.api:
+        condition: service_started
+
+      ecommercestoreinvoice.api:
+        condition: service_started
+
+volumes:
+  mssql_data:
+  mongo-data:
+  mongo-keyfile:
