@@ -3,7 +3,7 @@ name: ecommerce-store
 services:
   product-db:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: product-catalog-db-2
+    container_name: product-catalog-db-3
     restart: unless-stopped
 
     environment:
@@ -29,7 +29,7 @@ services:
 
   mongo-keyfile-init:
     image: busybox:latest
-    container_name: ecommerce-store-mongodb-keyfile-init-2
+    container_name: ecommerce-store-mongodb-keyfile-init-3
     restart: "no"
     user: root
 
@@ -56,7 +56,7 @@ services:
 
   compose-mongodb:
     image: mongo:8.0
-    container_name: local-mongodb-2
+    container_name: local-mongodb-3
     restart: unless-stopped
 
     depends_on:
@@ -95,7 +95,7 @@ services:
 
   mongo-replica-init:
     image: mongo:8.0
-    container_name: ecommerce-store-mongodb-replica-init-2
+    container_name: ecommerce-store-mongodb-replica-init-3
     restart: "no"
 
     depends_on:
@@ -160,7 +160,7 @@ services:
   productcatalogapi:
     image: productcatalogapi:latest
     pull_policy: never
-    container_name: product-catalog-api-2
+    container_name: product-catalog-api-3
     restart: unless-stopped
 
     environment:
@@ -184,7 +184,7 @@ services:
   ecommercestoreusers.api:
     image: ecommercestoreusersapi:latest
     pull_policy: never
-    container_name: ecommerce-store-users-api-2
+    container_name: ecommerce-store-users-api-3
     restart: unless-stopped
 
     environment:
@@ -210,7 +210,7 @@ services:
   ecommercestoreinvoice.api:
     image: ecommercestoreinvoiceapi:latest
     pull_policy: never
-    container_name: ecommerce-store-invoice-api-2
+    container_name: ecommerce-store-invoice-api-3
     restart: unless-stopped
 
     environment:
@@ -238,7 +238,7 @@ services:
   ecommercestore.bff:
     image: ecommercestorebffapi:latest
     pull_policy: never
-    container_name: ecommerce-store-bff-5
+    container_name: ecommerce-store-bff-3
     restart: unless-stopped
 
     environment:
