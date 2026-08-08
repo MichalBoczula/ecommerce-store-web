@@ -1,5 +1,7 @@
 export const environment = {
-    productsUrl: 'http://localhost:5000',
-    usersUrl: 'http://localhost:6500',
-    invoicetsUrl: 'http://localhost:7000'
+    production: false,
+    bffUrl: 'http://localhost:3000',
+    productsUrl: 'http://localhost:3000/products',
+    usersUrl: 'http://localhost:3000/users',
+    invoicesUrl: 'http://localhost:3000/orders'
 };

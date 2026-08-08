@@ -25,7 +25,7 @@ export interface MobilePhonesRequestBuilder extends BaseRequestBuilder<MobilePho
      */
     get top(): TopRequestBuilder;
     /**
-     * Gets an item from the ECommerceStore.Core.Api.Products.mobilePhones.item collection
+     * Gets an item from the Api.mobilePhones.item collection
      * @param id Unique identifier of the item
      * @returns {MobilePhonesItemRequestBuilder}
      */

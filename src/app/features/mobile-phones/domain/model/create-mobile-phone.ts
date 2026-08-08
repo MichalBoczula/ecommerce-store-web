@@ -5,7 +5,7 @@ import {
     CreateMoneyExternalDto,
     CreateSatelliteNavigationSystemExternalDto,
     CreateSensorsExternalDto,
-} from '../../../../shared/api/nswag/api-client';
+} from '../../infrastructure/api-clients/products/models';
 
 export interface CreateMobilePhone {
     commonDescription: CommonDescriptionExtrernalDto;

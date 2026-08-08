@@ -1,8 +1,8 @@
 import { MobilePhone } from '../../domain/model/mobile-phone';
-import { CreateMobilePhone } from '../../domain/model/create-mobile-phone';
-import { CreateMobilePhoneExternalDto, MobilePhoneDetailsDto, MobilePhoneDto, TopMobilePhoneDto } from '../../../../shared/api/nswag/api-client';
+import { MobilePhoneDetailsDto, MobilePhoneDto, MobilePhoneFilterDto, TopMobilePhoneDto } from '../../infrastructure/api-clients/products/models';
 import { MobilePhoneDetails } from '../../domain/model/mobile-phone-details';
 import { TopMobilePhone } from '../../domain/model/top-mobile-phone';
+import { FilterMobilePhone } from '../../domain/model/filter-mobile-phones';
 
 export function mapMobilePhoneDtoToMobilePhonesDetails(dto: MobilePhoneDetailsDto): MobilePhoneDetails {
     return dto;
@@ -12,10 +12,10 @@ export function mapMobilePhoneDtoToMobilePhones(dto: MobilePhoneDto): MobilePhon
     return dto;
 }
 
-export function mapCreateMobilePhoneToDto(model: CreateMobilePhone): CreateMobilePhoneExternalDto {
-    return CreateMobilePhoneExternalDto.fromJS(model);
-}
-
 export function mapTopMobilePhoneDtoToTopMobilePhone(dto: TopMobilePhoneDto): TopMobilePhone {
     return dto;
+}
+
+export function mapFilterMobilePhoneToDto(filter: FilterMobilePhone): MobilePhoneFilterDto {
+    return filter as MobilePhoneFilterDto;
 }

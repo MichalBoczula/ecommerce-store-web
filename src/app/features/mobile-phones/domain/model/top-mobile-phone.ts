@@ -1,3 +1,3 @@
-import { TopMobilePhoneDto } from '../../../../shared/api/nswag/api-client';
+import { TopMobilePhoneDto } from '../../infrastructure/api-clients/products/models';
 
 export type TopMobilePhone = TopMobilePhoneDto;

@@ -7,7 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
 import { FilterMobilePhone } from '../../domain/model/filter-mobile-phones';
-import { MobilePhoneFilterDto, MobilePhonesBrand } from '../../../../shared/api/nswag/api-client';
+import { MobilePhoneFilterDto, MobilePhonesBrand } from '../../infrastructure/api-clients/products/models/index';
 
 @Component({
   selector: 'app-mobile-phone-filter',
