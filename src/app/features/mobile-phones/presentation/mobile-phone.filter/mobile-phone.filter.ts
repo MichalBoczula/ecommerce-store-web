@@ -7,7 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
 import { FilterMobilePhone } from '../../domain/model/filter-mobile-phones';
-import { MobilePhoneFilterDto, MobilePhonesBrand } from '../../infrastructure/api-clients/products/models/index';
+import { MobilePhonesBrand, MobilePhonesBrandObject } from '../../infrastructure/api-clients/products/models/index';
 
 @Component({
   selector: 'app-mobile-phone-filter',
@@ -26,7 +26,8 @@ export class MobilePhoneFilter {
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly facade = inject(MobilePhonesFacade);
-  protected readonly MobilePhonesBrand = MobilePhonesBrand;
+
+  protected readonly MobilePhonesBrand = MobilePhonesBrandObject;
 
   readonly form = this.formBuilder.group({
     brand: this.formBuilder.control<MobilePhonesBrand | null>(null),
@@ -37,10 +38,11 @@ export class MobilePhoneFilter {
   onSubmit(): void {
     const raw = this.form.getRawValue();
 
-    const filter: FilterMobilePhone = new MobilePhoneFilterDto();
-    filter.brand = raw.brand ?? undefined;
-    filter.minimalPrice = raw.minimalPrice ?? undefined;
-    filter.maximalPrice = raw.maxPrice ?? undefined;
+    const filter: FilterMobilePhone = {
+      brand: raw.brand ?? undefined,
+      minimalPrice: raw.minimalPrice ?? undefined,
+      maximalPrice: raw.maxPrice ?? undefined,
+    };
 
     this.facade.loadByFilter(filter);
     this.router.navigate(['/list']);

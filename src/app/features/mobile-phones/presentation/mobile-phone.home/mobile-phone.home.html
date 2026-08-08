@@ -6,9 +6,9 @@
             <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu" />
         </div>
         <div class="phone-name-container">
-            <h4>{{phone.commonDescription.name}}</h4>
+            <h4>{{phone.commonDescription!.name}}</h4>
             <!-- <p>{{phone.commonDescription.mainPhoto}}</p> -->
-            <h4>price: {{phone.price.amount}}$</h4>
+            <h4>price: {{phone.price!.amount}}$</h4>
         </div>
     </section>
     }

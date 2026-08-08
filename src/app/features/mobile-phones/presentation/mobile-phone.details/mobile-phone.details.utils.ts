@@ -1,4 +1,4 @@
-import type { MobilePhoneDetailsDto } from '../../../../shared/api/nswag/api-client';
+import type { MobilePhoneDetailsDto } from '../../infrastructure/api-clients/products/models';
 import type { SpecRow } from './mobile-phone.details';
 
 export function asLines(value: string | string[]): string[] {

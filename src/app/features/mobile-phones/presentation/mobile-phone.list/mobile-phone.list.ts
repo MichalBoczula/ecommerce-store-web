@@ -4,7 +4,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
 import { CommonModule } from '@angular/common';
-import { MobilePhoneDto } from '../../../../shared/api/nswag/api-client';
+import { MobilePhoneDto } from '../../infrastructure/api-clients/products/models';
 import { Router } from '@angular/router';
 
 const MOCK_PHONES: MobilePhoneDto[] = [
