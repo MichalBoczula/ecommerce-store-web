@@ -28,9 +28,10 @@ import { CartActions } from '../state/shopping-cart.actions';
 })
 export class ShoppingCartComponent {
   private readonly store = inject(Store);
+  private cartId: string = '239af05-6e03-4612-94be-bb7e99ec3ece';
+  private userId: string = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
 
   readonly displayedColumns: string[] = ['image', 'name', 'price', 'quantity', 'total', 'actions'];
-
   readonly items = this.store.selectSignal(cartFeature.selectCartItems);
   readonly grandTotal = this.store.selectSignal(cartFeature.selectGrandTotal);
   readonly totalItems = this.store.selectSignal(cartFeature.selectTotalItems);
