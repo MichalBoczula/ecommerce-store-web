@@ -17,17 +17,6 @@ const MOCK_PHONES: MobilePhoneDto[] = [
   imports: [MatButtonModule, MatDividerModule, MatIconModule, CommonModule],
   templateUrl: './mobile-phone.list.html',
   styleUrl: './mobile-phone.list.scss',
-  // providers: [
-  //   {
-  //     provide: MobilePhonesFacade,
-  //     useValue: {
-  //       items$: of(MOCK_PHONES),
-  //       status$: of('loaded'),
-  //       error$: of(null),
-  //       load: (_amount: number) => { },
-  //     } satisfies Partial<MobilePhonesFacade>,
-  //   },
-  // ],
 })
 export class MobilePhoneList implements OnInit {
   private readonly facade = inject(MobilePhonesFacade);
