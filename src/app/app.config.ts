@@ -11,6 +11,7 @@ import { MobilePhonesFacade } from './features/mobile-phones/application/mobile-
 import { mobilePhonesFeature } from './features/mobile-phones/state/mobile-phones.feature';
 import { MobilePhonesEffects } from './features/mobile-phones/state/mobile-phones-effects';
 import { MobilePhonesKiotaRepository } from './features/mobile-phones/infrastructure/api/mobile-phones-kiota-repository';
+import { cartFeature } from './features/cart/state/shopping-cart.feature';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -22,6 +23,7 @@ export const appConfig: ApplicationConfig = {
     { provide: MobilePhonesRepository, useClass: MobilePhonesKiotaRepository },
     MobilePhonesFacade,
     provideState(mobilePhonesFeature),
+    provideState(cartFeature),
     provideEffects(MobilePhonesEffects),
     isDevMode() ? provideStoreDevtools({ maxAge: 50 }) : [],
   ],

@@ -1,11 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
+import { Store } from '@ngrx/store';
 import { CartItem } from '../domain/model/cart-item.model';
+import { cartFeature } from '../state/shopping-cart.feature';
+import { CartActions } from '../state/shopping-cart.actions';
 
 @Component({
   selector: 'app-shopping-cart',
@@ -24,58 +27,31 @@ import { CartItem } from '../domain/model/cart-item.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ShoppingCartComponent {
-  displayedColumns: string[] = ['image', 'name', 'price', 'quantity', 'total', 'actions'];
+  private readonly store = inject(Store);
 
-  // State managed via Signals
-  readonly items = signal<CartItem[]>([
-    {
-      id: '1',
-      name: 'Nova X1 Ultra',
-      price: 999,
-      quantity: 1,
-      imageUrl: 'https://picsum.photos/seed/nova-x1/100/100'
-    },
-    {
-      id: '2',
-      name: 'Galaxy Pixel Pro',
-      price: 1199,
-      quantity: 2,
-      imageUrl: 'https://picsum.photos/seed/galaxy-pixel/100/100'
-    }
-  ]);
+  readonly displayedColumns: string[] = ['image', 'name', 'price', 'quantity', 'total', 'actions'];
 
-  // Derived state calculations
-  readonly grandTotal = computed(() =>
-    this.items().reduce((sum, item) => sum + item.price * item.quantity, 0)
-  );
+  readonly items = this.store.selectSignal(cartFeature.selectCartItems);
+  readonly grandTotal = this.store.selectSignal(cartFeature.selectGrandTotal);
+  readonly totalItems = this.store.selectSignal(cartFeature.selectTotalItems);
 
-  readonly totalItems = computed(() =>
-    this.items().reduce((sum, item) => sum + item.quantity, 0)
-  );
-
-  incrementQuantity(id: string): void {
-    this.items.update(list =>
-      list.map(item =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-      )
+  incrementQuantity(item: CartItem): void {
+    this.store.dispatch(
+      CartActions.changeQuantity({ id: item.id, quantity: item.quantity + 1 })
     );
   }
 
-  decrementQuantity(id: string): void {
-    this.items.update(list =>
-      list
-        .map(item =>
-          item.id === id ? { ...item, quantity: item.quantity - 1 } : item
-        )
-        .filter(item => item.quantity > 0)
+  decrementQuantity(item: CartItem): void {
+    this.store.dispatch(
+      CartActions.changeQuantity({ id: item.id, quantity: item.quantity - 1 })
     );
   }
 
   removeItem(id: string): void {
-    this.items.update(list => list.filter(item => item.id !== id));
+    this.store.dispatch(CartActions.removeFromList({ id }));
   }
 
   clearCart(): void {
-    this.items.set([]);
+    this.store.dispatch(CartActions.cleanUp());
   }
 }

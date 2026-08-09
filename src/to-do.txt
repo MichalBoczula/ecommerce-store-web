@@ -1,2 +1,8 @@
-6. refactor tests
-7. testcontainer for api
+tech:
+refactor tests
+testcontainer for api
+
+features:
+implment users
+implement update shopping cart
+implemnt favoritas
