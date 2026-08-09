@@ -44,11 +44,7 @@ export class MobilePhonesKiotaRepository implements MobilePhonesRepository {
     }
 
     getById(id: string): Observable<MobilePhoneDetails> {
-        const route = (this.api.mobilePhones as any).byMobilePhoneId
-            ? (this.api.mobilePhones as any).byMobilePhoneId(id)
-            : (this.api.mobilePhones as any).byId(id);
-
-        const promise = route.get();
+        const promise = this.api.mobilePhones.byId(id).get();
 
         return from(promise).pipe(
             map(dto => {
