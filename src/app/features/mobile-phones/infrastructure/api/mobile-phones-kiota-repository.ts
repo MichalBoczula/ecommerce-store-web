@@ -26,7 +26,7 @@ export class MobilePhonesKiotaRepository implements MobilePhonesRepository {
         const authProvider = new AnonymousAuthenticationProvider();
         const adapter = new FetchRequestAdapter(authProvider);
 
-        adapter.baseUrl = environment.productsUrl;
+        adapter.baseUrl = environment.bffUrl;
 
         this.api = createProductsApiClient(adapter);
     }

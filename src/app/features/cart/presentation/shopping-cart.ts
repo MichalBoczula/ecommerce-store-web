@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,7 @@ import { Store } from '@ngrx/store';
 import { CartItem } from '../domain/model/cart-item.model';
 import { cartFeature } from '../state/shopping-cart.feature';
 import { CartActions } from '../state/shopping-cart.actions';
+import { OrdersFacade } from '../application/orders.facade';
 
 @Component({
   selector: 'app-shopping-cart',
@@ -26,8 +27,10 @@ import { CartActions } from '../state/shopping-cart.actions';
   styleUrl: './shopping-cart.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ShoppingCartComponent {
+export class ShoppingCartComponent implements OnInit {
   private readonly store = inject(Store);
+  private readonly shoppingCartFacade = inject(OrdersFacade);
+
   private cartId: string = '239af05-6e03-4612-94be-bb7e99ec3ece';
   private userId: string = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
 
@@ -35,6 +38,10 @@ export class ShoppingCartComponent {
   readonly items = this.store.selectSignal(cartFeature.selectCartItems);
   readonly grandTotal = this.store.selectSignal(cartFeature.selectGrandTotal);
   readonly totalItems = this.store.selectSignal(cartFeature.selectTotalItems);
+
+  ngOnInit(): void {
+    this.shoppingCartFacade.loadByClientId(this.userId);
+  }
 
   incrementQuantity(item: CartItem): void {
     this.store.dispatch(

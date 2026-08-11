@@ -1,6 +1,7 @@
 import { createFeature, createReducer, createSelector, on } from '@ngrx/store';
 import { CartItem } from '../domain/model/cart-item.model';
 import { CartActions } from './shopping-cart.actions';
+import { ShoppingCartResponse } from '../domain/model/shopping-cart-response.model';
 
 export type LoadStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
@@ -8,6 +9,7 @@ export interface CartState {
     status: LoadStatus;
     cartItems: CartItem[];
     error: string | null;
+    shoppingCart: ShoppingCartResponse | null;
 }
 
 const initialState: CartState = {
@@ -29,6 +31,7 @@ const initialState: CartState = {
         },
     ],
     error: null,
+    shoppingCart: null
 };
 
 export const cartFeature = createFeature({
