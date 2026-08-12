@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,10 +6,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { Store } from '@ngrx/store';
-import { CartItem } from '../domain/model/cart-item.model';
-import { cartFeature } from '../state/shopping-cart.feature';
-import { CartActions } from '../state/shopping-cart.actions';
 import { OrdersFacade } from '../application/orders.facade';
+import { cartFeature } from '../state/orders.feature';
+import { ShoppingCartLineResponse } from '../domain/model/shopping-cart-line-response.model';
 
 @Component({
   selector: 'app-shopping-cart',
@@ -29,37 +28,37 @@ import { OrdersFacade } from '../application/orders.facade';
 })
 export class ShoppingCartComponent implements OnInit {
   private readonly store = inject(Store);
-  private readonly shoppingCartFacade = inject(OrdersFacade);
+  private readonly ordersFacade = inject(OrdersFacade);
 
-  private cartId: string = '239af05-6e03-4612-94be-bb7e99ec3ece';
-  private userId: string = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
+  private readonly userId: string = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
 
-  readonly displayedColumns: string[] = ['image', 'name', 'price', 'quantity', 'total', 'actions'];
-  readonly items = this.store.selectSignal(cartFeature.selectCartItems);
-  readonly grandTotal = this.store.selectSignal(cartFeature.selectGrandTotal);
-  readonly totalItems = this.store.selectSignal(cartFeature.selectTotalItems);
+  readonly displayedColumns: string[] = ['name', 'price', 'quantity', 'total', 'actions'];
+
+  readonly shoppingCart = this.store.selectSignal(cartFeature.selectShoppingCart);
+  readonly status = this.store.selectSignal(cartFeature.selectStatus);
+  readonly error = this.store.selectSignal(cartFeature.selectError);
+
+  readonly cartLines = computed(() => this.shoppingCart()?.lines ?? []);
+  readonly grandTotal = computed(() => this.shoppingCart()?.totalAmount ?? 0);
+  readonly cartCurrency = computed(() => this.shoppingCart()?.totalCurrency ?? 'USD');
+  readonly totalItems = computed(() =>
+    this.cartLines().reduce((sum, line) => sum + (line.quantity ?? 0), 0)
+  );
 
   ngOnInit(): void {
-    this.shoppingCartFacade.loadByClientId(this.userId);
+    this.ordersFacade.loadByClientId(this.userId);
   }
 
-  incrementQuantity(item: CartItem): void {
-    this.store.dispatch(
-      CartActions.changeQuantity({ id: item.id, quantity: item.quantity + 1 })
-    );
+  incrementQuantity(item: ShoppingCartLineResponse): void {
   }
 
-  decrementQuantity(item: CartItem): void {
-    this.store.dispatch(
-      CartActions.changeQuantity({ id: item.id, quantity: item.quantity - 1 })
-    );
+  decrementQuantity(item: ShoppingCartLineResponse): void {
   }
 
-  removeItem(id: string): void {
-    this.store.dispatch(CartActions.removeFromList({ id }));
+  removeItem(productId?: string | null): void {
+    if (!productId) return;
   }
 
   clearCart(): void {
-    this.store.dispatch(CartActions.cleanUp());
   }
 }

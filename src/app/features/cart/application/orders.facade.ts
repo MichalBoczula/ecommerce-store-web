@@ -1,30 +1,17 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { OrdersRepository } from '../domain/interfaces/orders-repository.port';
-import { ShoppingCartResponse } from '../domain/model/shopping-cart-response.model';
+import { inject, Injectable } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { cartFeature } from '../state/orders.feature';
+import { OrdersActions } from '../state/orders.actions';
 
 @Injectable({ providedIn: 'root' })
 export class OrdersFacade {
-    private readonly repository = inject(OrdersRepository);
+    private readonly store = inject(Store);
 
-    readonly cart = signal<ShoppingCartResponse | null>(null);
-    readonly isLoading = signal<boolean>(false);
-    readonly error = signal<string | null>(null);
+    readonly cart$ = this.store.select(cartFeature.selectShoppingCart);
+    readonly status$ = this.store.select(cartFeature.selectStatus);
+    readonly error$ = this.store.select(cartFeature.selectError);
 
     loadByClientId(clientId: string): void {
-        this.isLoading.set(true);
-        this.error.set(null);
-
-        this.repository.getByClientId(clientId).subscribe({
-            next: (data) => {
-                console.log('--- 🛠️ Kiota Repository Fetch Success ---', data);
-                this.cart.set(data);
-                this.isLoading.set(false);
-            },
-            error: (err) => {
-                console.error('--- ❌ Kiota Repository Fetch Error ---', err);
-                this.error.set(err.message || 'Failed to fetch shopping cart');
-                this.isLoading.set(false);
-            },
-        });
+        this.store.dispatch(OrdersActions.loadCart({ clientId }));
     }
 }

@@ -1,31 +1,30 @@
 <div class="cart-container">
     <h2>Shopping Cart</h2>
 
-    @if (items().length > 0) {
+    @if (cartLines().length > 0) {
     <div class="cart-layout">
-        <table mat-table [dataSource]="items()" class="mat-elevation-z2 cart-table">
+        <table mat-table [dataSource]="cartLines()" class="mat-elevation-z2 cart-table">
 
-            <ng-container matColumnDef="image">
-                <th mat-header-cell *matHeaderCellDef> Product </th>
-                <td mat-cell *matCellDef="let item">
-                    <img [src]="item.imageUrl" [alt]="item.name" class="product-thumb" />
-                </td>
-            </ng-container>
-
+            <!-- Name Column -->
             <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef> Name </th>
+                <th mat-header-cell *matHeaderCellDef> Product </th>
                 <td mat-cell *matCellDef="let item" class="product-name">
-                    {{ item.name }}
+                    <div class="product-info">
+                        <span class="name">{{ item.name }}</span>
+                        <small class="brand" *ngIf="item.brand">{{ item.brand }}</small>
+                    </div>
                 </td>
             </ng-container>
 
+            <!-- Price Column -->
             <ng-container matColumnDef="price">
                 <th mat-header-cell *matHeaderCellDef> Unit Price </th>
                 <td mat-cell *matCellDef="let item">
-                    {{ item.price | currency:'USD':'symbol':'1.2-2' }}
+                    {{ item.unitPriceAmount | currency:(item.unitPriceCurrency || 'USD'):'symbol':'1.2-2' }}
                 </td>
             </ng-container>
 
+            <!-- Quantity Column -->
             <ng-container matColumnDef="quantity">
                 <th mat-header-cell *matHeaderCellDef> Quantity </th>
                 <td mat-cell *matCellDef="let item">
@@ -41,17 +40,19 @@
                 </td>
             </ng-container>
 
+            <!-- Total Column -->
             <ng-container matColumnDef="total">
                 <th mat-header-cell *matHeaderCellDef> Total </th>
                 <td mat-cell *matCellDef="let item" class="row-total">
-                    {{ (item.price * item.quantity) | currency:'USD':'symbol':'1.2-2' }}
+                    {{ item.totalAmount | currency:(item.unitPriceCurrency || 'USD'):'symbol':'1.2-2' }}
                 </td>
             </ng-container>
 
+            <!-- Actions Column -->
             <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef> </th>
                 <td mat-cell *matCellDef="let item">
-                    <button mat-icon-button (click)="removeItem(item.id)">
+                    <button mat-icon-button (click)="removeItem(item.productId)">
                         <mat-icon>delete</mat-icon>
                     </button>
                 </td>
@@ -61,6 +62,7 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
 
+        <!-- Order Summary Card -->
         <mat-card class="summary-card mat-elevation-z2">
             <mat-card-header>
                 <mat-card-title>Order Summary</mat-card-title>
@@ -76,7 +78,9 @@
 
                 <div class="summary-row grand-total-row">
                     <span class="label">Grand Total:</span>
-                    <span class="value">{{ grandTotal() | currency:'USD':'symbol':'1.2-2' }}</span>
+                    <span class="value">
+                        {{ grandTotal() | currency:(cartCurrency() || 'USD'):'symbol':'1.2-2' }}
+                    </span>
                 </div>
             </mat-card-content>
 
