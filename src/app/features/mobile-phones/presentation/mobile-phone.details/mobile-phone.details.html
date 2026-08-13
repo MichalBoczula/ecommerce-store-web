@@ -1,53 +1,63 @@
 <article class="grid-list">
+    <div>
+        <h1 class="title producName">{{ productName() }}</h1>
+        <div class="button-container">
+            <button matButton="filled" type="button">
+                <span class="material-symbols-outlined">favorite</span>
+            </button>
+
+            <button matButton="elevated" type="button">
+                <span class="material-symbols-outlined">shopping_cart_checkout</span>
+            </button>
+        </div>
+    </div>
+
     <swiper-container class="swiper" slides-per-view="1" loop="true" navigation="true" pagination="true">
         @for (img of images; track img) {
         <swiper-slide>
-            <img class="carousel-img" [src]="img" alt="Shiba Inu" />
+            <img class="carousel-img" [src]="img" alt="Mobile Phone Preview" />
         </swiper-slide>
         }
     </swiper-container>
 
-    @if (descriptions$ | async; as descriptions) {
-    @if(isNotNullOrWhiteSpace(descriptions[0]))
-    {
+    @if (descriptions(); as descs) {
+    @if (descs[0] && isNotNullOrWhiteSpace(descs[0])) {
     <section class="container">
         <div class="image">
-            <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu" />
+            <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Description Image 1" />
         </div>
 
         <div class="content-container">
             <div class="content">
-                {{descriptions[0]}}
+                {{ descs[0] }}
             </div>
         </div>
     </section>
     }
 
-    @if(isNotNullOrWhiteSpace(descriptions[1]))
-    {
+    @if (descs[1] && isNotNullOrWhiteSpace(descs[1])) {
     <section class="reverse-container">
         <div class="reverse-image">
-            <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu" />
+            <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Description Image 2" />
         </div>
 
         <div class="reverse-content-container">
             <div class="reverse-content">
-                {{descriptions[1]}}
+                {{ descs[1] }}
             </div>
         </div>
     </section>
     }
 
-    @if(isNotNullOrWhiteSpace(descriptions[2]))
-    {
+    @if (descs[2] && isNotNullOrWhiteSpace(descs[2])) {
     <section class="container">
         <div class="image">
-            <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu" />
+            <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Description Image 3" />
         </div>
 
         <div class="content-container">
             <div class="content">
-                {{descriptions[2]}}
+                {{ descs[2] }}
             </div>
         </div>
     </section>
@@ -57,7 +67,7 @@
     <h2 class="title">Specification</h2>
 
     <div class="spec-table">
-        <table mat-table [dataSource]="(specRows$ | async) ?? []" class="mat-elevation-z0">
+        <table mat-table [dataSource]="specRows()" class="mat-elevation-z0">
 
             <ng-container matColumnDef="label">
                 <td mat-cell *matCellDef="let row" class="label">

@@ -78,3 +78,7 @@ export function toSpecRows(mobilePhone: MobilePhoneDetailsDto): SpecRow[] {
 
     return rows;
 }
+
+export function toProductName(mobilePhone: MobilePhoneDetailsDto): string {
+    return `${mobilePhone.commonDescription?.brand} ${mobilePhone.commonDescription?.name}`
+}

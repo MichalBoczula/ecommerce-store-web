@@ -1,11 +1,26 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  computed,
+  inject,
+  OnInit,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTableModule } from '@angular/material/table';
-import { ActivatedRoute } from '@angular/router';
-import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
-import { map, Observable } from 'rxjs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { asLines, isNotNullOrWhiteSpace, toDescriptions, toSpecRows } from './mobile-phone.details.utils';
+import { MatButtonModule } from '@angular/material/button';
+import { ActivatedRoute } from '@angular/router';
+
+import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
+import {
+  asLines,
+  isNotNullOrWhiteSpace,
+  toDescriptions,
+  toProductName,
+  toSpecRows,
+} from './mobile-phone.details.utils';
 
 export type SpecRow =
   | { label: string; kind: 'text'; value: string | string[] }
@@ -13,39 +28,48 @@ export type SpecRow =
 
 @Component({
   selector: 'app-mobile-phone-details',
-  imports: [CommonModule, MatTableModule, MatCheckboxModule],
+  standalone: true,
+  imports: [CommonModule, MatTableModule, MatCheckboxModule, MatButtonModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './mobile-phone.details.html',
   styleUrl: './mobile-phone.details.scss',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MobilePhoneDetails implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly facade = inject(MobilePhonesFacade);
-  specRows$!: Observable<SpecRow[]>;
-  descriptions$!: Observable<string[]>;
-  asLines = asLines;
-  isNotNullOrWhiteSpace = isNotNullOrWhiteSpace;
 
-  ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id') ?? '';
-    this.facade.loadById(id);
+  readonly details = toSignal(this.facade.details$);
 
-    this.specRows$ = this.facade.details$.pipe(
-      map(details => toSpecRows(details!))
-    );
+  readonly productName = computed(() => {
+    const item = this.details();
+    return item ? toProductName(item) : '';
+  });
 
-    this.descriptions$ = this.facade.details$.pipe(
-      map(details => toDescriptions(details!))
-    );
-  }
+  readonly specRows = computed(() => {
+    const item = this.details();
+    return item ? toSpecRows(item) : [];
+  });
 
-  readonly images = [
+  readonly descriptions = computed(() => {
+    const item = this.details();
+    return item ? toDescriptions(item) : [];
+  });
+
+  readonly asLines = asLines;
+  readonly isNotNullOrWhiteSpace = isNotNullOrWhiteSpace;
+  readonly displayedColumns: string[] = ['label', 'value'];
+
+  readonly images: string[] = [
     'https://material.angular.dev/assets/img/examples/shiba2.jpg',
     'https://material.angular.dev/assets/img/examples/shiba1.jpg',
     'https://material.angular.dev/assets/img/examples/shiba2.jpg',
   ];
 
-  displayedColumns = ['label', 'value'];
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id') ?? '';
+    if (id) {
+      this.facade.loadById(id);
+    }
+  }
 }
