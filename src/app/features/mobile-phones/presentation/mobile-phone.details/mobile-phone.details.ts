@@ -14,6 +14,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute } from '@angular/router';
 
 import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
+import { OrdersFacade } from '../../../cart/application/orders.facade';
+import { ShoppingCartLineRequest } from '../../../cart/domain/model/update-shopping-cart/shopping-cart-line-request.model';
 import {
   asLines,
   isNotNullOrWhiteSpace,
@@ -38,6 +40,10 @@ export type SpecRow =
 export class MobilePhoneDetails implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly facade = inject(MobilePhonesFacade);
+  private readonly ordersFacade = inject(OrdersFacade);
+
+  // Client ID for the shopping cart session
+  private readonly userId: string = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
 
   readonly details = toSignal(this.facade.details$);
 
@@ -71,5 +77,27 @@ export class MobilePhoneDetails implements OnInit {
     if (id) {
       this.facade.loadById(id);
     }
+  }
+
+  addToCart(): void {
+    const item = this.details();
+    if (!item || !item.id) return;
+
+    const lineItem: ShoppingCartLineRequest = {
+      productId: item.id,
+      name: item.commonDescription?.name ?? 'Unknown Phone',
+      brand: item.commonDescription?.brand ?? null,
+      unitPriceAmount: Number(item.price?.amount) || 0,
+      unitPriceCurrency: 'USD',
+      quantity: 1,
+    };
+
+    this.ordersFacade.addItem(this.userId, lineItem);
+  }
+
+  toggleFavorite(): void {
+    const item = this.details();
+    if (!item?.id) return;
+    console.log('Toggle favorite for:', item.id);
   }
 }

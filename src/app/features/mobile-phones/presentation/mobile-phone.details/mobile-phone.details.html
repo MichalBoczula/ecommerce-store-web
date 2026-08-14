@@ -2,11 +2,11 @@
     <div>
         <h1 class="title producName">{{ productName() }}</h1>
         <div class="button-container">
-            <button matButton="filled" type="button">
+            <button matButton="filled" (click)="toggleFavorite()" aria-label="Add to favorites">
                 <span class="material-symbols-outlined">favorite</span>
             </button>
 
-            <button matButton="elevated" type="button">
+            <button matButton="elevated" type="button" (click)="addToCart()" aria-label="Add to shopping cart">
                 <span class="material-symbols-outlined">shopping_cart_checkout</span>
             </button>
         </div>
