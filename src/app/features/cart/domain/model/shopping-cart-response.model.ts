@@ -1,3 +1,11 @@
-import { ShoppingCartResponseDto } from "../../infrastructure/api-clients/orders/models";
+import { ShoppingCartLineResponse } from './shopping-cart-line-response.model';
 
-export type ShoppingCartResponse = ShoppingCartResponseDto;
+export interface ShoppingCartResponse {
+    id: string;
+    clientId: string;
+    lines: ShoppingCartLineResponse[];
+    totalAmount: number;
+    totalCurrency: string;
+    createdAt?: Date | null;
+    updatedAt?: Date | null;
+}
