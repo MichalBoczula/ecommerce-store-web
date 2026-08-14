@@ -41,16 +41,17 @@ export function mapShoppingCartResponseDtoToShoppingCartResponse(
 export function mapShoppingCartLineRequestToDto(
     model: ShoppingCartLineRequest
 ): ShoppingCartLineRequestDto {
+    const currency = model.unitPriceCurrency?.trim().toUpperCase() || 'USD';
+
     return {
         productId: model.productId ? (model.productId as unknown as Guid) : null,
         name: model.name ?? null,
         brand: model.brand ?? null,
         unitPriceAmount: model.unitPriceAmount ?? 0,
-        unitPriceCurrency: model.unitPriceCurrency ?? 'USD',
+        unitPriceCurrency: currency === 'USD' ? 'USD' : 'USD',
         quantity: model.quantity ?? 1,
     };
 }
-
 export function mapUpdateShoppingCartRequestToDto(
     request: UpdateShoppingCartRequest
 ): UpdateShoppingCartRequestDto {

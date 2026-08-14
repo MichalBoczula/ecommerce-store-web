@@ -3,7 +3,7 @@
     @for (phone of phones; track phone.id) {
     <section class="container" (click)="openDetails(phone.id!)">
         <div class="image">
-            <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu" />
+            <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Phone preview" />
         </div>
 
         <div class="content-container">
@@ -28,15 +28,15 @@
 
             <div class="sub-content">
                 <div class="price">
-                    {{ phone.price!.amount }} {{ phone.price!.currency }}
+                    {{ phone.price?.amount }} {{ phone.price?.currency }}
                 </div>
 
                 <div class="button-container">
-                    <button matButton="filled" type="button" (click)="toggleFavorite(phone)">
+                    <button matButton="filled" type="button" (click)="toggleFavorite(phone, $event)">
                         <span class="material-symbols-outlined">favorite</span>
                     </button>
 
-                    <button matButton="elevated" type="button" (click)="addToCart(phone)">
+                    <button matButton="elevated" color="primary" type="button" (click)="addToCart(phone, $event)">
                         <span class="material-symbols-outlined">shopping_cart_checkout</span>
                     </button>
                 </div>
@@ -45,6 +45,6 @@
     </section>
     }
     } @else {
-    <h1>loading</h1>
+    <h1>Loading...</h1>
     }
 </article>

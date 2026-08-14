@@ -1,4 +1,4 @@
-import { createFeature, createReducer, createSelector, on } from '@ngrx/store';
+import { createFeature, createReducer, on } from '@ngrx/store';
 import { OrdersActions } from './orders.actions';
 import { ShoppingCartResponse } from '../domain/model/shopping-cart-response.model';
 
@@ -35,6 +35,25 @@ export const cartFeature = createFeature({
         })),
 
         on(OrdersActions.loadCartFailure, (state, { error }) => ({
+            ...state,
+            status: 'error' as const,
+            error,
+        })),
+
+        on(OrdersActions.updateCart, state => ({
+            ...state,
+            status: 'loading' as const,
+            error: null,
+        })),
+
+        on(OrdersActions.updateCartSuccess, (state, { shoppingCartResponse }) => ({
+            ...state,
+            status: 'loaded' as const,
+            shoppingCart: shoppingCartResponse,
+            error: null,
+        })),
+
+        on(OrdersActions.updateCartFailure, (state, { error }) => ({
             ...state,
             status: 'error' as const,
             error,

@@ -27,4 +27,22 @@ export class OrdersEffects {
             )
         )
     );
+
+    updateCart$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(OrdersActions.updateCart),
+            switchMap(({ clientId, request }) =>
+                this.cartRepository.updateCart(clientId, request).pipe(
+                    map(shoppingCartResponse => OrdersActions.updateCartSuccess({ shoppingCartResponse })),
+                    catchError(error =>
+                        of(
+                            OrdersActions.updateCartFailure({
+                                error: error?.detail || error?.message || 'Failed to update shopping cart.',
+                            })
+                        )
+                    )
+                )
+            )
+        )
+    );
 }
