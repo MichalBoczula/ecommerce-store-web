@@ -1,5 +1,10 @@
 <div class="cart-container">
-    <h2>Shopping Cart</h2>
+    <div class="cart-header">
+        <button mat-icon-button type="button" (click)="goBack()" aria-label="Go back">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h2>Shopping Cart</h2>
+    </div>
 
     @if (cartLines().length > 0) {
     <div class="cart-layout">

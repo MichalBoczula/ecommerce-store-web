@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule, CurrencyPipe, Location } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,6 +29,7 @@ import { ShoppingCartLineResponse } from '../domain/model/shopping-cart-line-res
 export class ShoppingCartComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly ordersFacade = inject(OrdersFacade);
+  private readonly location = inject(Location);
 
   private readonly userId: string = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
 
@@ -60,5 +61,9 @@ export class ShoppingCartComponent implements OnInit {
   }
 
   clearCart(): void {
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }

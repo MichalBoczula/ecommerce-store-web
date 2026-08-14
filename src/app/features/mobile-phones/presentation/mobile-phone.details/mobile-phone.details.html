@@ -1,5 +1,9 @@
 <article class="grid-list">
-    <div>
+    <div class="header-container">
+        <button mat-icon-button type="button" (click)="goBack()" aria-label="Go back to previous page">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+
         <h1 class="title producName">{{ productName() }}</h1>
         <div class="button-container">
             <button matButton="filled" (click)="toggleFavorite()" aria-label="Add to favorites">

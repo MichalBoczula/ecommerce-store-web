@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -41,11 +41,15 @@ export class MobilePhoneDetails implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly facade = inject(MobilePhonesFacade);
   private readonly ordersFacade = inject(OrdersFacade);
+  private readonly location = inject(Location);
 
-  // Client ID for the shopping cart session
   private readonly userId: string = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
 
   readonly details = toSignal(this.facade.details$);
+
+  goBack(): void {
+    this.location.back();
+  }
 
   readonly productName = computed(() => {
     const item = this.details();
