@@ -8,5 +8,9 @@ export const FavoritesActions = createActionGroup({
         'Add Favorite': props<{ command: AddFavoriteCommand }>(),
         'Add Favorite Success': props<{ favorite: Favorite }>(),
         'Add Favorite Failure': props<{ error: string }>(),
+
+        'Load Favorites': props<{ clientId: string }>(),
+        'Load Favorites Success': props<{ favorites: Favorite[] }>(),
+        'Load Favorites Failure': props<{ error: string }>(),
     },
 });

@@ -122,3 +122,9 @@
         font-size: 1.1rem;
     }
 }
+
+.favorites-layout {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 1.5rem;
+}

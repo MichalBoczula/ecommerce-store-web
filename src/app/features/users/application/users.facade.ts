@@ -28,6 +28,10 @@ export class UsersFacade {
         );
     }
 
+    loadFavorites(clientId: string): void {
+        this.store.dispatch(FavoritesActions.loadFavorites({ clientId }));
+    }
+
     isProductFavorite(productId: string): boolean {
         return this.favorites().some(f => f.productId === productId);
     }

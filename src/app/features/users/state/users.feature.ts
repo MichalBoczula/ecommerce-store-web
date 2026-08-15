@@ -27,14 +27,20 @@ export const favoritesFeature = createFeature({
             error: null,
         })),
 
-        on(FavoritesActions.addFavoriteSuccess, (state, { favorite }) => ({
+        on(FavoritesActions.loadFavorites, (state) => ({
             ...state,
-            status: 'loaded' as const,
-            favorites: [...state.favorites, favorite],
+            status: 'loading' as const,
             error: null,
         })),
 
-        on(FavoritesActions.addFavoriteFailure, (state, { error }) => ({
+        on(FavoritesActions.loadFavoritesSuccess, (state, { favorites }) => ({
+            ...state,
+            status: 'loaded' as const,
+            favorites,
+            error: null,
+        })),
+
+        on(FavoritesActions.loadFavoritesFailure, (state, { error }) => ({
             ...state,
             status: 'error' as const,
             error,

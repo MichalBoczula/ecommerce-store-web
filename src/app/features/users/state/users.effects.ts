@@ -26,4 +26,22 @@ export class FavoritesEffects {
             )
         )
     );
+
+    loadFavorites$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(FavoritesActions.loadFavorites),
+            switchMap(({ clientId }) =>
+                this.favoritesRepository.getFavorites(clientId).pipe(
+                    map((favorites) => FavoritesActions.loadFavoritesSuccess({ favorites })),
+                    catchError((error) =>
+                        of(
+                            FavoritesActions.loadFavoritesFailure({
+                                error: error?.detail || error?.message || 'Failed to load favorites.',
+                            })
+                        )
+                    )
+                )
+            )
+        )
+    );
 }

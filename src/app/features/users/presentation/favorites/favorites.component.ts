@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 import { CommonModule, DatePipe, Location } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,7 +23,7 @@ import { UsersFacade } from '../../application/users.facade';
     styleUrl: './favorites.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FavoritesComponent {
+export class FavoritesComponent implements OnInit {
     private readonly usersFacade = inject(UsersFacade);
     private readonly location = inject(Location);
 
@@ -36,6 +36,10 @@ export class FavoritesComponent {
     readonly error = this.usersFacade.error;
 
     readonly totalItems = computed(() => this.favoritesList().length);
+
+    ngOnInit(): void {
+        this.usersFacade.loadFavorites(this.userId);
+    }
 
     removeFavorite(productId: string): void {
         if (!productId) return;

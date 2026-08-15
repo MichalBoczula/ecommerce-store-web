@@ -45,4 +45,20 @@ export class FavoritesKiotaRepository implements FavoritesRepository {
             })
         );
     }
+
+    getFavorites(clientId: string): Observable<Favorite[]> {
+        const requestPromise = this.apiClient.favorites.clients
+            .byClientId(clientId)
+            .get();
+
+        return from(requestPromise).pipe(
+            map((dtos: FavoriteResponseDto[] | undefined) => {
+                if (!dtos) {
+                    return [];
+                }
+
+                return dtos.map((dto) => FavoriteMapper.toDomain(dto));
+            })
+        );
+    }
 }

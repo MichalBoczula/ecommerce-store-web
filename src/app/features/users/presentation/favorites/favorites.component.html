@@ -8,40 +8,6 @@
 
     @if (favoritesList().length > 0) {
     <div class="favorites-layout">
-        <table mat-table [dataSource]="favoritesList()" class="mat-elevation-z2 favorites-table">
-
-            <!-- Product Id Column -->
-            <ng-container matColumnDef="productId">
-                <th mat-header-cell *matHeaderCellDef> Product Identifier </th>
-                <td mat-cell *matCellDef="let item" class="product-id-cell">
-                    <span class="product-id">{{ item.productId }}</span>
-                </td>
-            </ng-container>
-
-            <!-- Added Date Column -->
-            <ng-container matColumnDef="addedAt">
-                <th mat-header-cell *matHeaderCellDef> Added Date </th>
-                <td mat-cell *matCellDef="let item">
-                    {{ item.addedAt | date:'mediumDate' }}
-                </td>
-            </ng-container>
-
-            <!-- Actions Column -->
-            <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef> </th>
-                <td mat-cell *matCellDef="let item" class="actions-cell">
-                    <button mat-icon-button color="warn" (click)="removeFavorite(item.productId)"
-                        aria-label="Remove favorite">
-                        <mat-icon>favorite</mat-icon>
-                    </button>
-                </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-
-        <!-- Summary Card -->
         <mat-card class="summary-card mat-elevation-z2">
             <mat-card-header>
                 <mat-card-title>Wishlist Summary</mat-card-title>
@@ -60,6 +26,36 @@
                 </button>
             </mat-card-actions>
         </mat-card>
+
+        <table mat-table [dataSource]="favoritesList()" class="mat-elevation-z2 favorites-table">
+
+            <ng-container matColumnDef="productId">
+                <th mat-header-cell *matHeaderCellDef> Product Identifier </th>
+                <td mat-cell *matCellDef="let item" class="product-id-cell">
+                    <span class="product-id">{{ item.productId }}</span>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="addedAt">
+                <th mat-header-cell *matHeaderCellDef> Added Date </th>
+                <td mat-cell *matCellDef="let item">
+                    {{ item.addedAt | date:'mediumDate' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef> </th>
+                <td mat-cell *matCellDef="let item" class="actions-cell">
+                    <button mat-icon-button color="warn" (click)="removeFavorite(item.productId)"
+                        aria-label="Remove favorite">
+                        <mat-icon>favorite</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
     </div>
     } @else {
     <div class="empty-favorites mat-elevation-z1">
