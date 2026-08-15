@@ -11,6 +11,7 @@ import { UsersFacade } from '../../application/users.facade';
 import { MobilePhonesFacade } from '../../../mobile-phones/application/mobile-phones.facade';
 import { OrdersFacade } from '../../../cart/application/orders.facade';
 import { FavoriteItemViewModel } from '../../domain/model/favorite-item.model';
+import { toCartLineItem, toFavoriteItemViewModels } from './favorites.component.utils';
 
 @Component({
     selector: 'app-favorites',
@@ -43,24 +44,9 @@ export class FavoritesComponent implements OnInit {
     readonly status = this.usersFacade.status;
     readonly error = this.usersFacade.error;
 
-    readonly favoriteItems = computed<FavoriteItemViewModel[]>(() => {
-        const favs = this.favoritesList() ?? [];
-        const phones = this.phonesList() ?? [];
-
-        const productMap = new Map(phones.map(p => [p.id, p]));
-
-        return favs.map(fav => {
-            const product = productMap.get(fav.productId);
-            return {
-                productId: fav.productId,
-                name: product?.name ?? 'Unknown Product',
-                brand: product?.brand ?? null,
-                priceAmount: product?.price?.amount ?? 0,
-                priceCurrency: product?.price?.currency ?? 'USD',
-                addedAt: fav.addedAt,
-            };
-        });
-    });
+    readonly favoriteItems = computed(() =>
+        toFavoriteItemViewModels(this.favoritesList(), this.phonesList())
+    );
 
     readonly totalItems = computed(() => this.favoriteItems().length);
 
@@ -70,14 +56,8 @@ export class FavoritesComponent implements OnInit {
     }
 
     addToCart(item: FavoriteItemViewModel): void {
-        this.ordersFacade.addItem(this.userId, {
-            productId: item.productId,
-            name: item.name,
-            brand: item.brand,
-            unitPriceAmount: item.priceAmount,
-            unitPriceCurrency: item.priceCurrency,
-            quantity: 1,
-        });
+        const lineItem = toCartLineItem(item);
+        this.ordersFacade.addItem(this.userId, lineItem);
     }
 
     removeFavorite(productId: string): void {
