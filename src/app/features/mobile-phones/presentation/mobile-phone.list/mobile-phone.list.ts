@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
 import { OrdersFacade } from '../../../cart/application/orders.facade';
+import { UsersFacade } from '../../../users/application/users.facade';
 import { MobilePhoneDto } from '../../infrastructure/api-clients/products/models';
 import { ShoppingCartLineRequest } from '../../../cart/domain/model/update-shopping-cart/shopping-cart-line-request.model';
 
@@ -22,9 +23,9 @@ import { ShoppingCartLineRequest } from '../../../cart/domain/model/update-shopp
 export class MobilePhoneList implements OnInit {
   private readonly facade = inject(MobilePhonesFacade);
   private readonly ordersFacade = inject(OrdersFacade);
+  private readonly usersFacade = inject(UsersFacade);
   private readonly router = inject(Router);
 
-  // Client ID (or read from an AuthService / User state)
   private readonly userId: string = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
 
   readonly phones$ = this.facade.items$;
@@ -52,7 +53,15 @@ export class MobilePhoneList implements OnInit {
 
   toggleFavorite(phone: MobilePhoneDto, event: MouseEvent): void {
     event.stopPropagation();
-    console.log('Toggle favorite for:', phone.id);
+
+    if (!phone.id) return;
+
+    this.usersFacade.addFavoriteByProductId(this.userId, phone.id);
+  }
+
+  isFavorite(phoneId?: string | null): boolean {
+    if (!phoneId) return false;
+    return this.usersFacade.isProductFavorite(phoneId);
   }
 
   openDetails(phoneId: string): void {
