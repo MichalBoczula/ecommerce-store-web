@@ -1,23 +1,27 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 import { CommonModule, DatePipe, Location } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
+
 import { UsersFacade } from '../../application/users.facade';
+import { MobilePhonesFacade } from '../../../mobile-phones/application/mobile-phones.facade';
+import { OrdersFacade } from '../../../cart/application/orders.facade';
+import { FavoriteItemViewModel } from '../../domain/model/favorite-item.model';
 
 @Component({
     selector: 'app-favorites',
     standalone: true,
     imports: [
         CommonModule,
-        DatePipe,
         MatTableModule,
         MatButtonModule,
         MatIconModule,
         MatCardModule,
-        MatDividerModule,
+        MatDividerModule
     ],
     templateUrl: './favorites.component.html',
     styleUrl: './favorites.component.scss',
@@ -25,20 +29,55 @@ import { UsersFacade } from '../../application/users.facade';
 })
 export class FavoritesComponent implements OnInit {
     private readonly usersFacade = inject(UsersFacade);
+    private readonly phonesFacade = inject(MobilePhonesFacade);
+    private readonly ordersFacade = inject(OrdersFacade);
     private readonly location = inject(Location);
 
     private readonly userId: string = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
 
-    readonly displayedColumns: string[] = ['productId', 'addedAt', 'actions'];
+    readonly displayedColumns: string[] = ['image', 'product', 'price', 'actions'];
 
     readonly favoritesList = this.usersFacade.favorites;
+    readonly phonesList = toSignal(this.phonesFacade.items$, { initialValue: [] });
+
     readonly status = this.usersFacade.status;
     readonly error = this.usersFacade.error;
 
-    readonly totalItems = computed(() => this.favoritesList().length);
+    readonly favoriteItems = computed<FavoriteItemViewModel[]>(() => {
+        const favs = this.favoritesList() ?? [];
+        const phones = this.phonesList() ?? [];
+
+        const productMap = new Map(phones.map(p => [p.id, p]));
+
+        return favs.map(fav => {
+            const product = productMap.get(fav.productId);
+            return {
+                productId: fav.productId,
+                name: product?.name ?? 'Unknown Product',
+                brand: product?.brand ?? null,
+                priceAmount: product?.price?.amount ?? 0,
+                priceCurrency: product?.price?.currency ?? 'USD',
+                addedAt: fav.addedAt,
+            };
+        });
+    });
+
+    readonly totalItems = computed(() => this.favoriteItems().length);
 
     ngOnInit(): void {
         this.usersFacade.loadFavorites(this.userId);
+        this.phonesFacade.load(50);
+    }
+
+    addToCart(item: FavoriteItemViewModel): void {
+        this.ordersFacade.addItem(this.userId, {
+            productId: item.productId,
+            name: item.name,
+            brand: item.brand,
+            unitPriceAmount: item.priceAmount,
+            unitPriceCurrency: item.priceCurrency,
+            quantity: 1,
+        });
     }
 
     removeFavorite(productId: string): void {
