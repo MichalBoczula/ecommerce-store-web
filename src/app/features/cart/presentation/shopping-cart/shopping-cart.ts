@@ -6,9 +6,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { Store } from '@ngrx/store';
-import { OrdersFacade } from '../application/orders.facade';
-import { cartFeature } from '../state/orders.feature';
-import { ShoppingCartLineResponse } from '../domain/model/shopping-cart-line-response.model';
+import { OrdersFacade } from '../../application/orders.facade';
+import { cartFeature } from '../../state/orders.feature';
+import { ShoppingCartLineResponse } from '../../domain/model/shopping-cart-line-response.model';
 
 @Component({
   selector: 'app-shopping-cart',

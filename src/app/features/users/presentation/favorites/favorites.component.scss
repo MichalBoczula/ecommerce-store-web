@@ -1,0 +1,124 @@
+.favorites-container {
+    padding: 32px;
+    max-width: 1280px;
+    margin: 0 auto;
+
+    .favorites-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+
+        h2 {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+    }
+}
+
+.favorites-layout {
+    display: flex;
+    gap: 32px;
+    flex-direction: column;
+
+    @media (min-width: 960px) {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+}
+
+.favorites-table {
+    flex: 1;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+
+    th.mat-mdc-header-cell {
+        font-weight: 600;
+        color: #444;
+    }
+
+    .product-id-cell {
+        font-family: monospace;
+        font-weight: 500;
+    }
+
+    .actions-cell {
+        text-align: right;
+    }
+}
+
+.summary-card {
+    width: 320px;
+    padding: 20px;
+    border-radius: 12px;
+    margin-left: auto;
+
+    @media (max-width: 960px) {
+        width: 100%;
+    }
+
+    mat-card-header {
+        margin-bottom: 16px;
+        padding: 0;
+    }
+
+    mat-card-content {
+        padding: 0;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        font-size: 1rem;
+
+        .label {
+            font-weight: 600;
+        }
+
+        .value {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #e91e63;
+        }
+    }
+
+    mat-card-actions {
+        padding: 16px 0 0 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .action-btn {
+            width: 100%;
+            height: 44px;
+            border-radius: 22px;
+        }
+    }
+}
+
+.empty-favorites {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px;
+    background: white;
+    border-radius: 12px;
+
+    .empty-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: #aaa;
+        margin-bottom: 12px;
+    }
+
+    p {
+        margin: 0;
+        color: #666;
+        font-size: 1.1rem;
+    }
+}

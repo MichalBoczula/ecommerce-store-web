@@ -22,6 +22,13 @@ import { OrdersFacade } from './features/cart/application/orders.facade';
 import { cartFeature } from './features/cart/state/orders.feature';
 import { OrdersEffects } from './features/cart/state/orders.effects';
 
+// Users / Favorites Feature
+import { FavoritesRepository } from './features/users/domain/interfaces/favorites-repository.port';
+import { FavoritesKiotaRepository } from './features/users/infrastructure/api/favorites-kiota-repository';
+import { UsersFacade } from './features/users/application/users.facade';
+import { favoritesFeature } from './features/users/state/users.feature';
+import { FavoritesEffects } from './features/users/state/users.effects';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
@@ -30,20 +37,24 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     provideStore(),
 
-    // Feature State & Effects
     provideState(mobilePhonesFeature),
     provideState(cartFeature),
-    provideEffects(MobilePhonesEffects, OrdersEffects),
+    provideState(favoritesFeature),
+    provideEffects(MobilePhonesEffects, OrdersEffects, FavoritesEffects),
 
     // Mobile Phones Providers
     { provide: MobilePhonesRepository, useClass: MobilePhonesKiotaRepository },
     MobilePhonesFacade,
 
-    // Cart / Orders Providers (Dependency Inversion Binding)
+    // Cart / Orders Providers
     { provide: OrdersRepository, useClass: OrdersKiotaRepository },
     OrdersFacade,
 
-    // Store Devtools (Conditional array spread)
+    // Users / Favorites Providers
+    { provide: FavoritesRepository, useClass: FavoritesKiotaRepository },
+    UsersFacade,
+
+    // Store Devtools
     ...(isDevMode() ? [provideStoreDevtools({ maxAge: 50 })] : []),
   ],
 };

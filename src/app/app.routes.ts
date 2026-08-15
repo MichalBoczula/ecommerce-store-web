@@ -19,7 +19,12 @@ export const routes: Routes = [
     },
     {
         path: 'cart',
-        loadComponent: () => import('../app/features/cart/presentation/shopping-cart')
+        loadComponent: () => import('./features/cart/presentation/shopping-cart/shopping-cart')
             .then(m => m.ShoppingCartComponent)
+    },
+    {
+        path: 'favorites',
+        loadComponent: () => import('./features/users/presentation/favorites/favorites.component')
+            .then(m => m.FavoritesComponent)
     },
 ];
