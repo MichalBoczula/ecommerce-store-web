@@ -23,9 +23,6 @@ import { ShoppingCartLineRequest } from '../../../cart/domain/model/update-shopp
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MobilePhoneList implements OnInit {
-  removeFavorite(arg0: string) {
-    throw new Error('Method not implemented.');
-  }
   private readonly facade = inject(MobilePhonesFacade);
   private readonly ordersFacade = inject(OrdersFacade);
   private readonly usersFacade = inject(UsersFacade);
@@ -81,5 +78,9 @@ export class MobilePhoneList implements OnInit {
 
   openDetails(phoneId: string): void {
     this.router.navigate(['/details', phoneId]);
+  }
+
+  removeFavorite(arg0: string) {
+    throw new Error('Method not implemented.');
   }
 }

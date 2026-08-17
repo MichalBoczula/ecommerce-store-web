@@ -15,6 +15,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
 import { OrdersFacade } from '../../../cart/application/orders.facade';
+import { UsersFacade } from '../../../users/application/users.facade';
 import { ShoppingCartLineRequest } from '../../../cart/domain/model/update-shopping-cart/shopping-cart-line-request.model';
 import {
   asLines,
@@ -41,15 +42,23 @@ export class MobilePhoneDetails implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly facade = inject(MobilePhonesFacade);
   private readonly ordersFacade = inject(OrdersFacade);
+  private readonly usersFacade = inject(UsersFacade);
   private readonly location = inject(Location);
 
   private readonly userId: string = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
 
   readonly details = toSignal(this.facade.details$);
+  readonly favorites = this.usersFacade.favorites;
 
-  goBack(): void {
-    this.location.back();
-  }
+  readonly isFavorite = computed<boolean>(() => {
+    const item = this.details();
+    if (!item?.id) return false;
+
+    const currentId = item.id.toString().toLowerCase();
+    return this.favorites().some(
+      fav => fav.productId?.toString().toLowerCase() === currentId
+    );
+  });
 
   readonly productName = computed(() => {
     const item = this.details();
@@ -81,6 +90,7 @@ export class MobilePhoneDetails implements OnInit {
     if (id) {
       this.facade.loadById(id);
     }
+    this.usersFacade.loadFavorites(this.userId);
   }
 
   addToCart(): void {
@@ -88,11 +98,11 @@ export class MobilePhoneDetails implements OnInit {
     if (!item || !item.id) return;
 
     const lineItem: ShoppingCartLineRequest = {
-      productId: item.id,
+      productId: item.id.toString(),
       name: item.commonDescription?.name ?? 'Unknown Phone',
       brand: item.commonDescription?.brand ?? null,
       unitPriceAmount: Number(item.price?.amount) || 0,
-      unitPriceCurrency: 'USD',
+      unitPriceCurrency: item.price?.currency ?? 'USD',
       quantity: 1,
     };
 
@@ -102,6 +112,18 @@ export class MobilePhoneDetails implements OnInit {
   toggleFavorite(): void {
     const item = this.details();
     if (!item?.id) return;
-    console.log('Toggle favorite for:', item.id);
+
+    const productId = item.id.toString();
+
+    if (this.isFavorite()) {
+      console.log('Remove favorite not implemented yet');
+      // this.usersFacade.removeFavorite(this.userId, productId);
+    } else {
+      this.usersFacade.addFavoriteByProductId(this.userId, productId);
+    }
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }

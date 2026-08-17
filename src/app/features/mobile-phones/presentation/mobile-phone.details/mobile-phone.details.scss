@@ -144,3 +144,15 @@ td.mat-mdc-cell {
 .producName {
     margin-top: 20px;
 }
+
+button.fav-delete-btn {
+    --mdc-filled-button-container-color: #d32f2f;
+    --mdc-filled-button-label-text-color: #ffffff;
+    --mat-flat-button-state-layer-color: #ffffff;
+    background-color: #d32f2f !important;
+    color: #ffffff !important;
+
+    mat-icon {
+        color: #ffffff !important;
+    }
+}
