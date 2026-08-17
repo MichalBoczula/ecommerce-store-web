@@ -39,7 +39,7 @@ export class MobilePhonesKiotaRepository implements MobilePhonesRepository {
         });
 
         return from(promise).pipe(
-            map(dtos => (dtos ?? []).map(mapMobilePhoneDtoToMobilePhones))
+            map(dtos => (dtos ?? []).map(dto => mapMobilePhoneDtoToMobilePhones(dto)))
         );
     }
 
@@ -69,7 +69,7 @@ export class MobilePhonesKiotaRepository implements MobilePhonesRepository {
         const promise = this.api.mobilePhones.filter.post(filterDto);
 
         return from(promise).pipe(
-            map(dtos => (dtos ?? []).map(mapMobilePhoneDtoToMobilePhones))
+            map(dtos => (dtos ?? []).map(dto => mapMobilePhoneDtoToMobilePhones(dto)))
         );
     }
 }

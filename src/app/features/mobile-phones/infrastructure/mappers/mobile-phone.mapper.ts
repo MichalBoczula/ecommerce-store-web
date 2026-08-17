@@ -85,7 +85,7 @@ export function mapMobilePhoneDtoToMobilePhonesDetails(
     };
 }
 
-export function mapMobilePhoneDtoToMobilePhones(dto: MobilePhoneDto): MobilePhone {
+export function mapMobilePhoneDtoToMobilePhones(dto: MobilePhoneDto, isFav: boolean = false): MobilePhone {
     return {
         id: dto.id?.toString() ?? '',
         brand: dto.brand ?? null,
@@ -97,7 +97,7 @@ export function mapMobilePhoneDtoToMobilePhones(dto: MobilePhoneDto): MobilePhon
             amount: dto.price.amount ?? null,
             currency: dto.price.currency ?? null,
         } : null,
-        isFavorite: false,
+        isFavorite: isFav,
     };
 }
 
