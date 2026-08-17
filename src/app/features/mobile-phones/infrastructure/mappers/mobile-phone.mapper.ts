@@ -15,12 +15,16 @@ export function mapMobilePhoneDtoToMobilePhones(dto: MobilePhoneDto): MobilePhon
 export function mapTopMobilePhoneDtoToTopMobilePhone(dto: TopMobilePhoneDto): TopMobilePhone {
     return {
         id: dto.id?.toString() ?? '',
-        name: dto.commonDescription?.name ?? null,
-        brand: dto.commonDescription?.brand ?? null,
-        description: dto.commonDescription?.description ?? null,
-        mainPhoto: dto.commonDescription?.mainPhoto ?? null,
-        priceAmount: dto.price?.amount ?? 0,
-        priceCurrency: dto.price?.currency ?? 'PLN',
+        commonDescription: dto.commonDescription ? {
+            name: dto.commonDescription.name ?? null,
+            brand: dto.commonDescription.brand ?? null,
+            description: dto.commonDescription.description ?? null,
+            mainPhoto: dto.commonDescription.mainPhoto ?? null,
+        } : null,
+        price: dto.price ? {
+            amount: dto.price.amount ?? 0,
+            currency: dto.price.currency ?? 'USD',
+        } : null,
     };
 }
 
