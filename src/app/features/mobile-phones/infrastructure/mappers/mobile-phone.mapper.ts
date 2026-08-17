@@ -9,7 +9,19 @@ export function mapMobilePhoneDtoToMobilePhonesDetails(dto: MobilePhoneDetailsDt
 }
 
 export function mapMobilePhoneDtoToMobilePhones(dto: MobilePhoneDto): MobilePhone {
-    return dto;
+    return {
+        id: dto.id?.toString() ?? '',
+        brand: dto.brand ?? null,
+        camera: dto.camera ?? null,
+        displayType: dto.displayType ?? null,
+        name: dto.name ?? null,
+        screenSizeInches: dto.screenSizeInches ?? null,
+        price: dto.price ? {
+            amount: dto.price.amount ?? null,
+            currency: dto.price.currency ?? null,
+        } : null,
+        isFavorite: false,
+    };
 }
 
 export function mapTopMobilePhoneDtoToTopMobilePhone(dto: TopMobilePhoneDto): TopMobilePhone {

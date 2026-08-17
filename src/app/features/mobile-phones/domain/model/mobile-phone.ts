@@ -1,3 +1,12 @@
-import { MobilePhoneDto } from '../../infrastructure/api-clients/products/models';
+import { Money } from "./common/mobile-phone-common.model";
 
-export type MobilePhone = MobilePhoneDto;
+export interface MobilePhone {
+    id: string;
+    brand?: string | null;
+    camera?: string | null;
+    displayType?: string | null;
+    name?: string | null;
+    price?: Money | null;
+    screenSizeInches?: number | null;
+    isFavorite: boolean;
+}

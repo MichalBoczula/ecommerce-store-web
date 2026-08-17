@@ -1,7 +1,4 @@
-export interface Money {
-    amount?: number | null;
-    currency?: string | null;
-}
+import { Money } from "./common/mobile-phone-common.model";
 
 export interface TopMobilePhonesCommonDescription {
     brand?: string | null;
