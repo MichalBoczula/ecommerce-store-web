@@ -1,5 +1,5 @@
 import { MobilePhone } from '../../domain/model/mobile-phone';
-import { MobilePhoneDetailsDto, MobilePhoneDto, MobilePhoneFilterDto, TopMobilePhoneDto } from '../../infrastructure/api-clients/products/models';
+import { MobilePhoneDetailsDto, MobilePhoneDto, MobilePhoneFilterDto, MobilePhonesBrand, TopMobilePhoneDto } from '../../infrastructure/api-clients/products/models';
 import { MobilePhoneDetails } from '../../domain/model/mobile-phone-details';
 import { TopMobilePhone } from '../../domain/model/top-mobile-phone';
 import { FilterMobilePhone } from '../../domain/model/filter-mobile-phones';
@@ -13,9 +13,21 @@ export function mapMobilePhoneDtoToMobilePhones(dto: MobilePhoneDto): MobilePhon
 }
 
 export function mapTopMobilePhoneDtoToTopMobilePhone(dto: TopMobilePhoneDto): TopMobilePhone {
-    return dto;
+    return {
+        id: dto.id?.toString() ?? '',
+        name: dto.commonDescription?.name ?? null,
+        brand: dto.commonDescription?.brand ?? null,
+        description: dto.commonDescription?.description ?? null,
+        mainPhoto: dto.commonDescription?.mainPhoto ?? null,
+        priceAmount: dto.price?.amount ?? 0,
+        priceCurrency: dto.price?.currency ?? 'PLN',
+    };
 }
 
 export function mapFilterMobilePhoneToDto(filter: FilterMobilePhone): MobilePhoneFilterDto {
-    return filter as MobilePhoneFilterDto;
+    return {
+        brand: filter.brand as MobilePhonesBrand | undefined | null,
+        minimalPrice: filter.minimalPrice,
+        maximalPrice: filter.maximalPrice,
+    };
 }

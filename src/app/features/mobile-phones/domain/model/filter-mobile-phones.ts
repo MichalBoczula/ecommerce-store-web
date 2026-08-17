@@ -1,3 +1,5 @@
-import { MobilePhoneFilterDto } from '../../infrastructure/api-clients/products/models';
-
-export type FilterMobilePhone = MobilePhoneFilterDto;
+export interface FilterMobilePhone {
+    brand?: string | null;
+    minimalPrice?: number | null;
+    maximalPrice?: number | null;
+}

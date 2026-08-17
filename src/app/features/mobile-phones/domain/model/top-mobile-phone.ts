@@ -1,3 +1,9 @@
-import { TopMobilePhoneDto } from '../../infrastructure/api-clients/products/models';
-
-export type TopMobilePhone = TopMobilePhoneDto;
+export interface TopMobilePhone {
+    id: string;
+    name: string | null;
+    brand: string | null;
+    description: string | null;
+    mainPhoto: string | null;
+    priceAmount: number;
+    priceCurrency: string;
+}
