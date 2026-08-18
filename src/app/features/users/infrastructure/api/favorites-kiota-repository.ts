@@ -61,4 +61,15 @@ export class FavoritesKiotaRepository implements FavoritesRepository {
             })
         );
     }
+
+    removeFavorite(clientId: string, productId: string): Observable<void> {
+        const promise = this.apiClient.favorites
+            .clients
+            .byClientId(clientId)
+            .products
+            .byProductId(productId)
+            .delete();
+
+        return from(promise);
+    }
 }

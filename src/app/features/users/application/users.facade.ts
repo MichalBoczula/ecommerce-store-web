@@ -35,4 +35,8 @@ export class UsersFacade {
     isProductFavorite(productId: string): boolean {
         return this.favorites().some(f => f.productId === productId);
     }
+
+    removeFavorite(clientId: string, productId: string): void {
+        this.store.dispatch(FavoritesActions.removeFavorite({ clientId, productId }));
+    }
 }

@@ -32,15 +32,32 @@ export const favoritesFeature = createFeature({
             status: 'loading' as const,
             error: null,
         })),
-
         on(FavoritesActions.loadFavoritesSuccess, (state, { favorites }) => ({
             ...state,
             status: 'loaded' as const,
             favorites,
             error: null,
         })),
-
         on(FavoritesActions.loadFavoritesFailure, (state, { error }) => ({
+            ...state,
+            status: 'error' as const,
+            error,
+        })),
+
+        on(FavoritesActions.removeFavorite, (state) => ({
+            ...state,
+            status: 'loading' as const,
+            error: null,
+        })),
+        on(FavoritesActions.removeFavoriteSuccess, (state, { productId }) => ({
+            ...state,
+            status: 'loaded' as const,
+            favorites: state.favorites.filter(
+                (fav) => fav.productId?.toString().toLowerCase() !== productId.toLowerCase()
+            ),
+            error: null,
+        })),
+        on(FavoritesActions.removeFavoriteFailure, (state, { error }) => ({
             ...state,
             status: 'error' as const,
             error,

@@ -44,4 +44,22 @@ export class FavoritesEffects {
             )
         )
     );
+
+    removeFavorite$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(FavoritesActions.removeFavorite),
+            switchMap(({ clientId, productId }) =>
+                this.favoritesRepository.removeFavorite(clientId, productId).pipe(
+                    map(() => FavoritesActions.removeFavoriteSuccess({ productId })),
+                    catchError((error) =>
+                        of(
+                            FavoritesActions.removeFavoriteFailure({
+                                error: error?.detail || error?.message || 'Failed to remove product from favorites.',
+                            })
+                        )
+                    )
+                )
+            )
+        )
+    );
 }

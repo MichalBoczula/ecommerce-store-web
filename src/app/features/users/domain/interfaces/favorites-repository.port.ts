@@ -5,4 +5,5 @@ import { AddFavoriteCommand } from '../model/add-favorite-command.model';
 export abstract class FavoritesRepository {
     abstract addFavorite(command: AddFavoriteCommand): Observable<Favorite>;
     abstract getFavorites(clientId: string): Observable<Favorite[]>;
+    abstract removeFavorite(clientId: string, productId: string): Observable<void>;
 }
