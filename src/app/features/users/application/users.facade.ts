@@ -39,4 +39,8 @@ export class UsersFacade {
     removeFavorite(clientId: string, productId: string): void {
         this.store.dispatch(FavoritesActions.removeFavorite({ clientId, productId }));
     }
+
+    clearAllFavorites(clientId: string): void {
+        this.store.dispatch(FavoritesActions.clearAllFavorites({ clientId }));
+    }
 }

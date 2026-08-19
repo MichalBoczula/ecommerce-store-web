@@ -6,4 +6,5 @@ export abstract class FavoritesRepository {
     abstract addFavorite(command: AddFavoriteCommand): Observable<Favorite>;
     abstract getFavorites(clientId: string): Observable<Favorite[]>;
     abstract removeFavorite(clientId: string, productId: string): Observable<void>;
+    abstract clearAllFavorites(clientId: string): Observable<void>;
 }

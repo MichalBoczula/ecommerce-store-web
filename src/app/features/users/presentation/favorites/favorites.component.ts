@@ -62,9 +62,11 @@ export class FavoritesComponent implements OnInit {
 
     removeFavorite(productId: string): void {
         if (!productId) return;
+        this.usersFacade.removeFavorite(this.userId, productId);
     }
 
     clearAllFavorites(): void {
+        this.usersFacade.clearAllFavorites(this.userId);
     }
 
     goBack(): void {

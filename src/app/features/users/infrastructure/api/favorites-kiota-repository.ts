@@ -72,4 +72,13 @@ export class FavoritesKiotaRepository implements FavoritesRepository {
 
         return from(promise);
     }
+
+    clearAllFavorites(clientId: string): Observable<void> {
+        const promise = this.apiClient.favorites
+            .clients
+            .byClientId(clientId)
+            .delete();
+
+        return from(promise);
+    }
 }

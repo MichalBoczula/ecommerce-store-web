@@ -61,6 +61,23 @@ export const favoritesFeature = createFeature({
             ...state,
             status: 'error' as const,
             error,
+        })),
+
+        on(FavoritesActions.clearAllFavorites, (state) => ({
+            ...state,
+            status: 'loading' as const,
+            error: null,
+        })),
+        on(FavoritesActions.clearAllFavoritesSuccess, (state) => ({
+            ...state,
+            status: 'loaded' as const,
+            favorites: [],
+            error: null,
+        })),
+        on(FavoritesActions.clearAllFavoritesFailure, (state, { error }) => ({
+            ...state,
+            status: 'error' as const,
+            error,
         }))
     ),
 });

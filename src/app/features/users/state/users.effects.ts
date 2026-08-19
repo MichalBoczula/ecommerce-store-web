@@ -62,4 +62,22 @@ export class FavoritesEffects {
             )
         )
     );
+
+    clearAllFavorites$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(FavoritesActions.clearAllFavorites),
+            switchMap(({ clientId }) =>
+                this.favoritesRepository.clearAllFavorites(clientId).pipe(
+                    map(() => FavoritesActions.clearAllFavoritesSuccess()),
+                    catchError((error) =>
+                        of(
+                            FavoritesActions.clearAllFavoritesFailure({
+                                error: error?.detail || error?.message || 'Failed to clear all favorites.',
+                            })
+                        )
+                    )
+                )
+            )
+        )
+    );
 }

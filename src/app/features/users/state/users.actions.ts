@@ -1,4 +1,4 @@
-import { createActionGroup, props } from '@ngrx/store';
+import { createActionGroup, emptyProps, props } from '@ngrx/store';
 import { Favorite } from '../domain/model/favorite-response.model';
 import { AddFavoriteCommand } from '../domain/model/add-favorite-command.model';
 
@@ -16,5 +16,9 @@ export const FavoritesActions = createActionGroup({
         'Remove Favorite': props<{ clientId: string; productId: string }>(),
         'Remove Favorite Success': props<{ productId: string }>(),
         'Remove Favorite Failure': props<{ error: string }>(),
+
+        'Clear All Favorites': props<{ clientId: string }>(),
+        'Clear All Favorites Success': emptyProps(),
+        'Clear All Favorites Failure': props<{ error: string }>(),
     },
 });
