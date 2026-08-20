@@ -21,63 +21,45 @@ export const favoritesFeature = createFeature({
     reducer: createReducer(
         initialState,
 
-        on(FavoritesActions.addFavorite, (state) => ({
-            ...state,
-            status: 'loading' as const,
-            error: null,
-        })),
+        on(
+            FavoritesActions.loadFavorites,
+            FavoritesActions.addFavorite,
+            FavoritesActions.removeFavorite,
+            FavoritesActions.clearAllFavorites,
+            (state) => ({
+                ...state,
+                status: 'loading' as const,
+                error: null,
+            })
+        ),
 
-        on(FavoritesActions.loadFavorites, (state) => ({
-            ...state,
-            status: 'loading' as const,
-            error: null,
-        })),
         on(FavoritesActions.loadFavoritesSuccess, (state, { favorites }) => ({
             ...state,
             status: 'loaded' as const,
             favorites,
             error: null,
         })),
-        on(FavoritesActions.loadFavoritesFailure, (state, { error }) => ({
-            ...state,
-            status: 'error' as const,
-            error,
-        })),
 
-        on(FavoritesActions.removeFavorite, (state) => ({
-            ...state,
-            status: 'loading' as const,
-            error: null,
-        })),
-        on(FavoritesActions.removeFavoriteSuccess, (state, { productId }) => ({
-            ...state,
-            status: 'loaded' as const,
-            favorites: state.favorites.filter(
-                (fav) => fav.productId?.toString().toLowerCase() !== productId.toLowerCase()
-            ),
-            error: null,
-        })),
-        on(FavoritesActions.removeFavoriteFailure, (state, { error }) => ({
-            ...state,
-            status: 'error' as const,
-            error,
-        })),
+        on(
+            FavoritesActions.addFavoriteSuccess,
+            FavoritesActions.removeFavoriteSuccess,
+            FavoritesActions.clearAllFavoritesSuccess,
+            (state) => ({
+                ...state,
+                error: null,
+            })
+        ),
 
-        on(FavoritesActions.clearAllFavorites, (state) => ({
-            ...state,
-            status: 'loading' as const,
-            error: null,
-        })),
-        on(FavoritesActions.clearAllFavoritesSuccess, (state) => ({
-            ...state,
-            status: 'loaded' as const,
-            favorites: [],
-            error: null,
-        })),
-        on(FavoritesActions.clearAllFavoritesFailure, (state, { error }) => ({
-            ...state,
-            status: 'error' as const,
-            error,
-        }))
+        on(
+            FavoritesActions.loadFavoritesFailure,
+            FavoritesActions.addFavoriteFailure,
+            FavoritesActions.removeFavoriteFailure,
+            FavoritesActions.clearAllFavoritesFailure,
+            (state, { error }) => ({
+                ...state,
+                status: 'error' as const,
+                error,
+            })
+        )
     ),
 });

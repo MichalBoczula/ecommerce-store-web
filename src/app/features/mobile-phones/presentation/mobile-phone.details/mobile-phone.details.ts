@@ -116,8 +116,7 @@ export class MobilePhoneDetails implements OnInit {
     const productId = item.id.toString();
 
     if (this.isFavorite()) {
-      console.log('Remove favorite not implemented yet');
-      // this.usersFacade.removeFavorite(this.userId, productId);
+      this.usersFacade.removeFavorite(this.userId, productId);
     } else {
       this.usersFacade.addFavoriteByProductId(this.userId, productId);
     }

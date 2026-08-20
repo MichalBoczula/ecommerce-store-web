@@ -39,7 +39,7 @@
 
                 <div class="button-container">
                     <button matButton="filled" [class.fav-delete-btn]="phone.isFavorite"
-                        (click)="removeFavorite(phone.id)" aria-label="Add to favorites">
+                        (click)="toggleFavorite(phone, $event)" aria-label="Add to favorites">
                         <span class="material-symbols-outlined">favorite</span>
                     </button>
 

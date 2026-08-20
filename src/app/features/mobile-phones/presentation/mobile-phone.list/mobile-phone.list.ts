@@ -69,11 +69,15 @@ export class MobilePhoneList implements OnInit {
     this.ordersFacade.addItem(this.userId, lineItem);
   }
 
-  toggleFavorite(phone: MobilePhone, event: MouseEvent): void {
-    event.stopPropagation();
+  toggleFavorite(phone: MobilePhone, event?: MouseEvent): void {
+    event?.stopPropagation();
     if (!phone.id) return;
 
-    this.usersFacade.addFavoriteByProductId(this.userId, phone.id);
+    if (phone.isFavorite) {
+      this.usersFacade.removeFavorite(this.userId, phone.id);
+    } else {
+      this.usersFacade.addFavoriteByProductId(this.userId, phone.id);
+    }
   }
 
   openDetails(phoneId: string): void {
