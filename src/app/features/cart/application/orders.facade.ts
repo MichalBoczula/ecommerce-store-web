@@ -13,8 +13,16 @@ export class OrdersFacade {
     readonly status$ = this.store.select(cartFeature.selectStatus);
     readonly error$ = this.store.select(cartFeature.selectError);
 
-    loadByClientId(clientId: string): void {
+    readonly shoppingCart = this.store.selectSignal(cartFeature.selectShoppingCart);
+    readonly status = this.store.selectSignal(cartFeature.selectStatus);
+    readonly error = this.store.selectSignal(cartFeature.selectError);
+
+    loadCart(clientId: string): void {
         this.store.dispatch(OrdersActions.loadCart({ clientId }));
+    }
+
+    loadByClientId(clientId: string): void {
+        this.loadCart(clientId);
     }
 
     updateCart(clientId: string, request: UpdateShoppingCartRequest): void {
@@ -22,10 +30,12 @@ export class OrdersFacade {
     }
 
     addItem(clientId: string, item: ShoppingCartLineRequest): void {
-        const currentCart = this.store.selectSignal(cartFeature.selectShoppingCart)();
+        const currentCart = this.shoppingCart();
         const currentLines = currentCart?.lines ?? [];
 
-        const existingIndex = currentLines.findIndex(l => l.productId === item.productId);
+        const existingIndex = currentLines.findIndex(
+            (l) => l.productId?.toLowerCase() === item.productId?.toLowerCase()
+        );
         let updatedLines: ShoppingCartLineRequest[];
 
         if (existingIndex > -1) {
@@ -37,7 +47,7 @@ export class OrdersFacade {
                         brand: line.brand ?? null,
                         unitPriceAmount: line.unitPriceAmount,
                         unitPriceCurrency: line.unitPriceCurrency,
-                        quantity: line.quantity + item.quantity,
+                        quantity: (line.quantity ?? 1) + (item.quantity ?? 1),
                     }
                     : {
                         productId: line.productId,
@@ -45,18 +55,18 @@ export class OrdersFacade {
                         brand: line.brand ?? null,
                         unitPriceAmount: line.unitPriceAmount,
                         unitPriceCurrency: line.unitPriceCurrency,
-                        quantity: line.quantity,
+                        quantity: line.quantity ?? 1,
                     }
             );
         } else {
             updatedLines = [
-                ...currentLines.map(line => ({
+                ...currentLines.map((line) => ({
                     productId: line.productId,
                     name: line.name,
                     brand: line.brand ?? null,
                     unitPriceAmount: line.unitPriceAmount,
                     unitPriceCurrency: line.unitPriceCurrency,
-                    quantity: line.quantity,
+                    quantity: line.quantity ?? 1,
                 })),
                 item,
             ];

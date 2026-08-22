@@ -17,9 +17,16 @@
             </button>
 
             <div>
-                <button mat-icon-button aria-label="Cart" (click)="onCartClick()">
+                <button mat-icon-button aria-label="Favorites" (click)="onFavoritesClick()"
+                    [matBadge]="favoritesCount()" [matBadgeHidden]="favoritesCount() === 0" matBadgeColor="accent">
+                    <mat-icon class="favorites">favorite</mat-icon>
+                </button>
+
+                <button mat-icon-button aria-label="Cart" (click)="onCartClick()" [matBadge]="cartItemsCount()"
+                    [matBadgeHidden]="cartItemsCount() === 0" matBadgeColor="accent">
                     <mat-icon class="cart">shopping_cart</mat-icon>
                 </button>
+
                 <button mat-icon-button aria-label="Account">
                     <mat-icon class="account">account_circle</mat-icon>
                 </button>
