@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { MobilePhoneContainer } from "./features/mobile-phones/presentation/mobile-phone.container/mobile-phone.container";
+import { MainLayoutComponent } from './features/mobile-phones/presentation/mobile-phone.container/main-layout.container';
 
 @Component({
   selector: 'app-root',
-  imports: [MobilePhoneContainer],
+  imports: [MainLayoutComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

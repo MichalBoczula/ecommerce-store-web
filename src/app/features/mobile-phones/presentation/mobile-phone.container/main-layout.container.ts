@@ -13,9 +13,8 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MobilePhoneFilter } from '../mobile-phone.filter/mobile-phone.filter';
 import { UsersFacade } from '../../../users/application/users.facade';
 import { OrdersFacade } from '../../../cart/application/orders.facade';
-
 @Component({
-  selector: 'app-mobile-phone-container',
+  selector: 'app-main-layout',
   standalone: true,
   imports: [
     CommonModule,
@@ -29,10 +28,10 @@ import { OrdersFacade } from '../../../cart/application/orders.facade';
     MobilePhoneFilter,
     RouterOutlet,
   ],
-  templateUrl: './mobile-phone.container.html',
-  styleUrl: './mobile-phone.container.scss',
+  templateUrl: './main-layout.container.html',
+  styleUrl: './main-layout.container.scss',
 })
-export class MobilePhoneContainer implements OnInit {
+export class MainLayoutComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly usersFacade = inject(UsersFacade);
   private readonly ordersFacade = inject(OrdersFacade);
@@ -42,11 +41,9 @@ export class MobilePhoneContainer implements OnInit {
   readonly sidenavMode = computed<'over'>(() => 'over');
   readonly sidenavOpened = computed(() => false);
 
-  // Favorites state (Signal)
   readonly favorites = this.usersFacade.favorites;
   readonly favoritesCount = computed(() => this.favorites()?.length ?? 0);
 
-  // Cart state (Signal from OrdersFacade)
   readonly shoppingCart = this.ordersFacade.shoppingCart;
   readonly cartItemsCount = computed(() => {
     const cart = this.shoppingCart();
