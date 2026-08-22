@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MainLayoutComponent } from './features/mobile-phones/presentation/mobile-phone.container/main-layout.container';
+import { MainLayoutComponent } from './features/core/layout/main-layout.container';
 
 @Component({
   selector: 'app-root',

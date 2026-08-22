@@ -10,9 +10,9 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBadgeModule } from '@angular/material/badge';
 
-import { MobilePhoneFilter } from '../mobile-phone.filter/mobile-phone.filter';
-import { UsersFacade } from '../../../users/application/users.facade';
-import { OrdersFacade } from '../../../cart/application/orders.facade';
+import { MobilePhoneFilter } from '../../mobile-phones/presentation/mobile-phone.filter/mobile-phone.filter';
+import { UsersFacade } from '../../users/application/users.facade';
+import { OrdersFacade } from '../../cart/application/orders.facade';
 @Component({
   selector: 'app-main-layout',
   standalone: true,

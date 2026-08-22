@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-    { path: '', pathMatch: 'full', redirectTo: 'home' },
     {
         path: 'home',
         loadComponent: () => import('./features/mobile-phones/presentation/mobile-phone.home/mobile-phone.home')
@@ -26,5 +25,9 @@ export const routes: Routes = [
         path: 'favorites',
         loadComponent: () => import('./features/users/presentation/favorites/favorites.component')
             .then(m => m.FavoritesComponent)
+    },
+    {
+        path: '**',
+        redirectTo: 'home',
     },
 ];
