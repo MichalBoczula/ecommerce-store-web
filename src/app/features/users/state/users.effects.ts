@@ -4,6 +4,7 @@ import { catchError, map, switchMap, of } from 'rxjs';
 import { FavoritesActions } from './users.actions';
 import { FavoritesRepository } from '../domain/interfaces/favorites-repository.port';
 
+// Change switchMap to concatMap on mutations
 @Injectable()
 export class FavoritesEffects {
     private readonly actions$ = inject(Actions);

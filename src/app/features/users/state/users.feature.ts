@@ -26,16 +26,16 @@ export const favoritesFeature = createFeature({
             FavoritesActions.addFavorite,
             FavoritesActions.removeFavorite,
             FavoritesActions.clearAllFavorites,
-            (state) => ({
+            (state): FavoritesState => ({
                 ...state,
-                status: 'loading' as const,
+                status: 'loading',
                 error: null,
             })
         ),
 
-        on(FavoritesActions.loadFavoritesSuccess, (state, { favorites }) => ({
+        on(FavoritesActions.loadFavoritesSuccess, (state, { favorites }): FavoritesState => ({
             ...state,
-            status: 'loaded' as const,
+            status: 'loaded',
             favorites,
             error: null,
         })),
@@ -44,8 +44,9 @@ export const favoritesFeature = createFeature({
             FavoritesActions.addFavoriteSuccess,
             FavoritesActions.removeFavoriteSuccess,
             FavoritesActions.clearAllFavoritesSuccess,
-            (state) => ({
+            (state): FavoritesState => ({
                 ...state,
+                status: 'loaded',
                 error: null,
             })
         ),
@@ -55,9 +56,9 @@ export const favoritesFeature = createFeature({
             FavoritesActions.addFavoriteFailure,
             FavoritesActions.removeFavoriteFailure,
             FavoritesActions.clearAllFavoritesFailure,
-            (state, { error }) => ({
+            (state, { error }): FavoritesState => ({
                 ...state,
-                status: 'error' as const,
+                status: 'error',
                 error,
             })
         )
