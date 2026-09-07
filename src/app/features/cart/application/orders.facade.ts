@@ -1,21 +1,23 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, Signal } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { cartFeature } from '../state/orders.feature';
 import { OrdersActions } from '../state/orders.actions';
 import { UpdateShoppingCartRequest } from '../domain/model/update-shopping-cart/update-shopping-cart-request.model';
 import { ShoppingCartLineRequest } from '../domain/model/update-shopping-cart/shopping-cart-line-request.model';
+import { ShoppingCartResponse } from '../domain/model/shopping-cart-response.model';
+import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class OrdersFacade {
     private readonly store = inject(Store);
 
-    readonly cart$ = this.store.select(cartFeature.selectShoppingCart);
-    readonly status$ = this.store.select(cartFeature.selectStatus);
-    readonly error$ = this.store.select(cartFeature.selectError);
+    readonly cart$: Observable<ShoppingCartResponse | null> = this.store.select(cartFeature.selectShoppingCart);
+    readonly status$: Observable<string> = this.store.select(cartFeature.selectStatus);
+    readonly error$: Observable<string | null> = this.store.select(cartFeature.selectError);
 
-    readonly shoppingCart = this.store.selectSignal(cartFeature.selectShoppingCart);
-    readonly status = this.store.selectSignal(cartFeature.selectStatus);
-    readonly error = this.store.selectSignal(cartFeature.selectError);
+    readonly shoppingCart: Signal<ShoppingCartResponse | null> = this.store.selectSignal(cartFeature.selectShoppingCart);
+    readonly status: Signal<string> = this.store.selectSignal(cartFeature.selectStatus);
+    readonly error: Signal<string | null> = this.store.selectSignal(cartFeature.selectError);
 
     loadCart(clientId: string): void {
         this.store.dispatch(OrdersActions.loadCart({ clientId }));

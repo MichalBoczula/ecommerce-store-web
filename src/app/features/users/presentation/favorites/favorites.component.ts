@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
-import { CommonModule, DatePipe, Location } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,6 +13,16 @@ import { OrdersFacade } from '../../../cart/application/orders.facade';
 import { FavoriteItemViewModel } from '../../domain/model/favorite-item.model';
 import { toCartLineItem, toFavoriteItemViewModels } from './favorites.component.utils';
 
+// [] Eliminate the hardcoded userId: Replace private readonly userId: string = '3fa85f64...' with an injected auth / user context service or an input so the component doesn't break across different user sessions.
+
+// [] Remove toSignal boilerplate: Once MobilePhonesFacade exposes native signals(like items), drop toSignal(this.phonesFacade.items$, { initialValue: [] }) and bind directly to the signal.
+
+// [] Add user feedback for action triggers: Add loading or disabled states on the action buttons(e.g., while addToCart, removeFavorite, or clearAllFavorites are dispatching) so users cannot spam clicks during slow network roundtrips.
+
+// [] Handle empty and error view states: Ensure the component template checks status() === 'error' or favoriteItems().length === 0 to display fallback UI instead of rendering an empty Material table.
+
+// [] Write component unit tests with Vitest: Mock UsersFacade, MobilePhonesFacade, and OrdersFacade using simple object mocks to verify that ngOnInit dispatches correctly and user button clicks trigger the right facade methods.
+
 @Component({
     selector: 'app-favorites',
     standalone: true,
@@ -22,7 +32,7 @@ import { toCartLineItem, toFavoriteItemViewModels } from './favorites.component.
         MatButtonModule,
         MatIconModule,
         MatCardModule,
-        MatDividerModule
+        MatDividerModule,
     ],
     templateUrl: './favorites.component.html',
     styleUrl: './favorites.component.scss',
@@ -39,15 +49,14 @@ export class FavoritesComponent implements OnInit {
     readonly displayedColumns: string[] = ['image', 'product', 'price', 'actions'];
 
     readonly favoritesList = this.usersFacade.favorites;
-    readonly phonesList = toSignal(this.phonesFacade.items$, { initialValue: [] });
-
     readonly status = this.usersFacade.status;
     readonly error = this.usersFacade.error;
+
+    readonly phonesList = toSignal(this.phonesFacade.items$, { initialValue: [] });
 
     readonly favoriteItems = computed(() =>
         toFavoriteItemViewModels(this.favoritesList(), this.phonesList())
     );
-
     readonly totalItems = computed(() => this.favoriteItems().length);
 
     ngOnInit(): void {
