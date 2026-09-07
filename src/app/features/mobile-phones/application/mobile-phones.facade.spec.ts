@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 import { TestBed } from '@angular/core/testing';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { MobilePhonesFacade } from './mobile-phones.facade';
@@ -11,7 +12,7 @@ import { MobilePhone } from '../domain/model/mobile-phone';
 describe('MobilePhonesFacade', () => {
     let facade: MobilePhonesFacade;
     let store: MockStore;
-    let dispatchSpy: jasmine.Spy;
+    let dispatchSpy: Mock;
 
     const initialFeatureState: MobilePhonesState = {
         status: 'idle',
@@ -35,7 +36,7 @@ describe('MobilePhonesFacade', () => {
 
         facade = TestBed.inject(MobilePhonesFacade);
         store = TestBed.inject(MockStore);
-        dispatchSpy = spyOn(store, 'dispatch');
+        dispatchSpy = vi.spyOn(store, 'dispatch');
     });
 
     afterEach(() => {
@@ -45,25 +46,19 @@ describe('MobilePhonesFacade', () => {
     it('should dispatch loadMobilePhones', () => {
         facade.load(10);
 
-        expect(dispatchSpy).toHaveBeenCalledWith(
-            Actions.loadMobilePhones({ amount: 10 })
-        );
+        expect(dispatchSpy).toHaveBeenCalledWith(Actions.loadMobilePhones({ amount: 10 }));
     });
 
     it('should dispatch loadMobilePhoneById', () => {
         facade.loadById('abc');
 
-        expect(dispatchSpy).toHaveBeenCalledWith(
-            Actions.loadMobilePhoneById({ id: 'abc' })
-        );
+        expect(dispatchSpy).toHaveBeenCalledWith(Actions.loadMobilePhoneById({ id: 'abc' }));
     });
 
     it('should dispatch loadTopMobilePhone', () => {
         facade.loadTop();
 
-        expect(dispatchSpy).toHaveBeenCalledWith(
-            Actions.loadTopMobilePhone()
-        );
+        expect(dispatchSpy).toHaveBeenCalledWith(Actions.loadTopMobilePhone());
     });
 
     it('should dispatch loadMobilePhoneByFilter', () => {
@@ -71,9 +66,7 @@ describe('MobilePhonesFacade', () => {
 
         facade.loadByFilter(filter);
 
-        expect(dispatchSpy).toHaveBeenCalledWith(
-            Actions.loadMobilePhoneByFilter({ filter })
-        );
+        expect(dispatchSpy).toHaveBeenCalledWith(Actions.loadMobilePhoneByFilter({ filter }));
     });
 
     it('should expose items$ from store', async () => {

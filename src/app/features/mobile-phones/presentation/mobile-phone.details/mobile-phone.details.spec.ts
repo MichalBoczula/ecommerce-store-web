@@ -5,15 +5,7 @@ import { By } from '@angular/platform-browser';
 import { MobilePhoneDetails } from './mobile-phone.details';
 import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
 
-import type {
-    MobilePhoneDetailsDto,
-    CommonDescriptionDto,
-    ElectronicDetailsDto,
-    ConnectivityDto,
-    SatelliteNavigationSystemDto,
-    SensorsDto,
-    MoneyDto,
-} from '../../../../shared/api/nswag/api-client';
+import type { MobilePhoneDetailsDto, CommonDescriptionDto, ElectronicDetailsDto, ConnectivityDto, SatelliteNavigationSystemDto, SensorsDto, MoneyDto, } from '../../../../shared/api/nswag/api-client';
 
 function makeDto(patch: Partial<MobilePhoneDetailsDto> = {}): MobilePhoneDetailsDto {
     return {
@@ -39,7 +31,7 @@ class FacadeStub {
     private readonly _details$ = new BehaviorSubject<MobilePhoneDetailsDto | null>(null);
     readonly details$ = this._details$.asObservable();
 
-    loadById = jasmine.createSpy('loadById');
+    loadById = vi.fn();
 
     emit(patch: Partial<MobilePhoneDetailsDto>) {
         this._details$.next(makeDto(patch));
@@ -111,19 +103,15 @@ describe('MobilePhoneDetails (component)', () => {
 
         expect(text).toContain('FingerPrint');
 
-        const checkboxInput = fixture.debugElement.query(
-            By.css('mat-checkbox.spec-checkbox input[type="checkbox"]')
-        )?.nativeElement as HTMLInputElement | undefined;
+        const checkboxInput = fixture.debugElement.query(By.css('mat-checkbox.spec-checkbox input[type="checkbox"]'))?.nativeElement as HTMLInputElement | undefined;
 
-        const plainCheckbox = fixture.debugElement.query(
-            By.css('input.spec-checkbox[type="checkbox"]')
-        )?.nativeElement as HTMLInputElement | undefined;
+        const plainCheckbox = fixture.debugElement.query(By.css('input.spec-checkbox[type="checkbox"]'))?.nativeElement as HTMLInputElement | undefined;
 
         const input = checkboxInput ?? plainCheckbox;
 
         expect(input).toBeTruthy();
-        expect(input!.disabled).toBeTrue();
-        expect(input!.checked).toBeTrue();
+        expect(input!.disabled).toBe(true);
+        expect(input!.checked).toBe(true);
     }));
 
     it('renders value-line for text row (single string becomes one line)', fakeAsync(() => {
