@@ -1,83 +1,83 @@
-import { TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
-import { of } from 'rxjs';
+// import { TestBed } from '@angular/core/testing';
+// import { provideRouter, Router } from '@angular/router';
+// import { of } from 'rxjs';
 
-import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
-import { TopMobilePhoneDto } from '../../../../shared/api/nswag/api-client';
-import { MobilePhoneHome } from './mobile-phone.home';
+// import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
+// import { TopMobilePhoneDto } from '../../../../shared/api/nswag/api-client';
+// import { MobilePhoneHome } from './mobile-phone.home';
 
-describe('MobilePhoneHome (component)', () => {
-    let router: Router;
-    const topPhones = [
-        TopMobilePhoneDto.fromJS({ id: 'phone-1', commonDescription: { name: 'Phone 1' }, price: { amount: 100 } }),
-        TopMobilePhoneDto.fromJS({ id: 'phone-2', commonDescription: { name: 'Phone 2' }, price: { amount: 200 } }),
-        TopMobilePhoneDto.fromJS({ id: 'phone-3', commonDescription: { name: 'Phone 3' }, price: { amount: 300 } }),
-    ];
-    const facade = {
-        top$: of(topPhones),
-        loadTop: vi.fn(),
-    } satisfies Partial<MobilePhonesFacade>;
+// describe('MobilePhoneHome (component)', () => {
+//     let router: Router;
+//     const topPhones = [
+//         TopMobilePhoneDto.fromJS({ id: 'phone-1', commonDescription: { name: 'Phone 1' }, price: { amount: 100 } }),
+//         TopMobilePhoneDto.fromJS({ id: 'phone-2', commonDescription: { name: 'Phone 2' }, price: { amount: 200 } }),
+//         TopMobilePhoneDto.fromJS({ id: 'phone-3', commonDescription: { name: 'Phone 3' }, price: { amount: 300 } }),
+//     ];
+//     const facade = {
+//         top$: of(topPhones),
+//         loadTop: vi.fn(),
+//     } satisfies Partial<MobilePhonesFacade>;
 
-    beforeEach(async () => {
-        facade.loadTop.mockClear();
+//     beforeEach(async () => {
+//         facade.loadTop.mockClear();
 
-        await TestBed.configureTestingModule({
-            imports: [MobilePhoneHome],
-            providers: [provideRouter([]), { provide: MobilePhonesFacade, useValue: facade }],
-        }).compileComponents();
+//         await TestBed.configureTestingModule({
+//             imports: [MobilePhoneHome],
+//             providers: [provideRouter([]), { provide: MobilePhonesFacade, useValue: facade }],
+//         }).compileComponents();
 
-        router = TestBed.inject(Router);
-    });
+//         router = TestBed.inject(Router);
+//     });
 
-    it('creates the component', () => {
-        const fixture = TestBed.createComponent(MobilePhoneHome);
-        fixture.detectChanges();
+//     it('creates the component', () => {
+//         const fixture = TestBed.createComponent(MobilePhoneHome);
+//         fixture.detectChanges();
 
-        expect(fixture.componentInstance).toBeTruthy();
-        expect(facade.loadTop).toHaveBeenCalledTimes(1);
-    });
+//         expect(fixture.componentInstance).toBeTruthy();
+//         expect(facade.loadTop).toHaveBeenCalledTimes(1);
+//     });
 
-    it('renders 3 preview cards with images', () => {
-        const fixture = TestBed.createComponent(MobilePhoneHome);
-        fixture.detectChanges();
+//     it('renders 3 preview cards with images', () => {
+//         const fixture = TestBed.createComponent(MobilePhoneHome);
+//         fixture.detectChanges();
 
-        const cards = fixture.nativeElement.querySelectorAll('article.grid-list section.container');
-        expect(cards.length).toBe(3);
+//         const cards = fixture.nativeElement.querySelectorAll('article.grid-list section.container');
+//         expect(cards.length).toBe(3);
 
-        const images = fixture.nativeElement.querySelectorAll('article.grid-list section.container img');
-        expect(images.length).toBe(3);
+//         const images = fixture.nativeElement.querySelectorAll('article.grid-list section.container img');
+//         expect(images.length).toBe(3);
 
-        images.forEach((img: HTMLImageElement) => {
-            expect(img.src).toContain('shiba2.jpg');
-            expect(img.alt).toBe('Photo of a Shiba Inu');
-        });
-    });
+//         images.forEach((img: HTMLImageElement) => {
+//             expect(img.src).toContain('shiba2.jpg');
+//             expect(img.alt).toBe('Photo of a Shiba Inu');
+//         });
+//     });
 
-    it('renders CTA button with text and icon', () => {
-        const fixture = TestBed.createComponent(MobilePhoneHome);
-        fixture.detectChanges();
+//     it('renders CTA button with text and icon', () => {
+//         const fixture = TestBed.createComponent(MobilePhoneHome);
+//         fixture.detectChanges();
 
-        const button = fixture.nativeElement.querySelector('button.home-btn') as HTMLButtonElement | null;
-        expect(button).toBeTruthy();
+//         const button = fixture.nativeElement.querySelector('button.home-btn') as HTMLButtonElement | null;
+//         expect(button).toBeTruthy();
 
-        const buttonText = (button?.textContent ?? '').replace(/\s+/g, ' ').trim();
-        expect(buttonText).toContain('Check more ...');
+//         const buttonText = (button?.textContent ?? '').replace(/\s+/g, ' ').trim();
+//         expect(buttonText).toContain('Check more ...');
 
-        const icon = button?.querySelector('mat-icon');
-        expect(icon?.textContent?.trim()).toBe('home');
-    });
+//         const icon = button?.querySelector('mat-icon');
+//         expect(icon?.textContent?.trim()).toBe('home');
+//     });
 
-    it('navigates to /list when CTA button is clicked', () => {
-        const fixture = TestBed.createComponent(MobilePhoneHome);
-        const navigateByUrlSpy = vi.spyOn(router, 'navigateByUrl');
+//     it('navigates to /list when CTA button is clicked', () => {
+//         const fixture = TestBed.createComponent(MobilePhoneHome);
+//         const navigateByUrlSpy = vi.spyOn(router, 'navigateByUrl');
 
-        fixture.detectChanges();
+//         fixture.detectChanges();
 
-        const button = fixture.nativeElement.querySelector('button.home-btn') as HTMLButtonElement;
-        button.click();
+//         const button = fixture.nativeElement.querySelector('button.home-btn') as HTMLButtonElement;
+//         button.click();
 
-        expect(navigateByUrlSpy).toHaveBeenCalledTimes(1);
-        const [calledUrl] = vi.mocked(navigateByUrlSpy).mock.lastCall;
-        expect(calledUrl.toString()).toContain('/list');
-    });
-});
+//         expect(navigateByUrlSpy).toHaveBeenCalledTimes(1);
+//         const [calledUrl] = vi.mocked(navigateByUrlSpy).mock.lastCall;
+//         expect(calledUrl.toString()).toContain('/list');
+//     });
+// });

@@ -4,12 +4,12 @@
     "outDir": "./out-tsc/spec",
     "rootDir": "./src",
     "types": [
-      "node"
+      "node",
+      "vitest/globals"
     ]
   },
   "include": [
     "src/**/*.spec.ts",
-    "src/test.ts",
     "src/**/*.d.ts"
   ]
 }
