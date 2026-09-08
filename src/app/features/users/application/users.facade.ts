@@ -10,17 +10,14 @@ import { Favorite } from '../domain/model/favorite-response.model';
 export class UsersFacade {
     private readonly store = inject(Store);
 
-    // Explicit Observables
     readonly favorites$: Observable<Favorite[]> = this.store.select(favoritesFeature.selectFavorites);
     readonly status$: Observable<string> = this.store.select(favoritesFeature.selectStatus);
     readonly error$: Observable<string | null> = this.store.select(favoritesFeature.selectError);
 
-    // Explicit Signals
     readonly favorites: Signal<Favorite[]> = this.store.selectSignal(favoritesFeature.selectFavorites);
     readonly status: Signal<string> = this.store.selectSignal(favoritesFeature.selectStatus);
     readonly error: Signal<string | null> = this.store.selectSignal(favoritesFeature.selectError);
 
-    // Reactive check instead of static snapshot
     isProductFavorite(productId: string): Signal<boolean> {
         return computed(() => this.favorites().some(f => f.productId === productId));
     }
