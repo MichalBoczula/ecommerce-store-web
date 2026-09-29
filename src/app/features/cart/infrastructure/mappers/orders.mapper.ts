@@ -6,7 +6,7 @@ import {
     ShoppingCartLineResponseDto,
     UpdateShoppingCartRequestDto,
     ShoppingCartLineRequestDto,
-} from '../api-clients/orders/models';
+} from '../../../../shared/infrastructure/api-clients/orders/models';
 import { UpdateShoppingCartRequest } from '../../domain/model/update-shopping-cart/update-shopping-cart-request.model';
 import { ShoppingCartLineRequest } from '../../domain/model/update-shopping-cart/shopping-cart-line-request.model';
 
@@ -15,12 +15,7 @@ export function mapShoppingCartLineResponseDtoToShoppingCartLineResponse(
 ): ShoppingCartLineResponse {
     return {
         productId: dto.productId?.toString() ?? '',
-        name: dto.name ?? '',
-        brand: dto.brand ?? null,
-        unitPriceAmount: dto.unitPriceAmount ?? 0,
-        unitPriceCurrency: dto.unitPriceCurrency ?? 'USD',
         quantity: dto.quantity ?? 0,
-        totalAmount: dto.totalAmount ?? 0,
     };
 }
 
@@ -31,8 +26,6 @@ export function mapShoppingCartResponseDtoToShoppingCartResponse(
         id: dto.id?.toString() ?? '',
         clientId: dto.clientId?.toString() ?? '',
         lines: (dto.lines ?? []).map(mapShoppingCartLineResponseDtoToShoppingCartLineResponse),
-        totalAmount: dto.totalAmount ?? 0,
-        totalCurrency: dto.totalCurrency ?? 'USD',
         createdAt: dto.createdAt ?? null,
         updatedAt: dto.updatedAt ?? null,
     };
@@ -41,15 +34,9 @@ export function mapShoppingCartResponseDtoToShoppingCartResponse(
 export function mapShoppingCartLineRequestToDto(
     model: ShoppingCartLineRequest
 ): ShoppingCartLineRequestDto {
-    const currency = model.unitPriceCurrency?.trim().toUpperCase() || 'USD';
-
     return {
         productId: model.productId ? (model.productId as unknown as Guid) : null,
-        name: model.name ?? null,
-        brand: model.brand ?? null,
-        unitPriceAmount: model.unitPriceAmount ?? 0,
-        unitPriceCurrency: currency === 'USD' ? 'USD' : 'USD',
-        quantity: model.quantity ?? 1,
+        quantity: model.quantity,
     };
 }
 export function mapUpdateShoppingCartRequestToDto(

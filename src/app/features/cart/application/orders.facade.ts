@@ -45,18 +45,10 @@ export class OrdersFacade {
                 idx === existingIndex
                     ? {
                         productId: line.productId,
-                        name: line.name,
-                        brand: line.brand ?? null,
-                        unitPriceAmount: line.unitPriceAmount,
-                        unitPriceCurrency: line.unitPriceCurrency,
                         quantity: (line.quantity ?? 1) + (item.quantity ?? 1),
                     }
                     : {
                         productId: line.productId,
-                        name: line.name,
-                        brand: line.brand ?? null,
-                        unitPriceAmount: line.unitPriceAmount,
-                        unitPriceCurrency: line.unitPriceCurrency,
                         quantity: line.quantity ?? 1,
                     }
             );
@@ -64,10 +56,6 @@ export class OrdersFacade {
             updatedLines = [
                 ...currentLines.map((line) => ({
                     productId: line.productId,
-                    name: line.name,
-                    brand: line.brand ?? null,
-                    unitPriceAmount: line.unitPriceAmount,
-                    unitPriceCurrency: line.unitPriceCurrency,
                     quantity: line.quantity ?? 1,
                 })),
                 item,

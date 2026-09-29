@@ -9,7 +9,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "generate:clients": "bash scripts/generate-clients.sh"
   },
   "prettier": {
     "printWidth": 100,

@@ -1,4 +1,4 @@
-import { FavoriteResponseDto, AddFavoriteRequestDto } from '../api-clients/models/index';
+import { FavoriteResponseDto, AddFavoriteRequestDto } from '../../../../shared/infrastructure/api-clients/users/models';
 import { Favorite } from '../../domain/model/favorite-response.model';
 
 export class FavoriteMapper {

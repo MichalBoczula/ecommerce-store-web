@@ -1,4 +1,4 @@
-import type { MobilePhoneDetailsDto } from '../../infrastructure/api-clients/products/models';
+import type { MobilePhoneDetails } from '../../domain/model/mobile-phone-details';
 import type { SpecRow } from './mobile-phone.details';
 
 export function asLines(value: string | string[]): string[] {
@@ -9,7 +9,7 @@ export function isNotNullOrWhiteSpace(v: string | null | undefined): boolean {
     return (v ?? '').trim().length > 0;
 }
 
-export function toDescriptions(details: MobilePhoneDetailsDto): string[] {
+export function toDescriptions(details: MobilePhoneDetails): string[] {
     return [
         details?.commonDescription?.description ?? '',
         details?.description2 ?? '',
@@ -17,7 +17,7 @@ export function toDescriptions(details: MobilePhoneDetailsDto): string[] {
     ];
 }
 
-export function toSpecRows(mobilePhone: MobilePhoneDetailsDto): SpecRow[] {
+export function toSpecRows(mobilePhone: MobilePhoneDetails): SpecRow[] {
     const rows: SpecRow[] = [];
 
     const add = (label: string, value: unknown) => {
@@ -79,6 +79,6 @@ export function toSpecRows(mobilePhone: MobilePhoneDetailsDto): SpecRow[] {
     return rows;
 }
 
-export function toProductName(mobilePhone: MobilePhoneDetailsDto): string {
+export function toProductName(mobilePhone: MobilePhoneDetails): string {
     return `${mobilePhone.commonDescription?.brand} ${mobilePhone.commonDescription?.name}`
 }

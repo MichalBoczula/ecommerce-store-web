@@ -1,9 +1,9 @@
 import { MobilePhone } from '../../domain/model/mobile-phone';
-import { MobilePhoneDto, MobilePhoneFilterDto, MobilePhonesBrand, TopMobilePhoneDto } from '../../infrastructure/api-clients/products/models';
+import { MobilePhoneDto, MobilePhoneFilterDto, TopMobilePhoneDto } from '../../../../shared/infrastructure/api-clients/products/models';
 import { TopMobilePhone } from '../../domain/model/top-mobile-phone';
 import { FilterMobilePhone } from '../../domain/model/filter-mobile-phones';
 
-import { MobilePhoneDetailsDto } from '../../infrastructure/api-clients/products/models';
+import { MobilePhoneDetailsDto } from '../../../../shared/infrastructure/api-clients/products/models';
 import { MobilePhoneDetails } from '../../domain/model/mobile-phone-details';
 
 export function mapMobilePhoneDtoToMobilePhonesDetails(
@@ -11,7 +11,6 @@ export function mapMobilePhoneDtoToMobilePhonesDetails(
 ): MobilePhoneDetails {
     return {
         id: dto.id?.toString() ?? '',
-        categoryId: dto.categoryId?.toString() ?? null,
         camera: dto.camera ?? null,
         description2: dto.description2 ?? null,
         description3: dto.description3 ?? null,
@@ -119,7 +118,7 @@ export function mapTopMobilePhoneDtoToTopMobilePhone(dto: TopMobilePhoneDto): To
 
 export function mapFilterMobilePhoneToDto(filter: FilterMobilePhone): MobilePhoneFilterDto {
     return {
-        brand: filter.brand as MobilePhonesBrand | undefined | null,
+        brand: filter.brand,
         minimalPrice: filter.minimalPrice,
         maximalPrice: filter.maximalPrice,
     };

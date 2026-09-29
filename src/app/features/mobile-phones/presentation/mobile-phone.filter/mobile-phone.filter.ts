@@ -7,7 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
 import { FilterMobilePhone } from '../../domain/model/filter-mobile-phones';
-import { MobilePhonesBrand, MobilePhonesBrandObject } from '../../infrastructure/api-clients/products/models/index';
+import { MobilePhonesBrand } from '../../domain/model/mobile-phones-brand';
 
 @Component({
   selector: 'app-mobile-phone-filter',
@@ -27,7 +27,7 @@ export class MobilePhoneFilter {
   private readonly router = inject(Router);
   private readonly facade = inject(MobilePhonesFacade);
 
-  protected readonly MobilePhonesBrand = MobilePhonesBrandObject;
+  protected readonly MobilePhonesBrand = MobilePhonesBrand;
 
   readonly form = this.formBuilder.group({
     brand: this.formBuilder.control<MobilePhonesBrand | null>(null),
