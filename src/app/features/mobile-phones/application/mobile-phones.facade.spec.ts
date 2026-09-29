@@ -8,6 +8,7 @@ import { firstValueFrom } from 'rxjs';
 import { MobilePhoneDetails } from '../domain/model/mobile-phone-details';
 import { TopMobilePhone } from '../domain/model/top-mobile-phone';
 import { MobilePhone } from '../domain/model/mobile-phone';
+import { FilterMobilePhone } from '../domain/model/filter-mobile-phones';
 
 describe('MobilePhonesFacade', () => {
     let facade: MobilePhonesFacade;
@@ -62,7 +63,7 @@ describe('MobilePhonesFacade', () => {
     });
 
     it('should dispatch loadMobilePhoneByFilter', () => {
-        const filter = { brand: 'Apple' } as any;
+        const filter: FilterMobilePhone = { brand: 'Apple' };
 
         facade.loadByFilter(filter);
 

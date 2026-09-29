@@ -36,9 +36,9 @@ describe('FavoriteMapper', () => {
         it('should map all valid DTO fields to domain Favorite entity', () => {
             const fixedDate = new Date('2026-01-15T10:00:00.000Z');
             const dto: FavoriteResponseDto = {
-                id: 'fav-1' as any,
-                clientId: 'client-99' as any,
-                productId: 'prod-456' as any,
+                id: 'fav-1',
+                clientId: 'client-99',
+                productId: 'prod-456',
                 addedAt: fixedDate,
             };
 

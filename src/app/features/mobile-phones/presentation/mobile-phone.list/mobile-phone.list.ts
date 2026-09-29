@@ -78,7 +78,4 @@ export class MobilePhoneList implements OnInit {
     this.router.navigate(['/details', phoneId]);
   }
 
-  removeFavorite(arg0: string) {
-    throw new Error('Method not implemented.');
-  }
 }

@@ -1,143 +1,78 @@
-// import type { MockedObject } from "vitest";
-// import { TestBed } from '@angular/core/testing';
-// import { provideMockActions } from '@ngrx/effects/testing';
-// import { Observable, of, ReplaySubject, throwError } from 'rxjs';
-// import { MobilePhonesEffects } from './mobile-phones-effects';
-// import * as Actions from './mobile-phones.actions';
-// import { MobilePhonesRepository } from '../domain/interfaces/mobile-phones-repository.port';
-// import { MobilePhone } from '../domain/model/mobile-phone';
-// import { FilterMobilePhone } from '../domain/model/filter-mobile-phones';
-// import { MobilePhoneFilterDto } from '../../../shared/api/nswag/api-client';
-// import { TopMobilePhone } from '../domain/model/top-mobile-phone';
-// import { MobilePhoneDetails } from '../domain/model/mobile-phone-details';
+import { TestBed } from '@angular/core/testing';
+import { Actions } from '@ngrx/effects';
+import { Action } from '@ngrx/store';
+import { of, Subject, throwError } from 'rxjs';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { MobilePhonesRepository } from '../domain/interfaces/mobile-phones-repository.port';
+import { MobilePhonesEffects } from './mobile-phones-effects';
+import * as MobilePhonesActions from './mobile-phones.actions';
 
-// describe('MobilePhonesEffects', () => {
-//     let actions$: ReplaySubject<any>;
-//     let effects: MobilePhonesEffects;
-//     let repo: MockedObject<MobilePhonesRepository>;
+describe('mobile phone effects', () => {
+    afterEach(() => TestBed.resetTestingModule());
 
-//     beforeEach(() => {
-//         repo = {
-//             getAll: vi.fn().mockName("MobilePhonesRepository.getAll"),
-//             getById: vi.fn().mockName("MobilePhonesRepository.getById"),
-//             create: vi.fn().mockName("MobilePhonesRepository.create"),
-//             getTopMobilePhones: vi.fn().mockName("MobilePhonesRepository.getTopMobilePhones"),
-//             getFilteredMobilePhones: vi.fn().mockName("MobilePhonesRepository.getFilteredMobilePhones")
-//         };
+    function setup(repository: Partial<MobilePhonesRepository>) {
+        const actions = new Subject<Action>();
+        TestBed.configureTestingModule({ providers: [
+            MobilePhonesEffects,
+            { provide: Actions, useValue: new Actions(actions) },
+            { provide: MobilePhonesRepository, useValue: repository },
+        ] });
+        return { actions, effects: TestBed.inject(MobilePhonesEffects) };
+    }
 
-//         TestBed.configureTestingModule({
-//             providers: [
-//                 MobilePhonesEffects,
-//                 provideMockActions(() => actions$ as Observable<any>),
-//                 { provide: MobilePhonesRepository, useValue: repo },
-//             ],
-//         });
+    it('reports a failed catalog load and can load again on retry', () => {
+        const phone = { id: 'phone-1', name: 'Available', isFavorite: false };
+        const getAll = vi.fn()
+            .mockReturnValueOnce(throwError(() => new Error('Catalog offline')))
+            .mockReturnValueOnce(of([phone]));
+        const { actions, effects } = setup({ getAll });
+        const results: Action[] = [];
+        const subscription = effects.load$.subscribe(action => results.push(action));
 
-//         effects = TestBed.inject(MobilePhonesEffects);
-//         actions$ = new ReplaySubject(1);
-//     });
+        actions.next(MobilePhonesActions.loadMobilePhones({ amount: 15 }));
+        actions.next(MobilePhonesActions.loadMobilePhones({ amount: 15 }));
 
-//     it('load$ should return loadMobilePhonesSuccess', async () => {
-//         const items = [{ id: '1' }] as MobilePhone[];
-//         repo.getAll.mockReturnValue(of(items));
+        expect(getAll).toHaveBeenCalledTimes(2);
+        expect(results).toEqual([
+            MobilePhonesActions.loadMobilePhonesFailure({ error: 'Error: Catalog offline' }),
+            MobilePhonesActions.loadMobilePhonesSuccess({ items: [phone] }),
+        ]);
+        subscription.unsubscribe();
+    });
 
-//         actions$.next(Actions.loadMobilePhones({ amount: 5 }));
+    it('passes the filter through and maps the product list', () => {
+        const filter = { minimalPrice: 100, maximalPrice: 500 };
+        const phone = { id: 'phone-1', isFavorite: false };
+        const getFilteredMobilePhones = vi.fn(() => of([phone]));
+        const { actions, effects } = setup({ getFilteredMobilePhones });
+        const results: Action[] = [];
+        const subscription = effects.loadByFilter$.subscribe(action => results.push(action));
 
-//         effects.load$.subscribe(action => {
-//             expect(repo.getAll).toHaveBeenCalledWith(5);
-//             expect(action).toEqual(Actions.loadMobilePhonesSuccess({ items }));
-//             ;
-//         });
-//     });
+        actions.next(MobilePhonesActions.loadMobilePhoneByFilter({ filter }));
 
-//     it('load$ should return loadMobilePhonesFailure on error', async () => {
-//         repo.getAll.mockReturnValue(throwError(() => new Error('api failed')));
+        expect(getFilteredMobilePhones).toHaveBeenCalledWith(filter);
+        expect(results).toEqual([MobilePhonesActions.loadMobilePhoneByFilterSuccess({ items: [phone] })]);
+        subscription.unsubscribe();
+    });
 
-//         actions$.next(Actions.loadMobilePhones({ amount: 5 }));
+    it('loads a product by ID and reports a top-products failure independently', () => {
+        const phone = { id: 'phone-1' };
+        const getById = vi.fn(() => of(phone));
+        const getTopMobilePhones = vi.fn(() => throwError(() => new Error('Top unavailable')));
+        const { actions, effects } = setup({ getById, getTopMobilePhones });
+        const results: Action[] = [];
+        const detail = effects.loadById$.subscribe(action => results.push(action));
+        const top = effects.loadTop$.subscribe(action => results.push(action));
 
-//         effects.load$.subscribe(action => {
-//             expect(action).toEqual(Actions.loadMobilePhonesFailure({ error: 'Error: api failed' }));
-//             ;
-//         });
-//     });
+        actions.next(MobilePhonesActions.loadMobilePhoneById({ id: phone.id }));
+        actions.next(MobilePhonesActions.loadTopMobilePhone());
 
-//     it('loadByFilter$ should return loadMobilePhoneByFilterSuccess', async () => {
-//         const filter: FilterMobilePhone = new MobilePhoneFilterDto({
-//             minimalPrice: 500,
-//             maximalPrice: 1500,
-//         });
-//         const items = [{ id: '1' }] as MobilePhone[];
-//         repo.getFilteredMobilePhones.mockReturnValue(of(items));
-
-//         actions$.next(Actions.loadMobilePhoneByFilter({ filter }));
-
-//         effects.loadByFilter$.subscribe(action => {
-//             expect(repo.getFilteredMobilePhones).toHaveBeenCalledWith(filter);
-//             expect(action).toEqual(Actions.loadMobilePhoneByFilterSuccess({ items }));
-//             ;
-//         });
-//     });
-
-//     it('loadByFilter$ should return loadMobilePhoneByFilterFailure on error', async () => {
-//         const filter: FilterMobilePhone = new MobilePhoneFilterDto({
-//             minimalPrice: 500,
-//             maximalPrice: 1500,
-//         });
-//         repo.getFilteredMobilePhones.mockReturnValue(throwError(() => new Error('api failed')));
-
-//         actions$.next(Actions.loadMobilePhoneByFilter({ filter }));
-
-//         effects.loadByFilter$.subscribe(action => {
-//             expect(action).toEqual(Actions.loadMobilePhoneByFilterFailure({ error: 'Error: api failed' }));
-//             ;
-//         });
-//     });
-
-//     it('loadTop$ should return loadTopMobilePhoneSuccess', async () => {
-//         const items = [{ id: '1' }] as TopMobilePhone[];
-//         repo.getTopMobilePhones.mockReturnValue(of(items));
-
-//         actions$.next(Actions.loadTopMobilePhone());
-
-//         effects.loadTop$.subscribe(action => {
-//             expect(repo.getTopMobilePhones).toHaveBeenCalled();
-//             expect(action).toEqual(Actions.loadTopMobilePhoneSuccess({ items }));
-//             ;
-//         });
-//     });
-
-//     it('loadTop$ should return loadTopMobilePhoneFailure on error', async () => {
-//         repo.getTopMobilePhones.mockReturnValue(throwError(() => new Error('api failed')));
-
-//         actions$.next(Actions.loadTopMobilePhone());
-
-//         effects.loadTop$.subscribe(action => {
-//             expect(action).toEqual(Actions.loadTopMobilePhoneFailure({ error: 'Error: api failed' }));
-//             ;
-//         });
-//     });
-
-//     it('loadById$ should return loadMobilePhoneByIdSuccess', async () => {
-//         const item = { id: '1' } as MobilePhoneDetails;
-//         repo.getById.mockReturnValue(of(item));
-
-//         actions$.next(Actions.loadMobilePhoneById({ id: '1' }));
-
-//         effects.loadById$.subscribe(action => {
-//             expect(repo.getById).toHaveBeenCalledWith('1');
-//             expect(action).toEqual(Actions.loadMobilePhoneByIdSuccess({ item }));
-//             ;
-//         });
-//     });
-
-//     it('loadById$ should return loadMobilePhoneByIdFailure on error', async () => {
-//         repo.getById.mockReturnValue(throwError(() => new Error('api failed')));
-
-//         actions$.next(Actions.loadMobilePhoneById({ id: '1' }));
-
-//         effects.loadById$.subscribe(action => {
-//             expect(action).toEqual(Actions.loadMobilePhoneByIdFailure({ error: 'Error: api failed' }));
-//             ;
-//         });
-//     });
-// });
+        expect(getById).toHaveBeenCalledWith(phone.id);
+        expect(results).toEqual([
+            MobilePhonesActions.loadMobilePhoneByIdSuccess({ item: phone }),
+            MobilePhonesActions.loadTopMobilePhoneFailure({ error: 'Error: Top unavailable' }),
+        ]);
+        detail.unsubscribe();
+        top.unsubscribe();
+    });
+});

@@ -78,11 +78,20 @@ This will compile your project and store the build artifacts in the `dist/` dire
 
 ## Running unit tests
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+Run unit tests through Angular's [Vitest](https://vitest.dev/) runner (which sets up Angular TestBed):
 
 ```bash
-ng test
+npm test
 ```
+
+Run the same suite with coverage for handwritten code:
+
+```bash
+npm run test:coverage
+```
+
+The JUnit report is written to `TestResults/unit.xml` and coverage reports to
+`coverage/ecommerce-store-web/`. Generated Kiota clients are excluded from lint and coverage.
 
 ## Running end-to-end tests
 
