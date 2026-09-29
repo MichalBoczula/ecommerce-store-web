@@ -6,6 +6,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { OrdersFacade } from '../../application/orders.facade';
 import { ShoppingCartLineResponse } from '../../domain/model/shopping-cart-line-response.model';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { signal } from '@angular/core';
+import { CatalogProductsLookup, CatalogProductsState } from '../../../mobile-phones/application/catalog-products-lookup';
+import { estimatedSubtotals, toCartItemViewModels } from './shopping-cart.utils';
 
 @Component({
   selector: 'app-shopping-cart',
@@ -24,10 +28,12 @@ import { ShoppingCartLineResponse } from '../../domain/model/shopping-cart-line-
 export class ShoppingCartComponent implements OnInit {
   private readonly ordersFacade = inject(OrdersFacade);
   private readonly location = inject(Location);
+  private readonly catalogLookup = inject(CatalogProductsLookup);
+  private readonly catalogRefresh = signal(0);
 
   private readonly userId: string = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
 
-  readonly displayedColumns: string[] = ['productId', 'quantity', 'actions'];
+  readonly displayedColumns: string[] = ['product', 'price', 'quantity', 'lineTotal', 'actions'];
 
   readonly shoppingCart = this.ordersFacade.shoppingCart;
   readonly status = this.ordersFacade.status;
@@ -35,6 +41,14 @@ export class ShoppingCartComponent implements OnInit {
   readonly isUpdating = computed(() => this.status() === 'updating');
 
   readonly cartLines = computed(() => this.shoppingCart()?.lines ?? []);
+  readonly catalog = toSignal(this.catalogLookup.observe(
+    toObservable(computed(() => this.cartLines().map(line => line.productId))),
+    toObservable(this.catalogRefresh)
+  ), { initialValue: { products: [], unavailableIds: [], status: 'loading', error: null } as CatalogProductsState });
+  readonly items = computed(() => toCartItemViewModels(this.cartLines(), this.catalog().products));
+  readonly subtotals = computed(() => estimatedSubtotals(this.items()));
+  readonly hasUnpricedItems = computed(() => this.items().some(item =>
+    item.unavailable || item.priceAmount === null || !Number.isFinite(item.priceAmount) || !item.priceCurrency));
   readonly totalItems = computed(() =>
     this.cartLines().reduce((sum, line) => sum + (line.quantity ?? 0), 0)
   );
@@ -45,6 +59,11 @@ export class ShoppingCartComponent implements OnInit {
 
   reload(): void {
     this.ordersFacade.loadCart(this.userId);
+    this.retryCatalog();
+  }
+
+  retryCatalog(): void {
+    this.catalogRefresh.update(value => value + 1);
   }
 
   incrementQuantity(item: ShoppingCartLineResponse): void {

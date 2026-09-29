@@ -32,6 +32,16 @@
   color: #9a1b1b;
 }
 
+.unavailable {
+  display: block;
+  color: #9a1b1b;
+}
+
+.cart-table td strong,
+.cart-table td small {
+  display: block;
+}
+
 .cart-table {
   flex: 1;
   width: 100%;

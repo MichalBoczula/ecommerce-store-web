@@ -17,6 +17,21 @@
     }
 }
 
+.favorites-alert {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    background: #ffebee;
+    color: #9a1b1b;
+    border-radius: 8px;
+}
+
+.unavailable {
+    color: #9a1b1b;
+}
+
 .favorites-layout {
     display: flex;
     gap: 32px;

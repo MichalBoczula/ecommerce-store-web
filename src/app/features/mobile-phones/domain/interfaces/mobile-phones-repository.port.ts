@@ -7,6 +7,7 @@ import { FilterMobilePhone } from '../model/filter-mobile-phones';
 export abstract class MobilePhonesRepository {
     abstract getAll(amount: number): Observable<MobilePhone[]>;
     abstract getById(id: string): Observable<MobilePhoneDetails>;
+    abstract getByIds(ids: string[]): Observable<MobilePhone[]>;
     abstract getTopMobilePhones(): Observable<TopMobilePhone[]>;
     abstract getFilteredMobilePhones(filter: FilterMobilePhone): Observable<MobilePhone[]>;
 }
