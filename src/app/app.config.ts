@@ -28,6 +28,11 @@ import { FavoritesKiotaRepository } from './features/users/infrastructure/api/fa
 import { UsersFacade } from './features/users/application/users.facade';
 import { favoritesFeature } from './features/users/state/users.feature';
 import { FavoritesEffects } from './features/users/state/users.effects';
+import { OrderHistoryRepository } from './features/orders/domain/interfaces/order-history-repository.port';
+import { OrderHistoryKiotaRepository } from './features/orders/infrastructure/api/order-history-kiota-repository';
+import { OrderHistoryFacade } from './features/orders/application/order-history.facade';
+import { orderHistoryFeature } from './features/orders/state/order-history.feature';
+import { OrderHistoryEffects } from './features/orders/state/order-history.effects';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -40,7 +45,8 @@ export const appConfig: ApplicationConfig = {
     provideState(mobilePhonesFeature),
     provideState(cartFeature),
     provideState(favoritesFeature),
-    provideEffects(MobilePhonesEffects, OrdersEffects, FavoritesEffects),
+    provideState(orderHistoryFeature),
+    provideEffects(MobilePhonesEffects, OrdersEffects, FavoritesEffects, OrderHistoryEffects),
 
     // Mobile Phones Providers
     { provide: MobilePhonesRepository, useClass: MobilePhonesKiotaRepository },
@@ -49,6 +55,10 @@ export const appConfig: ApplicationConfig = {
     // Cart / Orders Providers
     { provide: OrdersRepository, useClass: OrdersKiotaRepository },
     OrdersFacade,
+
+    // Order history is read from Invoice snapshots, independently of current catalog prices.
+    { provide: OrderHistoryRepository, useClass: OrderHistoryKiotaRepository },
+    OrderHistoryFacade,
 
     // Users / Favorites Providers
     { provide: FavoritesRepository, useClass: FavoritesKiotaRepository },
