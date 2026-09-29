@@ -6,15 +6,27 @@
         <h2>My Favorites</h2>
     </div>
 
-    @if (favoriteItems().length > 0) {
+    @if (error()) {
+    <div class="favorites-alert" role="alert">{{ error() }}</div>
+    }
+
+    @if (status() === 'loading' && favoritesList().length === 0) {
+    <p role="status">Loading favorites...</p>
+    } @else if (favoritesList().length > 0 && catalog().status === 'loading') {
+    <p role="status">Loading product details...</p>
+    } @else if (favoritesList().length > 0 && catalog().status === 'error') {
+    <div class="favorites-alert" role="alert">
+        <span>Product details could not be loaded: {{ catalog().error }}</span>
+        <button mat-button type="button" (click)="retryCatalog()">Retry</button>
+    </div>
+    } @else if (favoriteItems().length > 0) {
     <div class="favorites-layout">
         <table mat-table [dataSource]="favoriteItems()" class="mat-elevation-z2 favorites-table">
 
             <ng-container matColumnDef="image">
                 <th mat-header-cell *matHeaderCellDef></th>
                 <td mat-cell *matCellDef="let item">
-                    <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Preview"
-                        class="product-thumb" style="width: 48px; height: 48px; border-radius: 4px;" />
+                    <mat-icon aria-hidden="true">smartphone</mat-icon>
                 </td>
             </ng-container>
 
@@ -26,6 +38,9 @@
                         @if (item.brand) {
                         <small style="color: #666;">{{ item.brand }}</small>
                         }
+                        @if (item.unavailable) {
+                        <small class="unavailable">Unavailable in catalog</small>
+                        }
                     </div>
                 </td>
             </ng-container>
@@ -33,7 +48,9 @@
             <ng-container matColumnDef="price">
                 <th mat-header-cell *matHeaderCellDef> Price </th>
                 <td mat-cell *matCellDef="let item">
-                    {{ item.priceAmount | currency:item.priceCurrency:'symbol':'1.2-2' }}
+                    @if (!item.unavailable && item.priceAmount !== null && item.priceCurrency) {
+                        {{ item.priceAmount | currency:item.priceCurrency:'code' }}
+                    } @else { Price unavailable }
                 </td>
             </ng-container>
 
@@ -41,12 +58,12 @@
                 <th mat-header-cell *matHeaderCellDef> </th>
                 <td mat-cell *matCellDef="let item" style="text-align: right;">
                     <button matButton="filled" class="fav-delete-btn" (click)="removeFavorite(item.productId)"
-                        aria-label="Add to favorites">
+                        [attr.aria-label]="'Remove ' + item.name + ' from favorites'">
                         <span class="material-symbols-outlined">favorite</span>
                     </button>
 
-                    <button matButton="elevated" type="button" (click)="addToCart(item)"
-                        aria-label="Add to shopping cart">
+                    <button matButton="elevated" type="button" (click)="addToCart(item)" [disabled]="item.unavailable"
+                        [attr.aria-label]="'Add ' + item.name + ' to shopping cart'">
                         <span class="material-symbols-outlined">shopping_cart_checkout</span>
                     </button>
                 </td>
@@ -73,7 +90,7 @@
             </mat-card-actions>
         </mat-card>
     </div>
-    } @else {
+    } @else if (status() === 'loaded' && favoritesList().length === 0) {
     <div class="empty-favorites mat-elevation-z1">
         <mat-icon class="empty-icon">favorite_border</mat-icon>
         <p>Your wishlist is empty.</p>

@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,20 +8,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 
 import { UsersFacade } from '../../application/users.facade';
-import { MobilePhonesFacade } from '../../../mobile-phones/application/mobile-phones.facade';
+import { CatalogProductsLookup, CatalogProductsState } from '../../../mobile-phones/application/catalog-products-lookup';
 import { OrdersFacade } from '../../../cart/application/orders.facade';
 import { FavoriteItemViewModel } from '../../domain/model/favorite-item.model';
 import { toCartLineItem, toFavoriteItemViewModels } from './favorites.component.utils';
-
-// [] Eliminate the hardcoded userId: Replace private readonly userId: string = '3fa85f64...' with an injected auth / user context service or an input so the component doesn't break across different user sessions.
-
-// [] Remove toSignal boilerplate: Once MobilePhonesFacade exposes native signals(like items), drop toSignal(this.phonesFacade.items$, { initialValue: [] }) and bind directly to the signal.
-
-// [] Add user feedback for action triggers: Add loading or disabled states on the action buttons(e.g., while addToCart, removeFavorite, or clearAllFavorites are dispatching) so users cannot spam clicks during slow network roundtrips.
-
-// [] Handle empty and error view states: Ensure the component template checks status() === 'error' or favoriteItems().length === 0 to display fallback UI instead of rendering an empty Material table.
-
-// [] Write component unit tests with Vitest: Mock UsersFacade, MobilePhonesFacade, and OrdersFacade using simple object mocks to verify that ngOnInit dispatches correctly and user button clicks trigger the right facade methods.
 
 @Component({
     selector: 'app-favorites',
@@ -40,11 +30,12 @@ import { toCartLineItem, toFavoriteItemViewModels } from './favorites.component.
 })
 export class FavoritesComponent implements OnInit {
     private readonly usersFacade = inject(UsersFacade);
-    private readonly phonesFacade = inject(MobilePhonesFacade);
+    private readonly catalogLookup = inject(CatalogProductsLookup);
     private readonly ordersFacade = inject(OrdersFacade);
     private readonly location = inject(Location);
 
     private readonly userId: string = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
+    private readonly catalogRefresh = signal(0);
 
     readonly displayedColumns: string[] = ['image', 'product', 'price', 'actions'];
 
@@ -52,19 +43,26 @@ export class FavoritesComponent implements OnInit {
     readonly status = this.usersFacade.status;
     readonly error = this.usersFacade.error;
 
-    readonly phonesList = toSignal(this.phonesFacade.items$, { initialValue: [] });
+    readonly catalog = toSignal(this.catalogLookup.observe(
+        toObservable(computed(() => this.favoritesList().map(favorite => favorite.productId))),
+        toObservable(this.catalogRefresh)
+    ), { initialValue: { products: [], unavailableIds: [], status: 'loading', error: null } as CatalogProductsState });
 
     readonly favoriteItems = computed(() =>
-        toFavoriteItemViewModels(this.favoritesList(), this.phonesList())
+        toFavoriteItemViewModels(this.favoritesList(), this.catalog().products)
     );
-    readonly totalItems = computed(() => this.favoriteItems().length);
+    readonly totalItems = computed(() => this.favoritesList().length);
 
     ngOnInit(): void {
         this.usersFacade.loadFavorites(this.userId);
-        this.phonesFacade.load(50);
+    }
+
+    retryCatalog(): void {
+        this.catalogRefresh.update(value => value + 1);
     }
 
     addToCart(item: FavoriteItemViewModel): void {
+        if (item.unavailable) return;
         const lineItem = toCartLineItem(item);
         this.ordersFacade.addItem(this.userId, lineItem);
     }

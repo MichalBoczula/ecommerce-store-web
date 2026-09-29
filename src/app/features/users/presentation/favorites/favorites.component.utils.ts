@@ -11,17 +11,18 @@ export function toFavoriteItemViewModels(
     const productList = products ?? [];
 
     const productMap = new Map<string, MobilePhone>(
-        productList.filter(p => !!p.id).map(p => [p.id!, p])
+        productList.filter(p => !!p.id).map(p => [p.id.toLowerCase(), p])
     );
 
     return favList.map(fav => {
-        const product = productMap.get(fav.productId);
+        const product = productMap.get(fav.productId.toLowerCase());
         return {
             productId: fav.productId,
-            name: product?.name ?? 'Unknown Product',
+            name: product?.name || (product ? 'Unnamed product' : 'Product unavailable'),
             brand: product?.brand ?? null,
-            priceAmount: product?.price?.amount ?? 0,
-            priceCurrency: product?.price?.currency ?? 'USD',
+            priceAmount: product?.price?.amount ?? null,
+            priceCurrency: product?.price?.currency || null,
+            unavailable: !product,
             addedAt: fav.addedAt,
         };
     });
@@ -29,7 +30,7 @@ export function toFavoriteItemViewModels(
 
 export function toCartLineItem(
     item: FavoriteItemViewModel,
-    quantity: number = 1
+    quantity = 1
 ): ShoppingCartLineRequest {
     return {
         productId: item.productId,
