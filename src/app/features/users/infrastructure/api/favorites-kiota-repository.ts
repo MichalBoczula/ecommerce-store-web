@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import { from, map, Observable } from 'rxjs';
-import { AnonymousAuthenticationProvider } from '@microsoft/kiota-abstractions';
-import { FetchRequestAdapter } from '@microsoft/kiota-http-fetchlibrary';
-import { environment } from '../../../../../environments/environment';
+import { createBffRequestAdapter } from '../../../../shared/infrastructure/bff-request-adapter';
 
 import { FavoritesRepository } from '../../domain/interfaces/favorites-repository.port';
 import { Favorite } from '../../domain/model/favorite-response.model';
@@ -20,12 +18,7 @@ export class FavoritesKiotaRepository implements FavoritesRepository {
     private readonly apiClient: UsersApiClient;
 
     constructor() {
-        const authProvider = new AnonymousAuthenticationProvider();
-        const adapter = new FetchRequestAdapter(authProvider);
-
-        adapter.baseUrl = environment.bffUrl;
-
-        this.apiClient = createUsersApiClient(adapter);
+        this.apiClient = createUsersApiClient(createBffRequestAdapter());
     }
 
     addFavorite(command: AddFavoriteCommand): Observable<Favorite> {

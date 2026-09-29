@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import { from, map, Observable } from 'rxjs';
-import { AnonymousAuthenticationProvider } from '@microsoft/kiota-abstractions';
-import { FetchRequestAdapter } from '@microsoft/kiota-http-fetchlibrary';
-import { environment } from '../../../../../environments/environment';
+import { createBffRequestAdapter } from '../../../../shared/infrastructure/bff-request-adapter';
 import { MobilePhonesRepository } from '../../domain/interfaces/mobile-phones-repository.port';
 import { MobilePhone } from '../../domain/model/mobile-phone';
 import { MobilePhoneDetails } from '../../domain/model/mobile-phone-details';
@@ -23,12 +21,7 @@ export class MobilePhonesKiotaRepository implements MobilePhonesRepository {
     private readonly api: ProductsApiClient;
 
     constructor() {
-        const authProvider = new AnonymousAuthenticationProvider();
-        const adapter = new FetchRequestAdapter(authProvider);
-
-        adapter.baseUrl = environment.bffUrl;
-
-        this.api = createProductsApiClient(adapter);
+        this.api = createProductsApiClient(createBffRequestAdapter());
     }
 
     getAll(amount: number): Observable<MobilePhone[]> {

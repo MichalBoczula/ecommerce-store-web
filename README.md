@@ -10,6 +10,12 @@ Products Catalog, Users, and Invoice (the Orders client). Requests go through
 the BFF. Generated code lives in `src/app/shared/infrastructure/api-clients/`;
 feature repositories and mappers translate it to application models.
 
+The browser calls `/backend` on the frontend origin. Angular's dev proxy and
+the production Nginx configuration strip this prefix before forwarding to BFF.
+The BFF receives its normal routes such as `/mobile-phones`, `/favorites` and
+`/shopping-carts`; its `/api/products`, `/api/users` and `/api/orders` prefixes
+are only for OpenAPI documents.
+
 After updating the pinned contracts, regenerate and review the client changes:
 
 ```bash
@@ -24,13 +30,27 @@ generated files by hand.
 
 ## Development server
 
-To start a local development server, run:
+With Docker running, start the BFF and its three dependencies from the root of
+this repository. The Compose file uses the same pinned upstream images as the
+checked-in BFF contract manifest, a MongoDB replica set and the published BFF
+image:
 
 ```bash
-ng serve
+docker compose -f compose/ecommerce-compose.yml up -d sql mongodb mongo-init products users invoice bff
+npm ci
+npm start
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+The Angular dev server listens at `http://localhost:4200`; its proxy forwards
+`/backend/**` to the BFF published at `127.0.0.1:5137`. For a BFF process run
+on the host instead of Compose, use the BFF repository's local-start commands
+and the same port. Restart `npm start` after editing `src/proxy.conf.json`.
+The example database password and data in Compose are for local use.
+
+The existing demo screens contain a fixed client ID. Until registration creates
+a cart, that ID needs a matching client and cart to show successful favorites
+and cart data; missing resources remain API errors. The frontend does not
+create a cart implicitly.
 
 ## Code scaffolding
 
@@ -80,16 +100,18 @@ For more information on using the Angular CLI, including detailed command refere
 
 ## Running with Docker
 
-Build the Docker image:
+To build and run the entire local stack, including the Nginx frontend:
 
 ```bash
-docker build -t ecommerce-store-web .
+docker compose -f compose/ecommerce-compose.yml up -d --build
+curl -i http://localhost:4200/backend/health
 ```
 
-Run the container:
+Open `http://localhost:4200`. Nginx forwards `/backend/` to `bff:8080` on the
+Compose network. The BFF is also exposed on `127.0.0.1:5137` for local
+diagnostics. The browser uses the frontend origin in both modes. Stop the
+stack with:
 
 ```bash
-docker run --rm -p 8080:80 ecommerce-store-web
+docker compose -f compose/ecommerce-compose.yml down
 ```
-
-Then open `http://localhost:8080`.
