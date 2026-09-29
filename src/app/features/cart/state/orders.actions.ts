@@ -1,16 +1,16 @@
 import { createActionGroup, props } from '@ngrx/store';
 import { ShoppingCartResponse } from '../domain/model/shopping-cart-response.model';
-import { UpdateShoppingCartRequest } from '../domain/model/update-shopping-cart/update-shopping-cart-request.model';
+import { CartMutation } from '../domain/model/cart-mutation';
 
 export const OrdersActions = createActionGroup({
     source: 'Cart',
     events: {
         'Load Cart': props<{ clientId: string }>(),
         'Load Cart Success': props<{ shoppingCartResponse: ShoppingCartResponse }>(),
-        'Load Cart Failure': props<{ error: string }>(),
+        'Load Cart Failure': props<{ error: string; missingCart: boolean }>(),
 
-        'Update Cart': props<{ clientId: string; request: UpdateShoppingCartRequest }>(),
-        'Update Cart Success': props<{ shoppingCartResponse: ShoppingCartResponse }>(),
-        'Update Cart Failure': props<{ error: string }>(),
+        'Change Cart': props<{ clientId: string; mutation: CartMutation }>(),
+        'Change Cart Success': props<{ shoppingCartResponse: ShoppingCartResponse }>(),
+        'Change Cart Failure': props<{ error: string; missingCart: boolean }>(),
     },
 });

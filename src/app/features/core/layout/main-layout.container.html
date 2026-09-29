@@ -1,9 +1,9 @@
 <mat-sidenav-container class="container">
     <mat-sidenav #sidenav class="sidenav" [mode]="sidenavMode()" [opened]="sidenavOpened()">
-        <div class="brand" (click)="sidenav.toggle()">
+        <button class="brand" type="button" (click)="sidenav.toggle()" aria-label="Toggle categories">
             <mat-icon>store</mat-icon>
             <span class="brand-name">eCommerce</span>
-        </div>
+        </button>
         <mat-nav-list>
             <app-mobile-phone-filter></app-mobile-phone-filter>
         </mat-nav-list>
@@ -32,6 +32,12 @@
                 </button>
             </div>
         </mat-toolbar>
+        @if (showCartError) {
+            <div class="cart-error-banner" role="alert">
+                <span>{{ cartError() }}</span>
+                <button mat-button type="button" (click)="onCartClick()">View cart</button>
+            </div>
+        }
         <router-outlet></router-outlet>
     </mat-sidenav-content>
 </mat-sidenav-container>

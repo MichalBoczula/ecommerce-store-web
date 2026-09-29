@@ -2,7 +2,6 @@ import { inject, Injectable, Signal } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { cartFeature } from '../state/orders.feature';
 import { OrdersActions } from '../state/orders.actions';
-import { UpdateShoppingCartRequest } from '../domain/model/update-shopping-cart/update-shopping-cart-request.model';
 import { ShoppingCartLineRequest } from '../domain/model/update-shopping-cart/shopping-cart-line-request.model';
 import { ShoppingCartResponse } from '../domain/model/shopping-cart-response.model';
 import { Observable } from 'rxjs';
@@ -27,41 +26,23 @@ export class OrdersFacade {
         this.loadCart(clientId);
     }
 
-    updateCart(clientId: string, request: UpdateShoppingCartRequest): void {
-        this.store.dispatch(OrdersActions.updateCart({ clientId, request }));
+    addItem(clientId: string, item: ShoppingCartLineRequest): void {
+        this.store.dispatch(OrdersActions.changeCart({ clientId, mutation: { kind: 'add', ...item } }));
     }
 
-    addItem(clientId: string, item: ShoppingCartLineRequest): void {
-        const currentCart = this.shoppingCart();
-        const currentLines = currentCart?.lines ?? [];
+    incrementItem(clientId: string, productId: string): void {
+        this.store.dispatch(OrdersActions.changeCart({ clientId, mutation: { kind: 'increment', productId } }));
+    }
 
-        const existingIndex = currentLines.findIndex(
-            (l) => l.productId?.toLowerCase() === item.productId?.toLowerCase()
-        );
-        let updatedLines: ShoppingCartLineRequest[];
+    decrementItem(clientId: string, productId: string): void {
+        this.store.dispatch(OrdersActions.changeCart({ clientId, mutation: { kind: 'decrement', productId } }));
+    }
 
-        if (existingIndex > -1) {
-            updatedLines = currentLines.map((line, idx) =>
-                idx === existingIndex
-                    ? {
-                        productId: line.productId,
-                        quantity: (line.quantity ?? 1) + (item.quantity ?? 1),
-                    }
-                    : {
-                        productId: line.productId,
-                        quantity: line.quantity ?? 1,
-                    }
-            );
-        } else {
-            updatedLines = [
-                ...currentLines.map((line) => ({
-                    productId: line.productId,
-                    quantity: line.quantity ?? 1,
-                })),
-                item,
-            ];
-        }
+    removeItem(clientId: string, productId: string): void {
+        this.store.dispatch(OrdersActions.changeCart({ clientId, mutation: { kind: 'remove', productId } }));
+    }
 
-        this.updateCart(clientId, { lines: updatedLines });
+    clearCart(clientId: string): void {
+        this.store.dispatch(OrdersActions.changeCart({ clientId, mutation: { kind: 'clear' } }));
     }
 }

@@ -6,7 +6,16 @@
         <h2>Shopping Cart</h2>
     </div>
 
-    @if (cartLines().length > 0) {
+    @if (error()) {
+    <div class="cart-alert" role="alert">
+        <span>{{ error() }}</span>
+        <button mat-button type="button" (click)="reload()" [disabled]="isUpdating()">Retry</button>
+    </div>
+    }
+
+    @if (status() === 'loading' && !shoppingCart()) {
+    <p role="status">Loading shopping cart...</p>
+    } @else if (shoppingCart() && cartLines().length > 0) {
     <div class="cart-layout">
         <table mat-table [dataSource]="cartLines()" class="mat-elevation-z2 cart-table">
 
@@ -15,11 +24,30 @@
                 <td mat-cell *matCellDef="let item">{{ item.productId }}</td>
             </ng-container>
 
-            <!-- Quantity Column -->
             <ng-container matColumnDef="quantity">
                 <th mat-header-cell *matHeaderCellDef> Quantity </th>
                 <td mat-cell *matCellDef="let item">
-                    {{ item.quantity }}
+                    <div class="quantity-controls">
+                        <button mat-icon-button type="button" (click)="decrementQuantity(item)"
+                            [disabled]="isUpdating()" [attr.aria-label]="'Decrease quantity for ' + item.productId">
+                            <mat-icon>remove</mat-icon>
+                        </button>
+                        <span class="qty-count">{{ item.quantity }}</span>
+                        <button mat-icon-button type="button" (click)="incrementQuantity(item)"
+                            [disabled]="isUpdating()" [attr.aria-label]="'Increase quantity for ' + item.productId">
+                            <mat-icon>add</mat-icon>
+                        </button>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef> Actions </th>
+                <td mat-cell *matCellDef="let item">
+                    <button mat-icon-button type="button" (click)="removeItem(item)"
+                        [disabled]="isUpdating()" [attr.aria-label]="'Remove ' + item.productId">
+                        <mat-icon>delete</mat-icon>
+                    </button>
                 </td>
             </ng-container>
 
@@ -41,13 +69,19 @@
 
                 <p>Product details and prices are currently unavailable.</p>
             </mat-card-content>
-
+            <mat-card-actions>
+                <button mat-button type="button" (click)="clearCart()" [disabled]="isUpdating()">Clear cart</button>
+            </mat-card-actions>
         </mat-card>
     </div>
-    } @else {
+    } @else if (shoppingCart()) {
     <div class="empty-cart mat-elevation-z1">
         <mat-icon class="empty-icon">shopping_cart</mat-icon>
         <p>Your shopping cart is empty.</p>
     </div>
+    }
+
+    @if (isUpdating()) {
+    <p role="status">Saving cart...</p>
     }
 </div>

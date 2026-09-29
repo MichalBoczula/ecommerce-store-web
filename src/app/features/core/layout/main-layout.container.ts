@@ -45,6 +45,10 @@ export class MainLayoutComponent implements OnInit {
   readonly favoritesCount = computed(() => this.favorites()?.length ?? 0);
 
   readonly shoppingCart = this.ordersFacade.shoppingCart;
+  readonly cartError = this.ordersFacade.error;
+  get showCartError(): boolean {
+    return !!this.cartError() && !this.router.url.startsWith('/cart');
+  }
   readonly cartItemsCount = computed(() => {
     const cart = this.shoppingCart();
     if (!cart?.lines?.length) return 0;

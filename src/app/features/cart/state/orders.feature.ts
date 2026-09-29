@@ -2,18 +2,20 @@ import { createFeature, createReducer, on } from '@ngrx/store';
 import { OrdersActions } from './orders.actions';
 import { ShoppingCartResponse } from '../domain/model/shopping-cart-response.model';
 
-export type LoadStatus = 'idle' | 'loading' | 'loaded' | 'error';
+export type LoadStatus = 'idle' | 'loading' | 'updating' | 'loaded' | 'error';
 
 export interface OrdersState {
     status: LoadStatus;
     error: string | null;
     shoppingCart: ShoppingCartResponse | null;
+    pendingWrites: number;
 }
 
 const initialState: OrdersState = {
     status: 'idle',
     error: null,
     shoppingCart: null,
+    pendingWrites: 0,
 };
 
 export const cartFeature = createFeature({
@@ -23,40 +25,44 @@ export const cartFeature = createFeature({
 
         on(OrdersActions.loadCart, state => ({
             ...state,
-            status: 'loading' as const,
+            status: state.pendingWrites > 0 ? 'updating' as const : 'loading' as const,
             error: null,
         })),
 
         on(OrdersActions.loadCartSuccess, (state, { shoppingCartResponse }) => ({
             ...state,
-            status: 'loaded' as const,
+            status: state.pendingWrites > 0 ? 'updating' as const : 'loaded' as const,
             shoppingCart: shoppingCartResponse,
             error: null,
         })),
 
-        on(OrdersActions.loadCartFailure, (state, { error }) => ({
+        on(OrdersActions.loadCartFailure, (state, { error, missingCart }) => ({
             ...state,
-            status: 'error' as const,
+            status: state.pendingWrites > 0 ? 'updating' as const : 'error' as const,
             error,
+            shoppingCart: missingCart ? null : state.shoppingCart,
         })),
 
-        on(OrdersActions.updateCart, state => ({
+        on(OrdersActions.changeCart, state => ({
             ...state,
-            status: 'loading' as const,
+            status: 'updating' as const,
+            pendingWrites: state.pendingWrites + 1,
             error: null,
         })),
 
-        on(OrdersActions.updateCartSuccess, (state, { shoppingCartResponse }) => ({
+        on(OrdersActions.changeCartSuccess, (state, { shoppingCartResponse }) => ({
             ...state,
-            status: 'loaded' as const,
+            pendingWrites: Math.max(0, state.pendingWrites - 1),
+            status: state.pendingWrites > 1 ? 'updating' as const : 'loaded' as const,
             shoppingCart: shoppingCartResponse,
-            error: null,
         })),
 
-        on(OrdersActions.updateCartFailure, (state, { error }) => ({
+        on(OrdersActions.changeCartFailure, (state, { error, missingCart }) => ({
             ...state,
-            status: 'error' as const,
+            pendingWrites: Math.max(0, state.pendingWrites - 1),
+            status: state.pendingWrites > 1 ? 'updating' as const : 'error' as const,
             error,
+            shoppingCart: missingCart ? null : state.shoppingCart,
         }))
     ),
 });
