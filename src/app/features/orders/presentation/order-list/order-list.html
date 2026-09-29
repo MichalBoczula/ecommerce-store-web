@@ -1,0 +1,36 @@
+<section class="orders-page">
+    <header class="orders-header">
+        <h1>My Orders</h1>
+        <a mat-button routerLink="/cart">View cart</a>
+    </header>
+
+    @if (status() === 'loading') {
+        <p role="status">Loading orders...</p>
+    } @else if (status() === 'error') {
+        <div role="alert" class="orders-alert">
+            <span>{{ error() }}</span>
+            <button mat-button type="button" (click)="reload()">Retry</button>
+        </div>
+    } @else if (status() === 'loaded' && orders().length === 0) {
+        <p>You have no orders yet.</p>
+    } @else if (status() === 'loaded') {
+        <div class="order-grid">
+            @for (order of orders(); track order.id) {
+                <mat-card>
+                    <mat-card-header>
+                        <mat-card-title>Order {{ order.id }}</mat-card-title>
+                        <mat-card-subtitle>{{ order.createdAt | date:'medium' }}</mat-card-subtitle>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <p>Status: {{ order.status }}</p>
+                        <p>{{ order.lines.length }} product lines</p>
+                        <p>Total: {{ order.totalAmount | currency:order.totalCurrency:'code' }}</p>
+                    </mat-card-content>
+                    <mat-card-actions>
+                        <a mat-button [routerLink]="['/orders', order.id]" [attr.aria-label]="'View order ' + order.id">View details</a>
+                    </mat-card-actions>
+                </mat-card>
+            }
+        </div>
+    }
+</section>

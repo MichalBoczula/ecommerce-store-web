@@ -1,0 +1,26 @@
+.order-page {
+    max-width: 1100px;
+    padding: 32px;
+    margin: 0 auto;
+}
+
+.order-lines {
+    display: grid;
+    gap: 16px;
+}
+
+.order-total {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 24px;
+}
+
+.order-alert {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: #ffebee;
+    color: #9a1b1b;
+}

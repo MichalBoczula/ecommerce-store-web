@@ -71,4 +71,8 @@ export class MainLayoutComponent implements OnInit {
   onFavoritesClick(): void {
     this.router.navigate(['/favorites']);
   }
+
+  onOrdersClick(): void {
+    this.router.navigate(['/orders']);
+  }
 }

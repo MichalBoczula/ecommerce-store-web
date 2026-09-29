@@ -27,6 +27,17 @@ export const routes: Routes = [
             .then(m => m.FavoritesComponent)
     },
     {
+        path: 'orders',
+        pathMatch: 'full',
+        loadComponent: () => import('./features/orders/presentation/order-list/order-list')
+            .then(m => m.OrderListComponent)
+    },
+    {
+        path: 'orders/:id',
+        loadComponent: () => import('./features/orders/presentation/order-detail/order-detail')
+            .then(m => m.OrderDetailComponent)
+    },
+    {
         path: '**',
         redirectTo: 'home',
     },

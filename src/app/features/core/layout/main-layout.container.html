@@ -17,6 +17,9 @@
             </button>
 
             <div>
+                <button mat-icon-button aria-label="Orders" (click)="onOrdersClick()">
+                    <mat-icon>receipt_long</mat-icon>
+                </button>
                 <button mat-icon-button aria-label="Favorites" (click)="onFavoritesClick()"
                     [matBadge]="favoritesCount()" [matBadgeHidden]="favoritesCount() === 0" matBadgeColor="accent">
                     <mat-icon class="favorites">favorite</mat-icon>
