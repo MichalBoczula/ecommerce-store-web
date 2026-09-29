@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { from, map, Observable } from 'rxjs';
+import { catchError, from, map, Observable, throwError } from 'rxjs';
 import { createBffRequestAdapter } from '../../../../shared/infrastructure/bff-request-adapter';
 
 import { OrdersRepository } from '../../domain/interfaces/orders-repository.port';
@@ -12,6 +12,16 @@ import {
 } from '../../../../shared/infrastructure/api-clients/orders/ordersApiClient';
 import { ShoppingCartResponseDto } from '../../../../shared/infrastructure/api-clients/orders/models';
 import { UpdateShoppingCartRequest } from '../../domain/model/update-shopping-cart/update-shopping-cart-request.model';
+import { ShoppingCartNotFoundError } from '../../domain/model/shopping-cart-not-found.error';
+
+function mapCartError(error: unknown): Error {
+    if (typeof error === 'object' && error !== null &&
+        'responseStatusCode' in error && error.responseStatusCode === 404) {
+        return new ShoppingCartNotFoundError();
+    }
+
+    return error instanceof Error ? error : new Error('The shopping cart request failed.');
+}
 
 @Injectable()
 export class OrdersKiotaRepository implements OrdersRepository {
@@ -29,11 +39,12 @@ export class OrdersKiotaRepository implements OrdersRepository {
         return from(requestPromise).pipe(
             map((dto: ShoppingCartResponseDto | undefined) => {
                 if (!dto) {
-                    throw new Error(`Shopping cart for client ${clientid} was not found.`);
+                    throw new ShoppingCartNotFoundError();
                 }
 
                 return mapShoppingCartResponseDtoToShoppingCartResponse(dto);
-            })
+            }),
+            catchError(error => throwError(() => mapCartError(error)))
         );
     }
 
@@ -50,7 +61,8 @@ export class OrdersKiotaRepository implements OrdersRepository {
                     throw new Error(`Failed to update cart for client ${clientId}.`);
                 }
                 return mapShoppingCartResponseDtoToShoppingCartResponse(dto);
-            })
+            }),
+            catchError(error => throwError(() => mapCartError(error)))
         );
     }
 }
