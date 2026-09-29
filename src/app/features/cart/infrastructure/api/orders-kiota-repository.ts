@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import { from, map, Observable } from 'rxjs';
-import { AnonymousAuthenticationProvider } from '@microsoft/kiota-abstractions';
-import { FetchRequestAdapter } from '@microsoft/kiota-http-fetchlibrary';
-import { environment } from '../../../../../environments/environment';
+import { createBffRequestAdapter } from '../../../../shared/infrastructure/bff-request-adapter';
 
 import { OrdersRepository } from '../../domain/interfaces/orders-repository.port';
 import { ShoppingCartResponse } from '../../domain/model/shopping-cart-response.model';
@@ -20,12 +18,7 @@ export class OrdersKiotaRepository implements OrdersRepository {
     private readonly apiClient: OrdersApiClient;
 
     constructor() {
-        const authProvider = new AnonymousAuthenticationProvider();
-        const adapter = new FetchRequestAdapter(authProvider);
-
-        adapter.baseUrl = environment.bffUrl;
-
-        this.apiClient = createOrdersApiClient(adapter);
+        this.apiClient = createOrdersApiClient(createBffRequestAdapter());
     }
 
     getByClientId(clientid: string): Observable<ShoppingCartResponse> {
