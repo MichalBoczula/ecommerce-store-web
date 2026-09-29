@@ -16,7 +16,7 @@ import {
     mapTopMobilePhoneDtoToTopMobilePhone,
 } from '../mappers/mobile-phone.mapper';
 
-import { createProductsApiClient, type ProductsApiClient } from '../api-clients/products/productsApiClient';
+import { createProductsApiClient, type ProductsApiClient } from '../../../../shared/infrastructure/api-clients/products/productsApiClient';
 
 @Injectable()
 export class MobilePhonesKiotaRepository implements MobilePhonesRepository {

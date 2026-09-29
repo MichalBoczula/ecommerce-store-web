@@ -12,8 +12,8 @@ import { FavoriteMapper } from '../mappers/favorite.mapper';
 import {
     createUsersApiClient,
     type UsersApiClient,
-} from '../api-clients/usersApiClient';
-import { FavoriteResponseDto } from '../api-clients/models';
+} from '../../../../shared/infrastructure/api-clients/users/usersApiClient';
+import { FavoriteResponseDto } from '../../../../shared/infrastructure/api-clients/users/models';
 
 @Injectable()
 export class FavoritesKiotaRepository implements FavoritesRepository {

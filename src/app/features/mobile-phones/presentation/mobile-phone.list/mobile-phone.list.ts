@@ -11,9 +11,7 @@ import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
 import { OrdersFacade } from '../../../cart/application/orders.facade';
 import { UsersFacade } from '../../../users/application/users.facade';
 import { MobilePhone } from '../../domain/model/mobile-phone';
-import { mapMobilePhoneDtoToMobilePhones } from '../../infrastructure/mappers/mobile-phone.mapper';
 import { ShoppingCartLineRequest } from '../../../cart/domain/model/update-shopping-cart/shopping-cart-line-request.model';
-'\mobile-phones\infrastructure\mappers\mobile-phone.mapper.ts'
 @Component({
   selector: 'app-mobile-phone-list',
   standalone: true,
@@ -35,16 +33,16 @@ export class MobilePhoneList implements OnInit {
   private readonly favorites = this.usersFacade.favorites;
 
   readonly phones = computed<MobilePhone[]>(() => {
-    const phoneDtos = this.rawPhones() ?? [];
+    const phones = this.rawPhones() ?? [];
     const favs = this.favorites() ?? [];
 
     const favoriteIds = new Set(
       favs.map(f => f.productId?.toString().toLowerCase()).filter(Boolean)
     );
 
-    return phoneDtos.map(dto => {
-      const isFav = !!dto.id && favoriteIds.has(dto.id.toString().toLowerCase());
-      return mapMobilePhoneDtoToMobilePhones(dto, isFav);
+    return phones.map(phone => {
+      const isFavorite = !!phone.id && favoriteIds.has(phone.id.toLowerCase());
+      return { ...phone, isFavorite };
     });
   });
 
@@ -59,10 +57,6 @@ export class MobilePhoneList implements OnInit {
 
     const lineItem: ShoppingCartLineRequest = {
       productId: phone.id,
-      name: phone.name ?? 'Unknown Phone',
-      brand: phone.brand ?? null,
-      unitPriceAmount: phone.price?.amount ?? 0,
-      unitPriceCurrency: phone.price?.currency ?? 'USD',
       quantity: 1,
     };
 

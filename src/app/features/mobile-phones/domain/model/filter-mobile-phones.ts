@@ -1,5 +1,7 @@
+import { MobilePhonesBrand } from './mobile-phones-brand';
+
 export interface FilterMobilePhone {
-    brand?: string | null;
+    brand?: MobilePhonesBrand | null;
     minimalPrice?: number | null;
     maximalPrice?: number | null;
 }

@@ -49,7 +49,6 @@ export interface Sensors {
 
 export interface MobilePhoneDetails {
     id: string;
-    categoryId?: string | null;
     camera?: string | null;
     description2?: string | null;
     description3?: string | null;

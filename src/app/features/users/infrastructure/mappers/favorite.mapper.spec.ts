@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { FavoriteMapper } from './favorite.mapper';
-import { FavoriteResponseDto } from '../api-clients/models';
+import { FavoriteResponseDto } from '../../../../shared/infrastructure/api-clients/users/models';
 
 describe('FavoriteMapper', () => {
     describe('toAddRequestDto', () => {

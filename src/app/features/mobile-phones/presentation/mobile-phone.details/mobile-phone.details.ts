@@ -99,10 +99,6 @@ export class MobilePhoneDetails implements OnInit {
 
     const lineItem: ShoppingCartLineRequest = {
       productId: item.id.toString(),
-      name: item.commonDescription?.name ?? 'Unknown Phone',
-      brand: item.commonDescription?.brand ?? null,
-      unitPriceAmount: Number(item.price?.amount) || 0,
-      unitPriceCurrency: item.price?.currency ?? 'USD',
       quantity: 1,
     };
 

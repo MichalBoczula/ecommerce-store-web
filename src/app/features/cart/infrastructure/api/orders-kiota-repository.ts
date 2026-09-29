@@ -11,8 +11,8 @@ import { mapShoppingCartResponseDtoToShoppingCartResponse, mapUpdateShoppingCart
 import {
     createOrdersApiClient,
     type OrdersApiClient,
-} from '../api-clients/orders/ordersApiClient';
-import { ShoppingCartResponseDto } from '../api-clients/orders/models';
+} from '../../../../shared/infrastructure/api-clients/orders/ordersApiClient';
+import { ShoppingCartResponseDto } from '../../../../shared/infrastructure/api-clients/orders/models';
 import { UpdateShoppingCartRequest } from '../../domain/model/update-shopping-cart/update-shopping-cart-request.model';
 
 @Injectable()

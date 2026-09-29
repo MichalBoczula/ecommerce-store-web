@@ -1,16 +1,16 @@
 import { Favorite } from '../../domain/model/favorite-response.model';
-import { MobilePhoneDto } from '../../../mobile-phones/infrastructure/api-clients/products/models';
+import { MobilePhone } from '../../../mobile-phones/domain/model/mobile-phone';
 import { ShoppingCartLineRequest } from '../../../cart/domain/model/update-shopping-cart/shopping-cart-line-request.model';
 import { FavoriteItemViewModel } from '../../domain/model/favorite-item.model';
 
 export function toFavoriteItemViewModels(
     favorites: Favorite[] | null | undefined,
-    products: MobilePhoneDto[] | null | undefined
+    products: MobilePhone[] | null | undefined
 ): FavoriteItemViewModel[] {
     const favList = favorites ?? [];
     const productList = products ?? [];
 
-    const productMap = new Map<string, MobilePhoneDto>(
+    const productMap = new Map<string, MobilePhone>(
         productList.filter(p => !!p.id).map(p => [p.id!, p])
     );
 
@@ -33,10 +33,6 @@ export function toCartLineItem(
 ): ShoppingCartLineRequest {
     return {
         productId: item.productId,
-        name: item.name,
-        brand: item.brand ?? null,
-        unitPriceAmount: item.priceAmount,
-        unitPriceCurrency: item.priceCurrency,
         quantity,
     };
 }

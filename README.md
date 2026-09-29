@@ -2,6 +2,26 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.4.
 
+## API clients
+
+The frontend uses three Kiota TypeScript clients generated from the OpenAPI
+contracts pinned in [`contracts/upstream`](contracts/upstream/README.md):
+Products Catalog, Users, and Invoice (the Orders client). Requests go through
+the BFF. Generated code lives in `src/app/shared/infrastructure/api-clients/`;
+feature repositories and mappers translate it to application models.
+
+After updating the pinned contracts, regenerate and review the client changes:
+
+```bash
+npm run generate:clients
+npm run build -- --configuration production
+```
+
+Generation uses Kiota 1.34.1 and checks the contract SHA-256 values against
+the copied BFF manifest. The script downloads the pinned Linux x64 executable;
+on another platform, set `KIOTA_BIN` to a Kiota 1.34.1 executable. Do not edit
+generated files by hand.
+
 ## Development server
 
 To start a local development server, run:
@@ -73,4 +93,3 @@ docker run --rm -p 8080:80 ecommerce-store-web
 ```
 
 Then open `http://localhost:8080`.
-
