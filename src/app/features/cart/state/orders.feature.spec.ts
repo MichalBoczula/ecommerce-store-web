@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { OrdersActions } from './orders.actions';
 import { cartFeature } from './orders.feature';
+import { Order } from '../../orders/domain/model/order';
 
 const clientId = '33333333-3333-3333-3333-333333333333';
 const productId = '11111111-1111-1111-1111-111111111111';
@@ -32,5 +33,21 @@ describe('cart state', () => {
         expect(state.status).toBe('error');
         expect(state.shoppingCart).toBeNull();
         expect(state.error).toBe('Registration is incomplete.');
+    });
+
+    it('clears the visible cart only after a confirmed order response', () => {
+        let state = cartFeature.reducer(undefined, OrdersActions.loadCartSuccess({ shoppingCartResponse: cart }));
+        state = cartFeature.reducer(state, OrdersActions.checkout({ clientId }));
+        expect(state.shoppingCart?.lines).toHaveLength(1);
+        expect(state.checkoutStatus).toBe('pending');
+        state = cartFeature.reducer(state, OrdersActions.checkoutFailure({ error: 'The product is unavailable.' }));
+        expect(state.shoppingCart?.lines).toHaveLength(1);
+        expect(state.placedOrder).toBeNull();
+        state = cartFeature.reducer(state, OrdersActions.loadCart({ clientId }));
+        const order = { id: 'order-1', clientId, totalAmount: 120, totalCurrency: 'PLN' } as Order;
+        state = cartFeature.reducer(state, OrdersActions.checkoutSuccess({ order }));
+        expect(state.shoppingCart?.lines).toEqual([]);
+        expect(state.placedOrder).toEqual(order);
+        expect(state.checkoutStatus).toBe('succeeded');
     });
 });

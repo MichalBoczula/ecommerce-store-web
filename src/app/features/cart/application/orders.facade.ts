@@ -5,6 +5,7 @@ import { OrdersActions } from '../state/orders.actions';
 import { ShoppingCartLineRequest } from '../domain/model/update-shopping-cart/shopping-cart-line-request.model';
 import { ShoppingCartResponse } from '../domain/model/shopping-cart-response.model';
 import { Observable } from 'rxjs';
+import { Order } from '../../orders/domain/model/order';
 
 @Injectable({ providedIn: 'root' })
 export class OrdersFacade {
@@ -13,6 +14,10 @@ export class OrdersFacade {
     readonly cart$: Observable<ShoppingCartResponse | null> = this.store.select(cartFeature.selectShoppingCart);
     readonly status$: Observable<string> = this.store.select(cartFeature.selectStatus);
     readonly error$: Observable<string | null> = this.store.select(cartFeature.selectError);
+    readonly checkoutStatus: Signal<'idle' | 'pending' | 'succeeded' | 'error'> =
+        this.store.selectSignal(cartFeature.selectCheckoutStatus);
+    readonly checkoutError: Signal<string | null> = this.store.selectSignal(cartFeature.selectCheckoutError);
+    readonly placedOrder: Signal<Order | null> = this.store.selectSignal(cartFeature.selectPlacedOrder);
 
     readonly shoppingCart: Signal<ShoppingCartResponse | null> = this.store.selectSignal(cartFeature.selectShoppingCart);
     readonly status: Signal<string> = this.store.selectSignal(cartFeature.selectStatus);
@@ -44,5 +49,11 @@ export class OrdersFacade {
 
     clearCart(clientId: string): void {
         this.store.dispatch(OrdersActions.changeCart({ clientId, mutation: { kind: 'clear' } }));
+    }
+
+    checkout(clientId: string): void {
+        if (this.status() !== 'loaded' || !this.shoppingCart()?.lines.length ||
+            this.checkoutStatus() !== 'idle') return;
+        this.store.dispatch(OrdersActions.checkout({ clientId }));
     }
 }

@@ -13,6 +13,24 @@
     </div>
     }
 
+    @if (checkoutStatus() === 'succeeded' && placedOrder(); as order) {
+    <div class="checkout-confirmation" role="status">
+        <strong>Order placed: {{ order.id }}</strong>
+        <span>Final total: {{ order.totalAmount | currency:order.totalCurrency:'code' }}</span>
+        @if (finalPriceChanged()) {
+        <span>The final price changed from the cart estimate. The order uses the backend price.</span>
+        }
+        <a mat-button [routerLink]="['/orders', order.id]">View order</a>
+    </div>
+    }
+    @if (checkoutError()) {
+    <div class="cart-alert" role="alert">
+        <span>{{ checkoutError() }}</span>
+        <a mat-button routerLink="/orders">Check order history</a>
+        <button mat-button type="button" (click)="reload()">Refresh cart</button>
+    </div>
+    }
+
     @if (status() === 'loading' && !shoppingCart()) {
     <p role="status">Loading shopping cart...</p>
     } @else if (shoppingCart() && cartLines().length > 0) {
@@ -106,9 +124,15 @@
                 @if (hasUnpricedItems()) {
                 <p class="unavailable">Some products or prices are unavailable and are excluded from these estimates.</p>
                 }
+                @if (subtotals().length > 1) {
+                <p class="unavailable">Checkout requires products in one currency. Remove products in another currency.</p>
+                }
                 <p>Prices are estimates from the current catalog. The backend checks products again at checkout.</p>
             </mat-card-content>
             <mat-card-actions>
+                <button mat-flat-button type="button" (click)="checkout()" [disabled]="!canCheckout()">
+                    Place order
+                </button>
                 <button mat-button type="button" (click)="clearCart()" [disabled]="isUpdating()">Clear cart</button>
             </mat-card-actions>
         </mat-card>
@@ -122,6 +146,6 @@
     }
 
     @if (isUpdating()) {
-    <p role="status">Saving cart...</p>
+    <p role="status">{{ checkoutStatus() === 'pending' ? 'Placing order...' : 'Saving cart...' }}</p>
     }
 </div>
