@@ -162,7 +162,7 @@ test('demo profile selects the customer and edits individual and company billing
     await expect(page.getByText('This is not authentication.')).toBeVisible();
     await page.getByLabel('External ID').fill(externalId);
     await page.getByRole('button', { name: 'Load profile' }).click();
-    await expect(page.getByText(`Customer ID: ${clientId}`)).toBeVisible();
+    await expect(page.getByText(`Customer ID: ${clientId}`, { exact: true })).toBeVisible();
     await expect(page.getByLabel('First name')).toHaveValue('Acceptance');
     await page.getByLabel('Last name').fill('Updated');
     await page.getByLabel('City').first().fill('Krakow');

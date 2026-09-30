@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 
 const manifest = JSON.parse(readFileSync('contracts/upstream/manifest.json', 'utf8'));
 
-for (const name of ['products', 'users', 'invoice']) {
+for (const name of ['products', 'users', 'invoice', 'payments']) {
   const expected = manifest[name]?.specSha256;
   if (typeof expected !== 'string' || !/^[a-f0-9]{64}$/.test(expected)) {
     throw new Error(`Missing SHA-256 for ${name} in upstream manifest`);

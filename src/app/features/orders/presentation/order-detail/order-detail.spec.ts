@@ -7,6 +7,8 @@ import { OrderHistoryFacade } from '../../application/order-history.facade';
 import { Order } from '../../domain/model/order';
 import { OrderDetailComponent } from './order-detail';
 import { CustomerContext } from '../../../../shared/application/customer-context';
+import { PaymentsFacade } from '../../../payments/application/payments.facade';
+import { Payment } from '../../../payments/domain/model/payment';
 
 const orderId = '11111111-1111-1111-1111-111111111111';
 const order: Order = {
@@ -20,6 +22,13 @@ const order: Order = {
     }],
 };
 
+function paymentFacade() {
+    return {
+        orderId: signal<string | null>(null), payment: signal<Payment | null>(null), status: signal('ready'),
+        error: signal<string | null>(null), load: vi.fn(), prepare: vi.fn(),
+    };
+}
+
 describe('order details', () => {
     afterEach(() => TestBed.resetTestingModule());
 
@@ -32,6 +41,7 @@ describe('order details', () => {
         TestBed.configureTestingModule({ imports: [OrderDetailComponent], providers: [
             { provide: CustomerContext, useValue: { clientId: signal(order.clientId) } },
             provideRouter([]), { provide: OrderHistoryFacade, useValue: facade },
+            { provide: PaymentsFacade, useValue: paymentFacade() },
             { provide: ActivatedRoute, useValue: { paramMap: params, snapshot: { paramMap: params.value } } },
         ] });
         const fixture = TestBed.createComponent(OrderDetailComponent);
@@ -56,6 +66,7 @@ describe('order details', () => {
         TestBed.configureTestingModule({ imports: [OrderDetailComponent], providers: [
             { provide: CustomerContext, useValue: { clientId: signal(order.clientId) } },
             provideRouter([]), { provide: OrderHistoryFacade, useValue: facade },
+            { provide: PaymentsFacade, useValue: paymentFacade() },
             { provide: ActivatedRoute, useValue: { paramMap: params, snapshot: { paramMap: params.value } } },
         ] });
         const fixture = TestBed.createComponent(OrderDetailComponent);
@@ -76,11 +87,42 @@ describe('order details', () => {
         TestBed.configureTestingModule({ imports: [OrderDetailComponent], providers: [
             { provide: CustomerContext, useValue: { clientId: signal('22222222-2222-2222-2222-222222222222') } },
             provideRouter([]), { provide: OrderHistoryFacade, useValue: facade },
+            { provide: PaymentsFacade, useValue: paymentFacade() },
             { provide: ActivatedRoute, useValue: { paramMap: params, snapshot: { paramMap: params.value } } },
         ] });
         const fixture = TestBed.createComponent(OrderDetailComponent);
         fixture.detectChanges();
         expect(fixture.nativeElement.textContent).not.toContain('Saved phone name');
         expect(fixture.nativeElement.querySelector('[role=alert]').textContent).toContain('does not belong');
+    });
+
+    it('prepares a Created order without presenting it as paid', () => {
+        const created = { ...order, status: 'Created' };
+        const params = new BehaviorSubject(convertToParamMap({ id: orderId }));
+        const facade = {
+            selectedOrder: signal<Order | null>(created), detailStatus: signal('loaded'),
+            detailError: signal<string | null>(null), loadOrder: vi.fn(),
+        };
+        const payments = paymentFacade();
+        payments.orderId.set(orderId);
+        TestBed.configureTestingModule({ imports: [OrderDetailComponent], providers: [
+            { provide: CustomerContext, useValue: { clientId: signal(order.clientId) } },
+            provideRouter([]), { provide: OrderHistoryFacade, useValue: facade },
+            { provide: PaymentsFacade, useValue: payments },
+            { provide: ActivatedRoute, useValue: { paramMap: params, snapshot: { paramMap: params.value } } },
+        ] });
+        const fixture = TestBed.createComponent(OrderDetailComponent);
+        fixture.detectChanges();
+        expect(payments.load).toHaveBeenCalledWith(orderId);
+        expect(fixture.nativeElement.textContent).toContain('does not charge you or mark the order paid');
+        const button = [...fixture.nativeElement.querySelectorAll('button')]
+            .find((item: HTMLButtonElement) => item.textContent?.includes('Prepare payment')) as HTMLButtonElement;
+        button.click();
+        expect(payments.prepare).toHaveBeenCalledWith(orderId);
+        payments.orderId.set(orderId);
+        payments.payment.set({ id: 'payment-id', orderId, status: 'created', amountMinor: 19000, currency: 'EUR' });
+        fixture.detectChanges();
+        expect(fixture.nativeElement.textContent).toContain('Payment status: created');
+        expect(fixture.nativeElement.textContent).not.toContain('Payment status: paid');
     });
 });
