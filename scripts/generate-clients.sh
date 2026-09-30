@@ -54,3 +54,26 @@ generate() {
 generate products products ProductsApiClient
 generate users users UsersApiClient
 generate invoice orders OrdersApiClient
+
+# Preserve the exact upstream artifact and normalize nullable unions only for
+# Kiota's TypeScript generator. The checksum above always checks the original.
+payments_spec="$PWD/.tools/payments-kiota.openapi.json"
+trap 'rm -f "$payments_spec"' EXIT
+node scripts/normalize-payments-openapi.mjs contracts/upstream/payments.openapi.json "$payments_spec"
+"$kiota_bin" generate \
+  --openapi "$payments_spec" \
+  --language TypeScript \
+  --class-name PaymentsApiClient \
+  --namespace-name ApiSdk \
+  --output src/app/shared/infrastructure/api-clients/payments \
+  --additional-data \
+  --clean-output \
+  --log-level Warning
+rm -f src/app/shared/infrastructure/api-clients/payments/.kiota.log
+# Kiota emits whitespace-only lines in this client's root file. Keep newly
+# committed sources compatible with the repository's git diff --check gate.
+node - <<'JS'
+const fs = require('node:fs');
+const path = 'src/app/shared/infrastructure/api-clients/payments/paymentsApiClient.ts';
+fs.writeFileSync(path, fs.readFileSync(path, 'utf8').replace(/[ \t]+$/gm, ''));
+JS

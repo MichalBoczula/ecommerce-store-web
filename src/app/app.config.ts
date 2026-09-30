@@ -38,6 +38,11 @@ import { CustomerProfileKiotaRepository } from './features/users/infrastructure/
 import { CustomerProfileFacade } from './features/users/application/customer-profile.facade';
 import { customerProfileFeature } from './features/users/state/customer-profile.feature';
 import { CustomerProfileEffects } from './features/users/state/customer-profile.effects';
+import { PaymentsRepository } from './features/payments/domain/interfaces/payments-repository.port';
+import { PaymentsKiotaRepository } from './features/payments/infrastructure/api/payments-kiota-repository';
+import { PaymentsFacade } from './features/payments/application/payments.facade';
+import { paymentsFeature } from './features/payments/state/payments.feature';
+import { PaymentsEffects } from './features/payments/state/payments.effects';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -52,7 +57,8 @@ export const appConfig: ApplicationConfig = {
     provideState(favoritesFeature),
     provideState(orderHistoryFeature),
     provideState(customerProfileFeature),
-    provideEffects(MobilePhonesEffects, OrdersEffects, FavoritesEffects, OrderHistoryEffects, CustomerProfileEffects),
+    provideState(paymentsFeature),
+    provideEffects(MobilePhonesEffects, OrdersEffects, FavoritesEffects, OrderHistoryEffects, CustomerProfileEffects, PaymentsEffects),
 
     // Mobile Phones Providers
     { provide: MobilePhonesRepository, useClass: MobilePhonesKiotaRepository },
@@ -67,6 +73,8 @@ export const appConfig: ApplicationConfig = {
     OrderHistoryFacade,
     { provide: CustomerProfileRepository, useClass: CustomerProfileKiotaRepository },
     CustomerProfileFacade,
+    { provide: PaymentsRepository, useClass: PaymentsKiotaRepository },
+    PaymentsFacade,
 
     // Users / Favorites Providers
     { provide: FavoritesRepository, useClass: FavoritesKiotaRepository },

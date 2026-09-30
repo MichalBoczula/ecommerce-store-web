@@ -77,6 +77,18 @@ services:
       ExternalServices__ProductCatalog__BaseUrl: http://products:8080
     shm_size: "2gb"
 
+  payments:
+    image: mb0101/ecommerce-store-payments-api@sha256:eb0c6a55687fced658cbc7ec68e11515283e4cb677acedae2c139d850ba81672
+    depends_on:
+      mongo-init:
+        condition: service_completed_successfully
+      invoice:
+        condition: service_started
+    environment:
+      PAYMENTS_MONGODB_CONNECTION_STRING: mongodb://mongodb:27017/?replicaSet=rs0
+      PAYMENTS_MONGODB_DATABASE_NAME: ecommerce-web-payments
+      PAYMENTS_ORDERS_API_BASE_URL: http://invoice:8080
+
   bff:
     image: mb0101/ecommerce-store-bff-api@sha256:04d6c99086ede7d1938f07e49225433f9f16faf0eb22b7f43ed22af3034b3908
     environment:
@@ -85,12 +97,14 @@ services:
       ReverseProxy__Clusters__products-cluster__Destinations__destination1__Address: http://products:8080
       ReverseProxy__Clusters__users-cluster__Destinations__destination1__Address: http://users:8080
       ReverseProxy__Clusters__orders-cluster__Destinations__destination1__Address: http://invoice:8080
+      ReverseProxy__Clusters__payments-cluster__Destinations__destination1__Address: http://payments:8080
     ports:
       - "127.0.0.1:${BFF_PORT:-5137}:8080"
     depends_on:
       - products
       - users
       - invoice
+      - payments
 
   web:
     image: ecommerce-store-web:local

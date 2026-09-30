@@ -2,11 +2,11 @@
 
 ## Purpose
 
-Angular storefront for the ECommerce Store portfolio. It presents catalog products, favorites, a shopping cart, checkout, order history, and a customer profile. The browser calls the BFF on the frontend origin; ProductsCatalog, Users, and Orders/Invoices remain separate APIs behind that boundary. This repository does not own customer registration, payment, or invoice creation.
+Angular storefront for the ECommerce Store portfolio. It presents catalog products, favorites, a shopping cart, checkout, order history, payment preparation, and a customer profile. The browser calls the BFF on the frontend origin; ProductsCatalog, Users, Orders/Invoices, and Payments remain separate APIs behind that boundary. Customer registration belongs to the BFF. The current Payments API records a `created` payment but does not charge the customer.
 
 ## Engineering approach
 
-Features keep handwritten domain models and rules separate from application facades, NgRx state, Kiota-backed infrastructure, and presentation components. Generated clients reflect reviewed upstream OpenAPI contracts and are never edited by hand. A request adapter sends all three clients through the BFF, while feature repositories map their DTOs to frontend models. See [ADR-0001](docs/adr/0001-bff-and-kiota-boundary.md).
+Features keep handwritten domain models and rules separate from application facades, NgRx state, Kiota-backed infrastructure, and presentation components. Generated clients reflect reviewed upstream OpenAPI contracts and are never edited by hand. A request adapter sends all four clients through the BFF, while feature repositories map their DTOs to frontend models. See [ADR-0001](docs/adr/0001-bff-and-kiota-boundary.md).
 
 The Invoice cart contract stores only `productId` and `quantity`. The cart view looks up current product information in ProductsCatalog and labels totals as estimates. Checkout creates an order through Invoice, shows the final total from its saved response, and refreshes cart and order data. Order history uses the `productVersion` snapshot and totals returned by Invoice, so a later catalog change does not rewrite a past order. The frontend does not create a missing cart during an add action; the BFF registration operation confirms one before returning success.
 
@@ -18,12 +18,13 @@ The Invoice cart contract stores only `productId` and `quantity`. The cart view 
 | `src/app/features/users` | Favorites and customer profile state, repositories, and views. |
 | `src/app/features/cart` | Cart mutations, checkout command state, catalog enrichment, and view. |
 | `src/app/features/orders` | Order history and detail views using Invoice snapshots. |
+| `src/app/features/payments` | Payment preparation and read state through the Payments API. |
 | `src/app/shared/infrastructure` | Same-origin BFF adapter and generated Kiota clients. |
 | `src/app/shared/application/customer-context.ts` | Shared browser-local demo customer selection for cart, favorites, and orders. |
 | `src/proxy.conf.json` and `nginx.conf` | Remove `/backend` in development and container runtime respectively. |
 | `tests/acceptance` | Browser scenarios through the real frontend, BFF, and upstream containers. |
 
-The browser requests `/backend/...` from the frontend origin. Angular's development proxy or Nginx removes `/backend` before forwarding to the BFF. The BFF's public business routes retain upstream paths such as `/mobile-phones`, `/customers`, `/favorites`, `/shopping-carts`, and `/orders`; `/registrations/customers` coordinates a profile and cart. Its `/api/products`, `/api/users`, and `/api/orders` prefixes are for proxied OpenAPI documents. There is no fourth generated BFF client. The BFF's `/health` checks the gateway process, not all upstream readiness.
+The browser requests `/backend/...` from the frontend origin. Angular's development proxy or Nginx removes `/backend` before forwarding to the BFF. The BFF's public business routes retain upstream paths such as `/mobile-phones`, `/customers`, `/favorites`, `/shopping-carts`, `/orders`, and `/payments`; `/registrations/customers` coordinates a profile and cart. Its `/api/products`, `/api/users`, `/api/orders`, and `/api/payments` prefixes are for proxied OpenAPI documents. There is no separately generated BFF client. The BFF's `/health` checks the gateway process, not all upstream readiness.
 
 ## Technology stack and repository structure
 
@@ -32,7 +33,7 @@ The browser requests `/backend/...` from the frontend origin. Angular's developm
 | UI and state | Angular 21, Angular Material, NgRx, RxJS, TypeScript |
 | API clients | Kiota TypeScript 1.34.1 and pinned upstream OpenAPI |
 | Unit tests | Angular TestBed on Vitest, V8 coverage, JUnit output |
-| Acceptance | Playwright Chromium, Docker Compose, SQL Server, MongoDB replica set, BFF and three APIs |
+| Acceptance | Playwright Chromium, Docker Compose, SQL Server, MongoDB replica set, BFF and four APIs |
 | Delivery | Node 22 build, Nginx runtime, GitHub Actions, npm audit, Dependency Review, Gitleaks, Trivy, Docker Hub |
 
 `src/app/features/` holds the application features; `src/app/shared/` holds cross-feature code. `contracts/upstream/` contains the reviewed API baseline and image manifest. `compose/` defines the local backend and full-stack options. `scripts/ci.sh` contains portable verification commands; `scripts/verify.sh` runs them locally. `.github/workflows/ci.yml` schedules independent jobs and controls image publication. Architecture decisions and review guidance live under `docs/`.
@@ -48,7 +49,7 @@ The browser requests `/backend/...` from the frontend origin. Angular's developm
 From the repository root, start the backend stack and run the Angular development server:
 
 ```bash
-docker compose -f compose/ecommerce-compose.yml up -d sql mongodb mongo-init products users invoice bff
+docker compose -f compose/ecommerce-compose.yml up -d sql mongodb mongo-init products users invoice payments bff
 npm ci
 npm start
 ```
@@ -69,7 +70,7 @@ No customer is selected by default. Open Account → Profile, enter an existing 
 
 ## API contracts and Kiota
 
-The [upstream contract README](contracts/upstream/README.md) records the BFF source commit, pinned image digests, OpenAPI checksums, and generation rules. Three clients live in `src/app/shared/infrastructure/api-clients/{products,users,orders}`; `orders` is generated from the Invoice API. After reviewing and updating the BFF baseline, copy its contracts and manifest, then regenerate locally:
+The [upstream contract README](contracts/upstream/README.md) records the BFF source commit, pinned image digests, OpenAPI checksums, and generation rules. Four clients live in `src/app/shared/infrastructure/api-clients/{products,users,orders,payments}`; `orders` is generated from the Invoice API. After reviewing and updating the BFF baseline, copy its contracts and manifest, then regenerate locally:
 
 ```bash
 npm ci
@@ -96,7 +97,7 @@ Unit tests use Angular TestBed with Vitest. Coverage covers handwritten code and
 
 Install the Playwright browser once with `npx playwright install --with-deps chromium`. Acceptance starts an isolated Compose project, waits for BFF and catalog, then removes its containers and volumes. It uses ports 14200 and 15137 by default (`WEB_PORT` and `BFF_PORT` override them). To run against an already running stack use `ACCEPTANCE_BASE_URL=http://127.0.0.1:4200 npm run test:acceptance`. Each scenario registers a unique customer through BFF's `/registrations/customers`; no fixture creates a cart separately. The registration scenario checks the empty cart and rejects duplicate creation. The checkout scenario checks one created order, an empty cart, and the returned final total. The profile scenario selects a customer by external ID and saves their individual billing data. See [ADR-0002](docs/adr/0002-testing-boundaries.md) and [local verification](docs/local-verification.md).
 
-`bash scripts/verify.sh` performs a clean install, every portable stage, and a frontend image build. It requires a working Docker daemon. The Compose stack pins the scanned BFF/11 image by digest. The mandatory acceptance gate checks all six browser scenarios against that image; report its actual result before merging or claiming a published frontend image.
+`bash scripts/verify.sh` performs a clean install, every portable stage, and a frontend image build. It requires a working Docker daemon. The Compose stack currently pins the scanned BFF/11 image by digest; the payment acceptance scenario requires the BFF/12 image after that PR is merged and published. Update the digest before merging this frontend change. Report the actual acceptance result before claiming a published frontend image.
 
 ## CI and operations
 
@@ -108,4 +109,4 @@ For reviews, use the [definition of done](docs/definition-of-done.md) and [PR te
 
 ## Architecture decisions
 
-The [ADR index](docs/adr/README.md) records the frontend/BFF boundary, test strategy, scanned image publication, and demo customer context. New decisions use sequential repository-local numbers and keep superseded records in history.
+The [ADR index](docs/adr/README.md) records the frontend/BFF boundary, test strategy, scanned image publication, demo customer context, and payment preparation. New decisions use sequential repository-local numbers and keep superseded records in history.

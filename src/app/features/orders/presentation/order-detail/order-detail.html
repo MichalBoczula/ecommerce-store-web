@@ -32,6 +32,22 @@
             }
         </div>
         <p class="order-total">Order total: {{ currentOrder.totalAmount | currency:currentOrder.totalCurrency:'code' }}</p>
+        @if (currentOrder.status === 'Created') {
+            <section aria-label="Payment preparation">
+                <h2>Payment</h2>
+                <p>Provider checkout is not available yet. Preparing a payment records it for this order; it does not charge you or mark the order paid.</p>
+                @if (paymentStatus() === 'loading' || paymentStatus() === 'preparing') {
+                    <p role="status">{{ paymentStatus() === 'loading' ? 'Checking payment...' : 'Preparing payment...' }}</p>
+                } @else if (paymentStatus() === 'error') {
+                    <p role="alert">{{ paymentError() }}</p>
+                    <button mat-button type="button" (click)="reloadPayment(currentOrder.id)">Retry payment status</button>
+                } @else if (payment(); as currentPayment) {
+                    <p role="status">Payment status: {{ currentPayment.status }} (reference {{ currentPayment.id }})</p>
+                } @else if (paymentStatus() === 'ready') {
+                    <button mat-flat-button type="button" (click)="preparePayment()">Prepare payment</button>
+                }
+            </section>
+        }
     } @else if (status() === 'loaded') {
         <p role="alert">This order does not belong to the selected demo customer.</p>
     }
