@@ -1,3 +1,4 @@
+import { DEMO_CLIENT_ID } from '../../../../shared/application/demo-client-id';
 import { CommonModule, Location } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -45,7 +46,7 @@ export class MobilePhoneDetails implements OnInit {
   private readonly usersFacade = inject(UsersFacade);
   private readonly location = inject(Location);
 
-  private readonly userId: string = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
+  private readonly userId: string = inject(DEMO_CLIENT_ID);
 
   readonly details = toSignal(this.facade.details$);
   readonly favorites = this.usersFacade.favorites;

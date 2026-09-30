@@ -1,3 +1,4 @@
+import { DEMO_CLIENT_ID } from '../../../shared/application/demo-client-id';
 import { Component, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet } from '@angular/router';
@@ -36,7 +37,7 @@ export class MainLayoutComponent implements OnInit {
   private readonly usersFacade = inject(UsersFacade);
   private readonly ordersFacade = inject(OrdersFacade);
 
-  private readonly userId: string = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
+  private readonly userId: string = inject(DEMO_CLIENT_ID);
 
   readonly sidenavMode = computed<'over'>(() => 'over');
   readonly sidenavOpened = computed(() => false);

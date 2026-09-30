@@ -78,7 +78,7 @@ services:
     shm_size: "2gb"
 
   bff:
-    image: mb0101/ecommerce-store-bff-api:latest
+    image: mb0101/ecommerce-store-bff-api@sha256:be37e496c1be6513019cad36c3164409f006f322d4e5c01549e93b6672b7e03c
     environment:
       ASPNETCORE_URLS: http://+:8080
       GatewaySettings__BaseUrl: http://bff:8080
@@ -86,7 +86,7 @@ services:
       ReverseProxy__Clusters__users-cluster__Destinations__destination1__Address: http://users:8080
       ReverseProxy__Clusters__orders-cluster__Destinations__destination1__Address: http://invoice:8080
     ports:
-      - "127.0.0.1:5137:8080"
+      - "127.0.0.1:${BFF_PORT:-5137}:8080"
     depends_on:
       - products
       - users
@@ -98,7 +98,7 @@ services:
       context: ..
       dockerfile: Dockerfile
     ports:
-      - "127.0.0.1:4200:80"
+      - "127.0.0.1:${WEB_PORT:-4200}:80"
     depends_on:
       - bff
 

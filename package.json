@@ -9,6 +9,8 @@
     "test": "ng test --watch=false",
     "test:watch": "ng test --watch",
     "test:coverage": "ng test --watch=false --coverage",
+    "test:acceptance": "playwright test",
+    "test:acceptance:list": "playwright test --list",
     "lint": "ng lint",
     "generate:clients": "bash scripts/generate-clients.sh"
   },
@@ -58,6 +60,7 @@
     "@angular/cli": "^21.0.4",
     "@angular/compiler-cli": "^21.0.0",
     "@angular/platform-browser-dynamic": "^21.1.1",
+    "@playwright/test": "^1.63.0",
     "@types/webpack-env": "^1.18.8",
     "@vitest/coverage-v8": "4.0.18",
     "angular-eslint": "21.1.0",

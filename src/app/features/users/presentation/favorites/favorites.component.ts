@@ -1,3 +1,4 @@
+import { DEMO_CLIENT_ID } from '../../../../shared/application/demo-client-id';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -34,7 +35,7 @@ export class FavoritesComponent implements OnInit {
     private readonly ordersFacade = inject(OrdersFacade);
     private readonly location = inject(Location);
 
-    private readonly userId: string = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
+    private readonly userId: string = inject(DEMO_CLIENT_ID);
     private readonly catalogRefresh = signal(0);
 
     readonly displayedColumns: string[] = ['image', 'product', 'price', 'actions'];
