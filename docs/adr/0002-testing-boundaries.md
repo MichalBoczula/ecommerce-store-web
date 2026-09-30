@@ -13,7 +13,7 @@ Use Angular's TestBed-backed Vitest runner for unit tests of handwritten mapping
 
 ## Consequences
 
-CI needs Docker and Playwright browser dependencies. Container startup costs more than unit tests, so the suites run as separate jobs. Cart-specific browser scenarios temporarily create carts in their isolated fixtures because the current `POST /customers` proxy does not do so. The registration test intentionally fails with a cart 404 until BFF/11 and WEB/8A introduce and exercise explicit registration. This failure blocks the quality gate; retries, mocks, and skipped assertions do not count as a solution. WEB/10 adds a checkout scenario that creates an order through the real backend and checks the cleared cart; checkout passes in container CI while the registration test still blocks the gate.
+CI needs Docker and Playwright browser dependencies. Container startup costs more than unit tests, so the suites run as separate jobs. Each browser scenario now uses BFF's explicit registration endpoint and expects its cart to exist; no test creates a cart behind the registration flow. The pinned BFF image must contain BFF/11 before the acceptance gate can pass. WEB/10's checkout scenario creates an order through the real backend and checks the cleared cart. Retries, mocks, and skipped assertions do not count as a solution to a contract failure.
 
 ## Alternatives considered
 
