@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { expect, test, type APIRequestContext, type BrowserContext } from '@playwright/test';
 
 type Cart = { clientId: string; lines: { productId: string; quantity: number }[] };
-type Phone = { id: string; name: string };
+type Phone = { id: string; name: string; price?: { amount: number; currency: string } };
 
 async function registerCustomer(request: APIRequestContext): Promise<string> {
     const id = randomUUID();
@@ -104,7 +104,9 @@ test('checkout creates one order, clears the cart and shows the backend total', 
     expect(phonesResponse.ok(), await phonesResponse.text()).toBeTruthy();
     const phones = await phonesResponse.json() as Phone[];
     expect(phones.length).toBeGreaterThan(0);
-    const phone = phones[0];
+    const phone = phones.find(item => item.price && item.price.amount > 0);
+    expect(phone, 'The checkout fixture needs a positive-priced catalog product.').toBeDefined();
+    if (!phone) throw new Error('No positive-priced catalog product was returned.');
 
     const beforeResponse = await request.get(`/backend/orders/client/${clientId}`);
     expect(beforeResponse.ok(), await beforeResponse.text()).toBeTruthy();

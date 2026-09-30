@@ -26,4 +26,11 @@ describe('cart catalog enrichment', () => {
             { currency: 'USD', amount: 20 }, { currency: 'EUR', amount: 60 },
         ]);
     });
+
+    it('does not include a zero price that the Invoice order validator rejects', () => {
+        const items = toCartItemViewModels([{ productId: firstId, quantity: 1 }], [
+            { id: firstId, name: 'Free-looking phone', price: { amount: 0, currency: 'PLN' }, isFavorite: false },
+        ]);
+        expect(estimatedSubtotals(items)).toEqual([]);
+    });
 });

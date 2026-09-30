@@ -141,4 +141,14 @@ describe('shopping cart screen', () => {
         expect(fixture.nativeElement.querySelector('a[href="/orders"]')).not.toBeNull();
         expect((fixture.nativeElement.querySelector('button[mat-flat-button]') as HTMLButtonElement).disabled).toBe(true);
     });
+
+    it('marks a zero-priced catalog product unavailable for checkout', async () => {
+        const { fixture } = render({ id: clientId, clientId, lines: [{ productId, quantity: 1 }] },
+            null, [{ id: productId, name: 'Test phone',
+                price: { amount: 0, currency: 'PLN' }, isFavorite: false }]);
+        await fixture.whenStable();
+        fixture.detectChanges();
+        expect(fixture.nativeElement.textContent).toContain('Price unavailable');
+        expect((fixture.nativeElement.querySelector('button[mat-flat-button]') as HTMLButtonElement).disabled).toBe(true);
+    });
 });

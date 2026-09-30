@@ -55,7 +55,8 @@ export class ShoppingCartComponent implements OnInit {
   readonly items = computed(() => toCartItemViewModels(this.cartLines(), this.catalog().products));
   readonly subtotals = computed(() => estimatedSubtotals(this.items()));
   readonly hasUnpricedItems = computed(() => this.items().some(item =>
-    item.unavailable || item.priceAmount === null || !Number.isFinite(item.priceAmount) || !item.priceCurrency));
+    item.unavailable || item.priceAmount === null || !Number.isFinite(item.priceAmount) ||
+    item.priceAmount <= 0 || !item.priceCurrency));
   readonly totalItems = computed(() =>
     this.cartLines().reduce((sum, line) => sum + (line.quantity ?? 0), 0)
   );
