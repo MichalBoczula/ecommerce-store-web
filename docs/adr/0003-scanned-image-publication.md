@@ -13,7 +13,7 @@ Run source, contract regeneration, high/critical npm audit, lint/build, unit cov
 
 ## Consequences
 
-Failed or skipped required checks prevent image work and publication. The existing registration acceptance failure currently blocks this gate, so no successful image scan or publication is claimed yet. The SHA tag identifies a build; `latest` moves on later successful pushes. Registry credentials use `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` repository secrets. Publication distributes an image but does not deploy a runtime or provision the BFF/upstreams.
+Failed or skipped required checks prevent image work and publication. The browser registration scenario runs against the BFF/11 image pinned by digest; a regression blocks this gate. The SHA tag identifies a build; `latest` moves on later successful pushes. Registry credentials use `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` repository secrets. Publication distributes an image but does not deploy a runtime or provision the BFF/upstreams.
 
 ## Alternatives considered
 

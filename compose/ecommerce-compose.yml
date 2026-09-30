@@ -78,7 +78,7 @@ services:
     shm_size: "2gb"
 
   bff:
-    image: mb0101/ecommerce-store-bff-api@sha256:be37e496c1be6513019cad36c3164409f006f322d4e5c01549e93b6672b7e03c
+    image: mb0101/ecommerce-store-bff-api@sha256:04d6c99086ede7d1938f07e49225433f9f16faf0eb22b7f43ed22af3034b3908
     environment:
       ASPNETCORE_URLS: http://+:8080
       GatewaySettings__BaseUrl: http://bff:8080
