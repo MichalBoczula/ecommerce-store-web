@@ -32,4 +32,13 @@ export class OrderHistoryKiotaRepository implements OrderHistoryRepository {
             })
         );
     }
+
+    createForClient(clientId: string): Observable<Order> {
+        return from(this.api.orders.client.byClientId(clientId).post()).pipe(
+            map(dto => {
+                if (!dto) throw new Error('The order response was empty. Check order history before trying again.');
+                return mapOrderResponse(dto);
+            })
+        );
+    }
 }

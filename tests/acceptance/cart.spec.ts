@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { expect, test, type APIRequestContext, type BrowserContext } from '@playwright/test';
 
 type Cart = { clientId: string; lines: { productId: string; quantity: number }[] };
-type Phone = { id: string; name: string };
+type Phone = { id: string; name: string; price?: { amount: number; currency: string } };
 
 async function registerCustomer(request: APIRequestContext): Promise<string> {
     const id = randomUUID();
@@ -93,6 +93,59 @@ test('a product removed from the catalog stays visible as unavailable', async ({
     await expect(page.getByText('Price unavailable')).toBeVisible();
     await page.getByRole('button', { name: `Remove ${missingId}` }).click();
     await expect(page.getByText('Your shopping cart is empty.')).toBeVisible();
+});
+
+test('checkout creates one order, clears the cart and shows the backend total', async ({ page, request, context }) => {
+    const clientId = await registerCustomer(request);
+    await createCartFixture(request, clientId);
+    await selectCustomer(context, clientId);
+
+    const phonesResponse = await request.get('/backend/mobile-phones?amount=15');
+    expect(phonesResponse.ok(), await phonesResponse.text()).toBeTruthy();
+    const phones = await phonesResponse.json() as Phone[];
+    expect(phones.length).toBeGreaterThan(0);
+    const phone = phones.find(item => item.price && item.price.amount > 0);
+    expect(phone, 'The checkout fixture needs a positive-priced catalog product.').toBeDefined();
+    if (!phone) throw new Error('No positive-priced catalog product was returned.');
+
+    const beforeResponse = await request.get(`/backend/orders/client/${clientId}`);
+    expect(beforeResponse.ok(), await beforeResponse.text()).toBeTruthy();
+    expect(await beforeResponse.json()).toEqual([]);
+
+    await page.goto('/list');
+    const card = page.locator('section.container').filter({
+        has: page.getByRole('button', { name: `View details for ${phone.name}` }),
+    });
+    await card.locator('button[matbutton="elevated"]').click();
+    await expect.poll(async () => (await getCart(request, clientId)).lines).toEqual([
+        { productId: phone.id, quantity: 1 },
+    ]);
+    await page.goto('/cart');
+    await expect(page.getByText(phone.name, { exact: true })).toBeVisible();
+
+    const checkout = page.getByRole('button', { name: 'Place order' });
+    await expect(checkout).toBeEnabled();
+    await checkout.click();
+    await expect(page.getByText('Your shopping cart is empty.')).toBeVisible();
+    await expect(checkout).toHaveCount(0);
+
+    const ordersResponse = await request.get(`/backend/orders/client/${clientId}`);
+    expect(ordersResponse.ok(), await ordersResponse.text()).toBeTruthy();
+    const orders = await ordersResponse.json() as {
+        id: string; totalAmount: number; totalCurrency: string; status: string;
+        lines: { productVersion: { productId: string; name: string } }[];
+    }[];
+    expect(orders).toHaveLength(1);
+    expect(orders[0].lines[0].productVersion.productId).toBe(phone.id);
+    expect(orders[0].status.toLowerCase()).not.toBe('paid');
+    expect((await getCart(request, clientId)).lines).toEqual([]);
+    await expect(page.getByText(`Order placed: ${orders[0].id}`)).toBeVisible();
+    await expect(page.getByText('Final total:').locator('..')).toContainText(
+        new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            .format(orders[0].totalAmount));
+    await page.getByRole('link', { name: 'View order' }).click();
+    await expect(page.getByText(`Order ${orders[0].id}`)).toBeVisible();
+    await expect(page.getByText(orders[0].lines[0].productVersion.name)).toBeVisible();
 });
 
 test('an unknown customer sees the cart error and retry action', async ({ page, context }) => {

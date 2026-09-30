@@ -36,6 +36,7 @@ export function estimatedSubtotals(items: readonly CartItemViewModel[]): Estimat
     const totals = new Map<string, number>();
     for (const item of items) {
         if (item.unavailable || item.priceAmount === null || !Number.isFinite(item.priceAmount) ||
+            item.priceAmount <= 0 ||
             !item.priceCurrency) continue;
         const currency = item.priceCurrency.toUpperCase();
         totals.set(currency, (totals.get(currency) ?? 0) + item.priceAmount * item.quantity);

@@ -1,11 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, concatMap, map, of, switchMap } from 'rxjs';
+import { catchError, concatMap, map, mergeMap, of, switchMap } from 'rxjs';
 
 import { OrdersActions } from './orders.actions';
 import { OrdersRepository } from '../domain/interfaces/orders-repository.port';
 import { applyCartMutation } from '../domain/model/cart-mutation';
 import { ShoppingCartNotFoundError } from '../domain/model/shopping-cart-not-found.error';
+import { OrderHistoryRepository } from '../../orders/domain/interfaces/order-history-repository.port';
+import { OrderHistoryActions } from '../../orders/state/order-history.actions';
 
 function errorMessage(error: unknown): string {
     if (typeof error === 'object' && error !== null && 'detail' in error &&
@@ -16,14 +18,29 @@ function errorMessage(error: unknown): string {
     return error instanceof Error ? error.message : 'The shopping cart request failed.';
 }
 
+function checkoutErrorMessage(error: unknown): string {
+    if (error instanceof ShoppingCartNotFoundError) return error.message;
+    if (typeof error === 'object' && error !== null && 'responseStatusCode' in error) {
+        if (error.responseStatusCode === 404) {
+            return 'The cart or a product is unavailable. Refresh the cart before placing an order.';
+        }
+        if (error.responseStatusCode === 400) {
+            return errorMessage(error);
+        }
+    }
+    if (error instanceof Error && error.message.startsWith('The shopping cart is empty')) return error.message;
+    return 'Order confirmation is uncertain. Check order history and refresh the cart before trying again.';
+}
+
 @Injectable()
 export class OrdersEffects {
     private readonly actions$ = inject(Actions);
     private readonly cartRepository = inject(OrdersRepository);
+    private readonly orderRepository = inject(OrderHistoryRepository);
 
     cartRequests$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(OrdersActions.loadCart, OrdersActions.changeCart),
+            ofType(OrdersActions.loadCart, OrdersActions.changeCart, OrdersActions.checkout),
             // The server owns the full list. Read immediately before each write and
             // finish the PUT before processing the next click or navigation load.
             concatMap(action => {
@@ -33,6 +50,21 @@ export class OrdersEffects {
                         catchError((error: unknown) => of(OrdersActions.loadCartFailure({
                             error: errorMessage(error),
                             missingCart: error instanceof ShoppingCartNotFoundError,
+                        })))
+                    );
+                }
+
+                if (action.type === OrdersActions.checkout.type) {
+                    return this.cartRepository.getByClientId(action.clientId).pipe(
+                        switchMap(cart => {
+                            if (cart.lines.length === 0) {
+                                throw new Error('The shopping cart is empty. Add a product before checkout.');
+                            }
+                            return this.orderRepository.createForClient(action.clientId);
+                        }),
+                        map(order => OrdersActions.checkoutSuccess({ order })),
+                        catchError((error: unknown) => of(OrdersActions.checkoutFailure({
+                            error: checkoutErrorMessage(error),
                         })))
                     );
                 }
@@ -54,4 +86,13 @@ export class OrdersEffects {
             })
         )
     );
+
+    refreshAfterCheckout$ = createEffect(() => this.actions$.pipe(
+        ofType(OrdersActions.checkoutSuccess),
+        mergeMap(({ order }) => of(
+            OrdersActions.loadCart({ clientId: order.clientId }),
+            OrderHistoryActions.loadOrder({ orderId: order.id }),
+            OrderHistoryActions.loadOrders({ clientId: order.clientId })
+        ))
+    ));
 }

@@ -13,6 +13,24 @@
     </div>
     }
 
+    @if (checkoutStatus() === 'succeeded' && placedOrder(); as order) {
+    <div class="checkout-confirmation" role="status">
+        <strong>Order placed: {{ order.id }}</strong>
+        <span>Final total: {{ order.totalAmount | currency:order.totalCurrency:'code' }}</span>
+        @if (finalPriceChanged()) {
+        <span>The final price changed from the cart estimate. The order uses the backend price.</span>
+        }
+        <a mat-button [routerLink]="['/orders', order.id]">View order</a>
+    </div>
+    }
+    @if (checkoutError()) {
+    <div class="cart-alert" role="alert">
+        <span>{{ checkoutError() }}</span>
+        <a mat-button routerLink="/orders">Check order history</a>
+        <button mat-button type="button" (click)="reload()">Refresh cart</button>
+    </div>
+    }
+
     @if (status() === 'loading' && !shoppingCart()) {
     <p role="status">Loading shopping cart...</p>
     } @else if (shoppingCart() && cartLines().length > 0) {
@@ -39,7 +57,7 @@
             <ng-container matColumnDef="price">
                 <th mat-header-cell *matHeaderCellDef> Current price </th>
                 <td mat-cell *matCellDef="let item">
-                    @if (!item.unavailable && item.priceAmount !== null && item.priceCurrency) {
+                    @if (!item.unavailable && item.priceAmount !== null && item.priceAmount > 0 && item.priceCurrency) {
                         {{ item.priceAmount | currency:item.priceCurrency:'code' }}
                     } @else { <span>Price unavailable</span> }
                 </td>
@@ -65,7 +83,7 @@
             <ng-container matColumnDef="lineTotal">
                 <th mat-header-cell *matHeaderCellDef> Estimated line total </th>
                 <td mat-cell *matCellDef="let item">
-                    @if (!item.unavailable && item.priceAmount !== null && item.priceCurrency) {
+                    @if (!item.unavailable && item.priceAmount !== null && item.priceAmount > 0 && item.priceCurrency) {
                         {{ item.priceAmount * item.quantity | currency:item.priceCurrency:'code' }}
                     } @else { <span>Unavailable</span> }
                 </td>
@@ -106,9 +124,15 @@
                 @if (hasUnpricedItems()) {
                 <p class="unavailable">Some products or prices are unavailable and are excluded from these estimates.</p>
                 }
+                @if (subtotals().length > 1) {
+                <p class="unavailable">Checkout requires products in one currency. Remove products in another currency.</p>
+                }
                 <p>Prices are estimates from the current catalog. The backend checks products again at checkout.</p>
             </mat-card-content>
             <mat-card-actions>
+                <button mat-flat-button type="button" (click)="checkout()" [disabled]="!canCheckout()">
+                    Place order
+                </button>
                 <button mat-button type="button" (click)="clearCart()" [disabled]="isUpdating()">Clear cart</button>
             </mat-card-actions>
         </mat-card>
@@ -122,6 +146,6 @@
     }
 
     @if (isUpdating()) {
-    <p role="status">Saving cart...</p>
+    <p role="status">{{ checkoutStatus() === 'pending' ? 'Placing order...' : 'Saving cart...' }}</p>
     }
 </div>

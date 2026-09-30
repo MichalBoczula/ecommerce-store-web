@@ -11,6 +11,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { signal } from '@angular/core';
 import { CatalogProductsLookup, CatalogProductsState } from '../../../mobile-phones/application/catalog-products-lookup';
 import { estimatedSubtotals, toCartItemViewModels } from './shopping-cart.utils';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-shopping-cart',
@@ -20,7 +21,8 @@ import { estimatedSubtotals, toCartItemViewModels } from './shopping-cart.utils'
     MatTableModule,
     MatButtonModule,
     MatIconModule,
-    MatCardModule
+    MatCardModule,
+    RouterLink
   ],
   templateUrl: './shopping-cart.html',
   styleUrl: './shopping-cart.scss',
@@ -39,7 +41,11 @@ export class ShoppingCartComponent implements OnInit {
   readonly shoppingCart = this.ordersFacade.shoppingCart;
   readonly status = this.ordersFacade.status;
   readonly error = this.ordersFacade.error;
-  readonly isUpdating = computed(() => this.status() === 'updating');
+  readonly checkoutStatus = this.ordersFacade.checkoutStatus;
+  readonly checkoutError = this.ordersFacade.checkoutError;
+  readonly placedOrder = this.ordersFacade.placedOrder;
+  readonly isUpdating = computed(() => this.status() === 'updating' || this.checkoutStatus() === 'pending');
+  private readonly checkoutEstimate = signal<{ amount: number; currency: string } | null>(null);
 
   readonly cartLines = computed(() => this.shoppingCart()?.lines ?? []);
   readonly catalog = toSignal(this.catalogLookup.observe(
@@ -49,10 +55,20 @@ export class ShoppingCartComponent implements OnInit {
   readonly items = computed(() => toCartItemViewModels(this.cartLines(), this.catalog().products));
   readonly subtotals = computed(() => estimatedSubtotals(this.items()));
   readonly hasUnpricedItems = computed(() => this.items().some(item =>
-    item.unavailable || item.priceAmount === null || !Number.isFinite(item.priceAmount) || !item.priceCurrency));
+    item.unavailable || item.priceAmount === null || !Number.isFinite(item.priceAmount) ||
+    item.priceAmount <= 0 || !item.priceCurrency));
   readonly totalItems = computed(() =>
     this.cartLines().reduce((sum, line) => sum + (line.quantity ?? 0), 0)
   );
+  readonly canCheckout = computed(() => this.status() === 'loaded' && this.checkoutStatus() === 'idle' &&
+    this.cartLines().length > 0 && this.catalog().status === 'loaded' &&
+    !this.hasUnpricedItems() && this.subtotals().length === 1);
+  readonly finalPriceChanged = computed(() => {
+    const estimate = this.checkoutEstimate();
+    const order = this.placedOrder();
+    return !!estimate && !!order && (estimate.currency !== order.totalCurrency.toUpperCase() ||
+      Math.round(estimate.amount * 100) !== Math.round(order.totalAmount * 100));
+  });
 
   ngOnInit(): void {
     this.ordersFacade.loadByClientId(this.userId);
@@ -81,6 +97,13 @@ export class ShoppingCartComponent implements OnInit {
 
   clearCart(): void {
     this.ordersFacade.clearCart(this.userId);
+  }
+
+  checkout(): void {
+    if (!this.canCheckout()) return;
+    const subtotal = this.subtotals()[0];
+    this.checkoutEstimate.set({ amount: subtotal.amount, currency: subtotal.currency });
+    this.ordersFacade.checkout(this.userId);
   }
 
   goBack(): void {

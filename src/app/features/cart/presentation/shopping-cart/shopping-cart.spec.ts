@@ -8,9 +8,16 @@ import { MobilePhone } from '../../../mobile-phones/domain/model/mobile-phone';
 import { OrdersFacade } from '../../application/orders.facade';
 import { ShoppingCartResponse } from '../../domain/model/shopping-cart-response.model';
 import { ShoppingCartComponent } from './shopping-cart';
+import { provideRouter } from '@angular/router';
+import { Order } from '../../../orders/domain/model/order';
 
 const clientId = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
 const productId = '11111111-1111-1111-1111-111111111111';
+const placedOrder: Order = {
+    id: '55555555-5555-5555-5555-555555555555', clientId,
+    status: 'Pending', createdAt: new Date('2026-09-29T12:00:00Z'), updatedAt: null,
+    totalAmount: 115, totalCurrency: 'PLN', lines: [],
+};
 
 describe('shopping cart screen', () => {
     afterEach(() => TestBed.resetTestingModule());
@@ -21,16 +28,21 @@ describe('shopping cart screen', () => {
             shoppingCart: signal(initialCart),
             status: signal(initialError ? 'error' : 'loaded'),
             error: signal(initialError),
+            checkoutStatus: signal<'idle' | 'pending' | 'succeeded' | 'error'>('idle'),
+            checkoutError: signal<string | null>(null),
+            placedOrder: signal<Order | null>(null),
             loadByClientId: vi.fn(),
             loadCart: vi.fn(),
             incrementItem: vi.fn(),
             decrementItem: vi.fn(),
             removeItem: vi.fn(),
             clearCart: vi.fn(),
+            checkout: vi.fn(),
         };
         TestBed.configureTestingModule({
             imports: [ShoppingCartComponent],
             providers: [
+                provideRouter([]),
                 { provide: OrdersFacade, useValue: facade },
                 { provide: CatalogProductsLookup, useValue: { observe: () => of({
                     products,
@@ -52,7 +64,7 @@ describe('shopping cart screen', () => {
         button('Increase quantity').click();
         button('Decrease quantity').click();
         button('Remove').click();
-        (fixture.nativeElement.querySelector('mat-card-actions button') as HTMLButtonElement).click();
+        (fixture.nativeElement.querySelector('mat-card-actions button:last-of-type') as HTMLButtonElement).click();
 
         expect(facade.loadByClientId).toHaveBeenCalledWith(clientId);
         expect(facade.incrementItem).toHaveBeenCalledWith(clientId, productId);
@@ -93,5 +105,50 @@ describe('shopping cart screen', () => {
         expect(content).toContain('200.00');
         expect(content).toContain('30.00');
         expect(content).toContain('excluded from these estimates');
+        expect((fixture.nativeElement.querySelector('button[mat-flat-button]') as HTMLButtonElement).disabled).toBe(true);
+    });
+
+    it('submits only a priced single-currency cart and shows the final backend price', async () => {
+        const { fixture, facade } = render({ id: clientId, clientId, lines: [{ productId, quantity: 1 }] });
+        await fixture.whenStable();
+        fixture.detectChanges();
+        const button = fixture.nativeElement.querySelector('button[mat-flat-button]') as HTMLButtonElement;
+        expect(button.disabled).toBe(false);
+        button.click();
+        expect(facade.checkout).toHaveBeenCalledExactlyOnceWith(clientId);
+        facade.checkoutStatus.set('pending');
+        fixture.detectChanges();
+        expect(button.disabled).toBe(true);
+
+        facade.placedOrder.set(placedOrder);
+        facade.checkoutStatus.set('succeeded');
+        facade.shoppingCart.set({ id: clientId, clientId, lines: [] });
+        fixture.detectChanges();
+        const content = fixture.nativeElement.textContent as string;
+        expect(content).toContain('Final total:');
+        expect(content).toContain('115.00');
+        expect(content).toContain('final price changed from the cart estimate');
+        expect(fixture.nativeElement.querySelector('a[href="/orders/' + placedOrder.id + '"]')).not.toBeNull();
+    });
+
+    it('keeps a failed checkout visible and points to history before retry', async () => {
+        const { fixture, facade } = render({ id: clientId, clientId, lines: [{ productId, quantity: 1 }] });
+        await fixture.whenStable();
+        facade.checkoutStatus.set('error');
+        facade.checkoutError.set('Order confirmation is uncertain.');
+        fixture.detectChanges();
+        expect(fixture.nativeElement.textContent).toContain('Order confirmation is uncertain.');
+        expect(fixture.nativeElement.querySelector('a[href="/orders"]')).not.toBeNull();
+        expect((fixture.nativeElement.querySelector('button[mat-flat-button]') as HTMLButtonElement).disabled).toBe(true);
+    });
+
+    it('marks a zero-priced catalog product unavailable for checkout', async () => {
+        const { fixture } = render({ id: clientId, clientId, lines: [{ productId, quantity: 1 }] },
+            null, [{ id: productId, name: 'Test phone',
+                price: { amount: 0, currency: 'PLN' }, isFavorite: false }]);
+        await fixture.whenStable();
+        fixture.detectChanges();
+        expect(fixture.nativeElement.textContent).toContain('Price unavailable');
+        expect((fixture.nativeElement.querySelector('button[mat-flat-button]') as HTMLButtonElement).disabled).toBe(true);
     });
 });

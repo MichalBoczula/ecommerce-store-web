@@ -32,6 +32,18 @@
   color: #9a1b1b;
 }
 
+.checkout-confirmation {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  background: #e8f5e9;
+  color: #195b2c;
+}
+
 .unavailable {
   display: block;
   color: #9a1b1b;

@@ -19,6 +19,24 @@ const response = {
 describe('order history Kiota repository', () => {
     afterEach(() => vi.unstubAllGlobals());
 
+    it('creates one order with the Invoice client and maps the authoritative snapshot', async () => {
+        const requests: { url: string; method: string; body: unknown }[] = [];
+        vi.stubGlobal('fetch', vi.fn(async (url: string, init: RequestInit) => {
+            requests.push({ url, method: init.method ?? '', body: init.body });
+            return new Response(JSON.stringify(response),
+                { status: 200, headers: { 'content-type': 'application/json' } });
+        }));
+
+        const order = await firstValueFrom(new OrderHistoryKiotaRepository().createForClient(clientId));
+
+        expect(requests).toHaveLength(1);
+        expect(requests[0].url).toBe(`/backend/orders/client/${clientId}`);
+        expect(requests[0].method).toBe('POST');
+        expect(requests[0].body).toBeUndefined();
+        expect(order.lines[0].productVersion.priceAmount).toBe(95);
+        expect(order.totalAmount).toBe(190);
+    });
+
     it('gets the client list and detail through the BFF without catalog requests', async () => {
         const urls: string[] = [];
         vi.stubGlobal('fetch', vi.fn(async (url: string) => {
