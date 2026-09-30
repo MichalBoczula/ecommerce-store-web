@@ -1,39 +1,51 @@
-# EcommerceStoreWeb
+# ECommerceStoreWeb
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.4.
+## Purpose
 
-## API clients
+Angular storefront for the ECommerce Store portfolio. It presents catalog products, favorites, a shopping cart, and order history. The browser calls the BFF on the frontend origin; ProductsCatalog, Users, and Orders/Invoices remain separate APIs behind that boundary. This repository does not own customer registration, payment, or invoice creation.
 
-The frontend uses three Kiota TypeScript clients generated from the OpenAPI
-contracts pinned in [`contracts/upstream`](contracts/upstream/README.md):
-Products Catalog, Users, and Invoice (the Orders client). Requests go through
-the BFF. Generated code lives in `src/app/shared/infrastructure/api-clients/`;
-feature repositories and mappers translate it to application models.
+## Engineering approach
 
-The browser calls `/backend` on the frontend origin. Angular's dev proxy and
-the production Nginx configuration strip this prefix before forwarding to BFF.
-The BFF receives its normal routes such as `/mobile-phones`, `/favorites` and
-`/shopping-carts`; its `/api/products`, `/api/users` and `/api/orders` prefixes
-are only for OpenAPI documents.
+Features keep handwritten domain models and rules separate from application facades, NgRx state, Kiota-backed infrastructure, and presentation components. Generated clients reflect reviewed upstream OpenAPI contracts and are never edited by hand. A request adapter sends all three clients through the BFF, while feature repositories map their DTOs to frontend models. See [ADR-0001](docs/adr/0001-bff-and-kiota-boundary.md).
 
-After updating the pinned contracts, regenerate and review the client changes:
+The Invoice cart contract stores only `productId` and `quantity`. The cart view looks up current product information in ProductsCatalog and labels totals as estimates. Order history uses the `productVersion` snapshot and totals returned by Invoice, so a later catalog change does not rewrite a past order. The frontend does not create a missing cart during an add action; registration is expected to provide one, but that backend orchestration is outstanding.
 
-```bash
-npm run generate:clients
-npm run build -- --configuration production
-```
+## Architecture
 
-Generation uses Kiota 1.34.1 and checks the contract SHA-256 values against
-the copied BFF manifest. The script downloads the pinned Linux x64 executable;
-on another platform, set `KIOTA_BIN` to a Kiota 1.34.1 executable. Do not edit
-generated files by hand.
+| Component | Responsibility |
+| --- | --- |
+| `src/app/features/mobile-phones` | Catalog screens, filtering, product lookup, and mapping. |
+| `src/app/features/users` | Favorites state, repository, and view. |
+| `src/app/features/cart` | Cart mutations, state, catalog enrichment, and view. |
+| `src/app/features/orders` | Order history and detail views using Invoice snapshots. |
+| `src/app/shared/infrastructure` | Same-origin BFF adapter and generated Kiota clients. |
+| `src/app/shared/application/demo-client-id.ts` | Temporary browser-local demo customer selection until WEB/11. |
+| `src/proxy.conf.json` and `nginx.conf` | Remove `/backend` in development and container runtime respectively. |
+| `tests/acceptance` | Browser scenarios through the real frontend, BFF, and upstream containers. |
 
-## Development server
+The browser requests `/backend/...` from the frontend origin. Angular's development proxy or Nginx removes `/backend` before forwarding to the BFF. The BFF's public business routes retain upstream paths such as `/mobile-phones`, `/customers`, `/favorites`, `/shopping-carts`, and `/orders`; its `/api/products`, `/api/users`, and `/api/orders` prefixes are for proxied OpenAPI documents. There is no fourth generated BFF client. The BFF's `/health` checks the gateway process, not all upstream readiness.
 
-With Docker running, start the BFF and its three dependencies from the root of
-this repository. The Compose file uses the same pinned upstream images as the
-checked-in BFF contract manifest, a MongoDB replica set and the published BFF
-image:
+## Technology stack and repository structure
+
+| Area | Technology |
+| --- | --- |
+| UI and state | Angular 21, Angular Material, NgRx, RxJS, TypeScript |
+| API clients | Kiota TypeScript 1.34.1 and pinned upstream OpenAPI |
+| Unit tests | Angular TestBed on Vitest, V8 coverage, JUnit output |
+| Acceptance | Playwright Chromium, Docker Compose, SQL Server, MongoDB replica set, BFF and three APIs |
+| Delivery | Node 22 build, Nginx runtime, GitHub Actions, npm audit, Dependency Review, Gitleaks, Trivy, Docker Hub |
+
+`src/app/features/` holds the application features; `src/app/shared/` holds cross-feature code. `contracts/upstream/` contains the reviewed API baseline and image manifest. `compose/` defines the local backend and full-stack options. `scripts/ci.sh` contains portable verification commands; `scripts/verify.sh` runs them locally. `.github/workflows/ci.yml` schedules independent jobs and controls image publication. Architecture decisions and review guidance live under `docs/`.
+
+## Local startup
+
+### Prerequisites
+
+- Node.js 22 and npm, Git, Bash, and curl.
+- Docker Engine or Docker Desktop with Compose for upstream services, container acceptance, or image builds. Allocate enough resources for SQL Server, MongoDB, and the APIs.
+- For client regeneration: Linux x64 with `curl` and `unzip`, or a Kiota 1.34.1 executable supplied as `KIOTA_BIN` on another platform.
+
+From the repository root, start the backend stack and run the Angular development server:
 
 ```bash
 docker compose -f compose/ecommerce-compose.yml up -d sql mongodb mongo-init products users invoice bff
@@ -41,123 +53,59 @@ npm ci
 npm start
 ```
 
-The Angular dev server listens at `http://localhost:4200`; its proxy forwards
-`/backend/**` to the BFF published at `127.0.0.1:5137`. For a BFF process run
-on the host instead of Compose, use the BFF repository's local-start commands
-and the same port. Restart `npm start` after editing `src/proxy.conf.json`.
-The example database password and data in Compose are for local use.
+Open `http://localhost:4200`. The development proxy sends `/backend/**` to the BFF exposed at `127.0.0.1:5137`. The Compose file uses pinned API images, a MongoDB replica set, and a local example SQL password. Its database volumes persist across `down` unless you add `--volumes`. For the BFF running on the host, follow the BFF repository's local startup instructions and keep its listener at port 5137 or update `src/proxy.conf.json`.
 
-The demo screens use a fallback client ID. For an existing customer, set
-`localStorage.demoClientId` to its GUID before loading the app. That customer
-needs a cart to show successful cart data; missing resources remain API errors.
-The frontend does not create a cart implicitly.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-Run unit tests through Angular's [Vitest](https://vitest.dev/) runner (which sets up Angular TestBed):
-
-```bash
-npm test
-```
-
-Run the same suite with coverage for handwritten code:
-
-```bash
-npm run test:coverage
-```
-
-The JUnit report is written to `TestResults/unit.xml` and coverage reports to
-`coverage/ecommerce-store-web/`. Generated Kiota clients are excluded from lint and coverage.
-
-## Browser acceptance tests
-
-Install the Playwright browser once, then run the isolated Compose stack and Chromium suite:
-
-```bash
-npm ci
-npx playwright install --with-deps chromium
-bash scripts/run-acceptance.sh
-```
-
-The script builds the frontend, starts the pinned BFF, Users, Products and
-Invoice dependencies with SQL Server and a MongoDB replica set, waits for the
-BFF and catalog, then removes its dedicated Compose project and volumes even
-when tests fail. It uses ports 14200 and 15137 by default; set `WEB_PORT` and
-`BFF_PORT` to override them. The browser reaches every API through `/backend/`
-on the frontend origin. You can also run `npm run test:acceptance` against an
-already running stack; set `ACCEPTANCE_BASE_URL` if it is not at port 4200.
-
-Each test registers a unique customer. Cart interaction tests create a cart in
-their isolated fixture because the currently pinned Users and Invoice APIs expose
-separate creation routes. The registration contract test deliberately checks
-that registration alone creates an empty cart and will fail until that backend
-orchestration is implemented. Cart writes in the browser use only the UI; the
-missing-product case creates a controlled orphan line through BFF to check the
-unavailable-product state. The demo client selector uses browser-local
-`demoClientId` until authenticated client context is implemented in WEB/11.
-
-JUnit, screenshots, traces and HTML reports are written under `TestResults/`.
-Order checkout is reserved for WEB/10.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
-
-## Running with Docker
-
-To build and run the entire local stack, including the Nginx frontend:
+To build and run the Nginx frontend with the same stack:
 
 ```bash
 docker compose -f compose/ecommerce-compose.yml up -d --build
 curl -i http://localhost:4200/backend/health
-```
-
-Open `http://localhost:4200`. Nginx forwards `/backend/` to `bff:8080` on the
-Compose network. The BFF is also exposed on `127.0.0.1:5137` for local
-diagnostics. The browser uses the frontend origin in both modes. Stop the
-stack with:
-
-```bash
 docker compose -f compose/ecommerce-compose.yml down
 ```
 
-## CI and image publication
+Nginx forwards `/backend/` to `bff:8080` on the Compose network. The Compose frontend and `npm start` both use port 4200; stop one before starting the other. Set `WEB_PORT` and `BFF_PORT` to override the host ports for the container stack.
 
-`bash scripts/verify.sh` runs the same source, Kiota contract, high/critical
-dependency audit, lint/build, Vitest and container-backed Playwright checks as
-CI, then builds the frontend image. It requires Node 22, npm, Docker and the
-Playwright Chromium browser (`npx playwright install --with-deps chromium`).
-After `npm ci`, run individual stages with `bash scripts/ci.sh <stage>` where
-`<stage>` is source, contract, audit, build, unit or acceptance.
+Screens currently use a fallback demo client ID. For an existing customer, set `localStorage.demoClientId` to its GUID and reload. That customer must already have a cart for cart actions to succeed. This browser-local selector is temporary and is not authentication. An absent cart is reported as an error; the UI does not silently create it.
 
-Pull requests run each required check and build, smoke test and scan the image
-without publishing it. On a successful push to `master`, CI publishes the
-same scanned image to `mb0101/ecommerce-store-web` under the full commit SHA
-and `latest`, using `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` repository
-secrets. The current registration acceptance test requires BFF registration to
-create a cart; until that backend flow exists, the required acceptance check
-and image publication will remain blocked.
+## API contracts and Kiota
+
+The [upstream contract README](contracts/upstream/README.md) records the BFF source commit, pinned image digests, OpenAPI checksums, and generation rules. Three clients live in `src/app/shared/infrastructure/api-clients/{products,users,orders}`; `orders` is generated from the Invoice API. After reviewing and updating the BFF baseline, copy its contracts and manifest, then regenerate locally:
+
+```bash
+npm ci
+npm run generate:clients
+bash scripts/ci.sh contract
+```
+
+The generator checks the SHA-256 baseline and uses Kiota 1.34.1. The `contract` check expects a clean generated tree: after an intentional contract update, review and commit the new generated sources before running it. CI regenerates the clients and rejects a diff. Keep `kiota-lock.json` committed, and map DTOs only in handwritten infrastructure code. Do not change generated files to accommodate a contract update.
+
+## Tests and local verification
+
+Run the portable stages after `npm ci`:
+
+| Check | Command | Output or gate |
+| --- | --- | --- |
+| Source and shell syntax | `bash scripts/ci.sh source` | Whitespace and script syntax. |
+| Contract drift | `bash scripts/ci.sh contract` | Pinned OpenAPI checksums and unchanged regenerated Kiota clients. |
+| Dependency audit | `bash scripts/ci.sh audit` | High/critical advisories fail; moderate findings remain visible. |
+| Lint and production build | `bash scripts/ci.sh build` | Angular lint and production bundle. |
+| Unit tests | `bash scripts/ci.sh unit` | JUnit at `TestResults/unit.xml`, coverage at `coverage/ecommerce-store-web/`. |
+| Browser acceptance | `bash scripts/ci.sh acceptance` | JUnit, HTML, traces, screenshots, and failure logs under `TestResults/`. |
+
+Unit tests use Angular TestBed with Vitest. Coverage covers handwritten code and excludes generated Kiota clients. The configured minimums are 65% statements, 55% branches, 55% functions, and 65% lines. For a focused unit run use `npm test`; for coverage use `npm run test:coverage`.
+
+Install the Playwright browser once with `npx playwright install --with-deps chromium`. Acceptance starts an isolated Compose project, waits for BFF and catalog, then removes its containers and volumes. It uses ports 14200 and 15137 by default (`WEB_PORT` and `BFF_PORT` override them). To run against an already running stack use `ACCEPTANCE_BASE_URL=http://127.0.0.1:4200 npm run test:acceptance`. Each scenario registers a unique customer. Cart-specific fixtures currently create their carts separately; the registration scenario deliberately does not. See [ADR-0002](docs/adr/0002-testing-boundaries.md) and [local verification](docs/local-verification.md).
+
+`bash scripts/verify.sh` performs a clean install, every portable stage, and a frontend image build. It requires a working Docker daemon. **Known gate:** the pinned BFF proxies `POST /customers` without creating an Invoice cart. The registration acceptance scenario gets a cart 404, so the four-scenario suite and required quality gate remain red until BFF/11 and WEB/8A provide and exercise the explicit registration flow. Checkout is reserved for WEB/10.
+
+## CI and operations
+
+[GitHub Actions CI](.github/workflows/ci.yml) runs source, Kiota drift, npm audit, lint/build, Vitest coverage, container-backed Playwright, and Gitleaks. Pull requests also run Dependency Review; on pushes to `master` that job is intentionally skipped. An explicit quality gate requires every mandatory result. JUnit, coverage, traces, screenshots, and Compose diagnostics are uploaded even after test failure.
+
+After the quality gate, CI builds one local frontend image, smoke tests the SPA entry point, a client route and static assets, then scans it with Trivy for fixable HIGH/CRITICAL findings. Pull requests do not log in to Docker Hub or publish. A green `master` push tags and pushes the same scanned image to `mb0101/ecommerce-store-web` as `<full commit SHA>` and `latest`, checks local image IDs, and compares pushed digests. The workflow expects `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` repository secrets. Publication is not deployment; a runtime must separately supply the BFF and its upstream services. See [ADR-0003](docs/adr/0003-scanned-image-publication.md).
+
+For reviews, use the [definition of done](docs/definition-of-done.md) and [PR template](.github/pull_request_template.md). Avoid claiming a green image scan or published image until the acceptance gate and Docker job actually run successfully.
+
+## Architecture decisions
+
+The [ADR index](docs/adr/README.md) records the frontend/BFF boundary, test strategy, and scanned image publication policy. New decisions use sequential repository-local numbers and keep superseded records in history.
