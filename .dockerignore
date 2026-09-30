@@ -4,4 +4,9 @@ node_modules
 .vscode
 dist
 coverage
+TestResults
+artifacts
+.angular
+.tools
+playwright-report
 npm-debug.log
