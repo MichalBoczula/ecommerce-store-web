@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Angular storefront for the ECommerce Store portfolio. It presents catalog products, favorites, a shopping cart, and order history. The browser calls the BFF on the frontend origin; ProductsCatalog, Users, and Orders/Invoices remain separate APIs behind that boundary. This repository does not own customer registration, payment, or invoice creation.
+Angular storefront for the ECommerce Store portfolio. It presents catalog products, favorites, a shopping cart, checkout, and order history. The browser calls the BFF on the frontend origin; ProductsCatalog, Users, and Orders/Invoices remain separate APIs behind that boundary. This repository does not own customer registration, payment, or invoice creation.
 
 ## Engineering approach
 
 Features keep handwritten domain models and rules separate from application facades, NgRx state, Kiota-backed infrastructure, and presentation components. Generated clients reflect reviewed upstream OpenAPI contracts and are never edited by hand. A request adapter sends all three clients through the BFF, while feature repositories map their DTOs to frontend models. See [ADR-0001](docs/adr/0001-bff-and-kiota-boundary.md).
 
-The Invoice cart contract stores only `productId` and `quantity`. The cart view looks up current product information in ProductsCatalog and labels totals as estimates. Order history uses the `productVersion` snapshot and totals returned by Invoice, so a later catalog change does not rewrite a past order. The frontend does not create a missing cart during an add action; registration is expected to provide one, but that backend orchestration is outstanding.
+The Invoice cart contract stores only `productId` and `quantity`. The cart view looks up current product information in ProductsCatalog and labels totals as estimates. Checkout creates an order through Invoice, shows the final total from its saved response, and refreshes cart and order data. Order history uses the `productVersion` snapshot and totals returned by Invoice, so a later catalog change does not rewrite a past order. The frontend does not create a missing cart during an add action; registration is expected to provide one, but that backend orchestration is outstanding.
 
 ## Architecture
 
@@ -16,7 +16,7 @@ The Invoice cart contract stores only `productId` and `quantity`. The cart view 
 | --- | --- |
 | `src/app/features/mobile-phones` | Catalog screens, filtering, product lookup, and mapping. |
 | `src/app/features/users` | Favorites state, repository, and view. |
-| `src/app/features/cart` | Cart mutations, state, catalog enrichment, and view. |
+| `src/app/features/cart` | Cart mutations, checkout command state, catalog enrichment, and view. |
 | `src/app/features/orders` | Order history and detail views using Invoice snapshots. |
 | `src/app/shared/infrastructure` | Same-origin BFF adapter and generated Kiota clients. |
 | `src/app/shared/application/demo-client-id.ts` | Temporary browser-local demo customer selection until WEB/11. |
@@ -94,9 +94,9 @@ Run the portable stages after `npm ci`:
 
 Unit tests use Angular TestBed with Vitest. Coverage covers handwritten code and excludes generated Kiota clients. The configured minimums are 65% statements, 55% branches, 55% functions, and 65% lines. For a focused unit run use `npm test`; for coverage use `npm run test:coverage`.
 
-Install the Playwright browser once with `npx playwright install --with-deps chromium`. Acceptance starts an isolated Compose project, waits for BFF and catalog, then removes its containers and volumes. It uses ports 14200 and 15137 by default (`WEB_PORT` and `BFF_PORT` override them). To run against an already running stack use `ACCEPTANCE_BASE_URL=http://127.0.0.1:4200 npm run test:acceptance`. Each scenario registers a unique customer. Cart-specific fixtures currently create their carts separately; the registration scenario deliberately does not. See [ADR-0002](docs/adr/0002-testing-boundaries.md) and [local verification](docs/local-verification.md).
+Install the Playwright browser once with `npx playwright install --with-deps chromium`. Acceptance starts an isolated Compose project, waits for BFF and catalog, then removes its containers and volumes. It uses ports 14200 and 15137 by default (`WEB_PORT` and `BFF_PORT` override them). To run against an already running stack use `ACCEPTANCE_BASE_URL=http://127.0.0.1:4200 npm run test:acceptance`. Each scenario registers a unique customer. Cart-specific fixtures currently create their carts separately; the registration scenario deliberately does not. The checkout scenario checks one created order, an empty cart, and the returned final total. See [ADR-0002](docs/adr/0002-testing-boundaries.md) and [local verification](docs/local-verification.md).
 
-`bash scripts/verify.sh` performs a clean install, every portable stage, and a frontend image build. It requires a working Docker daemon. **Known gate:** the pinned BFF proxies `POST /customers` without creating an Invoice cart. The registration acceptance scenario gets a cart 404, so the four-scenario suite and required quality gate remain red until BFF/11 and WEB/8A provide and exercise the explicit registration flow. Checkout is reserved for WEB/10.
+`bash scripts/verify.sh` performs a clean install, every portable stage, and a frontend image build. It requires a working Docker daemon. **Known gate:** the pinned BFF proxies `POST /customers` without creating an Invoice cart. The registration acceptance scenario gets a cart 404, so the required quality gate remains red until BFF/11 and WEB/8A provide and exercise the explicit registration flow. WEB/10 adds a fifth browser scenario for checkout; it still needs a container CI run.
 
 ## CI and operations
 
