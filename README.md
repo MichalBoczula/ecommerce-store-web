@@ -144,3 +144,20 @@ stack with:
 ```bash
 docker compose -f compose/ecommerce-compose.yml down
 ```
+
+## CI and image publication
+
+`bash scripts/verify.sh` runs the same source, Kiota contract, high/critical
+dependency audit, lint/build, Vitest and container-backed Playwright checks as
+CI, then builds the frontend image. It requires Node 22, npm, Docker and the
+Playwright Chromium browser (`npx playwright install --with-deps chromium`).
+After `npm ci`, run individual stages with `bash scripts/ci.sh <stage>` where
+`<stage>` is source, contract, audit, build, unit or acceptance.
+
+Pull requests run each required check and build, smoke test and scan the image
+without publishing it. On a successful push to `master`, CI publishes the
+same scanned image to `mb0101/ecommerce-store-web` under the full commit SHA
+and `latest`, using `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` repository
+secrets. The current registration acceptance test requires BFF registration to
+create a cart; until that backend flow exists, the required acceptance check
+and image publication will remain blocked.

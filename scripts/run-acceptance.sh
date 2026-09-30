@@ -10,7 +10,16 @@ export ACCEPTANCE_BASE_URL="http://127.0.0.1:${WEB_PORT}"
 
 project="ecommerce-web-acceptance-$$"
 compose=(docker compose -p "$project" -f compose/ecommerce-compose.yml)
-cleanup() { "${compose[@]}" down -v --remove-orphans; }
+cleanup() {
+  local status=$?
+  if (( status != 0 )); then
+    mkdir -p TestResults
+    "${compose[@]}" ps > TestResults/acceptance-compose.log 2>&1 || true
+    "${compose[@]}" logs --no-color --tail=200 >> TestResults/acceptance-compose.log 2>&1 || true
+  fi
+  "${compose[@]}" down -v --remove-orphans || true
+  return "$status"
+}
 trap cleanup EXIT
 
 "${compose[@]}" up -d --build --wait
