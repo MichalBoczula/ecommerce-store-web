@@ -1,3 +1,4 @@
+import { DEMO_CLIENT_ID } from '../../../../shared/application/demo-client-id';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -26,7 +27,7 @@ export class MobilePhoneList implements OnInit {
   private readonly usersFacade = inject(UsersFacade);
   private readonly router = inject(Router);
 
-  private readonly userId: string = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
+  private readonly userId: string = inject(DEMO_CLIENT_ID);
 
   private readonly rawPhones = toSignal(this.facade.items$, { initialValue: [] });
 

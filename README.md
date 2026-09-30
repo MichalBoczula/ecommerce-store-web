@@ -47,10 +47,10 @@ on the host instead of Compose, use the BFF repository's local-start commands
 and the same port. Restart `npm start` after editing `src/proxy.conf.json`.
 The example database password and data in Compose are for local use.
 
-The existing demo screens contain a fixed client ID. Until registration creates
-a cart, that ID needs a matching client and cart to show successful favorites
-and cart data; missing resources remain API errors. The frontend does not
-create a cart implicitly.
+The demo screens use a fallback client ID. For an existing customer, set
+`localStorage.demoClientId` to its GUID before loading the app. That customer
+needs a cart to show successful cart data; missing resources remain API errors.
+The frontend does not create a cart implicitly.
 
 ## Code scaffolding
 
@@ -93,15 +93,35 @@ npm run test:coverage
 The JUnit report is written to `TestResults/unit.xml` and coverage reports to
 `coverage/ecommerce-store-web/`. Generated Kiota clients are excluded from lint and coverage.
 
-## Running end-to-end tests
+## Browser acceptance tests
 
-For end-to-end (e2e) testing, run:
+Install the Playwright browser once, then run the isolated Compose stack and Chromium suite:
 
 ```bash
-ng e2e
+npm ci
+npx playwright install --with-deps chromium
+bash scripts/run-acceptance.sh
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+The script builds the frontend, starts the pinned BFF, Users, Products and
+Invoice dependencies with SQL Server and a MongoDB replica set, waits for the
+BFF and catalog, then removes its dedicated Compose project and volumes even
+when tests fail. It uses ports 14200 and 15137 by default; set `WEB_PORT` and
+`BFF_PORT` to override them. The browser reaches every API through `/backend/`
+on the frontend origin. You can also run `npm run test:acceptance` against an
+already running stack; set `ACCEPTANCE_BASE_URL` if it is not at port 4200.
+
+Each test registers a unique customer. Cart interaction tests create a cart in
+their isolated fixture because the currently pinned Users and Invoice APIs expose
+separate creation routes. The registration contract test deliberately checks
+that registration alone creates an empty cart and will fail until that backend
+orchestration is implemented. Cart writes in the browser use only the UI; the
+missing-product case creates a controlled orphan line through BFF to check the
+unavailable-product state. The demo client selector uses browser-local
+`demoClientId` until authenticated client context is implemented in WEB/11.
+
+JUnit, screenshots, traces and HTML reports are written under `TestResults/`.
+Order checkout is reserved for WEB/10.
 
 ## Additional Resources
 
