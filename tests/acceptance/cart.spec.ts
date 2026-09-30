@@ -141,7 +141,8 @@ test('checkout creates one order, clears the cart and shows the backend total', 
     expect((await getCart(request, clientId)).lines).toEqual([]);
     await expect(page.getByText(`Order placed: ${orders[0].id}`)).toBeVisible();
     await expect(page.getByText('Final total:').locator('..')).toContainText(
-        orders[0].totalAmount.toFixed(2));
+        new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            .format(orders[0].totalAmount));
     await page.getByRole('link', { name: 'View order' }).click();
     await expect(page.getByText(`Order ${orders[0].id}`)).toBeVisible();
     await expect(page.getByText(orders[0].lines[0].productVersion.name)).toBeVisible();
