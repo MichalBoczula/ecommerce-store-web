@@ -30,7 +30,7 @@
                     <mat-icon class="cart">shopping_cart</mat-icon>
                 </button>
 
-                <button mat-icon-button aria-label="Account">
+                <button mat-icon-button aria-label="Account" (click)="onAccountClick()">
                     <mat-icon class="account">account_circle</mat-icon>
                 </button>
             </div>
@@ -39,6 +39,12 @@
             <div class="cart-error-banner" role="alert">
                 <span>{{ cartError() }}</span>
                 <button mat-button type="button" (click)="onCartClick()">View cart</button>
+            </div>
+        }
+        @if (!customer.clientId()) {
+            <div class="cart-error-banner" role="status">
+                <span>No demo customer is selected. Choose an external ID in your profile to use the cart, favorites and orders.</span>
+                <button mat-button type="button" (click)="onAccountClick()">Open profile</button>
             </div>
         }
         <router-outlet></router-outlet>

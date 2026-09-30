@@ -1,3 +1,4 @@
+import { CustomerContext } from '../../../../shared/application/customer-context';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -25,6 +26,7 @@ describe('order history list', () => {
             orders: signal([order]), listStatus: signal('loaded'), listError: signal(null), loadOrders: vi.fn(),
         };
         TestBed.configureTestingModule({ imports: [OrderListComponent], providers: [
+                { provide: CustomerContext, useValue: { clientId: () => '3fa85f64-5717-4562-b3fc-2c963f66afa6' } },
             provideRouter([]), { provide: OrderHistoryFacade, useValue: facade },
         ] });
         const fixture = TestBed.createComponent(OrderListComponent);
@@ -42,6 +44,7 @@ describe('order history list', () => {
             orders: signal<Order[]>([]), listStatus: signal('loaded'), listError: signal<string | null>(null), loadOrders: vi.fn(),
         };
         TestBed.configureTestingModule({ imports: [OrderListComponent], providers: [
+            { provide: CustomerContext, useValue: { clientId: () => '3fa85f64-5717-4562-b3fc-2c963f66afa6' } },
             provideRouter([]), { provide: OrderHistoryFacade, useValue: facade },
         ] });
         const fixture = TestBed.createComponent(OrderListComponent);

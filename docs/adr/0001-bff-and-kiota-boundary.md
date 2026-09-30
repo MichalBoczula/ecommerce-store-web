@@ -13,7 +13,7 @@ Use one browser-visible `/backend` prefix on the frontend origin. The Angular de
 
 ## Consequences
 
-Development and container runtime need a working frontend proxy and reachable BFF. Updating an upstream contract requires a reviewed BFF baseline, a regenerated client, mapper review, and tests; generated files are not patched manually. The frontend's demo client ID does not establish identity or authorization. A future explicit BFF registration use case (BFF/11) is a new operation and must be documented and tested when implemented; the current YARP `/customers` proxy does not create a cart.
+Development and container runtime need a working frontend proxy and reachable BFF. Updating an upstream contract requires a reviewed BFF baseline, a regenerated client, mapper review, and tests; generated files are not patched manually. The frontend's demo customer context does not establish identity or authorization (see [ADR-0004](0004-demo-customer-context.md)). A future explicit BFF registration use case (BFF/11) is a new operation and must be documented and tested when implemented; the current YARP `/customers` proxy does not create a cart.
 
 ## Alternatives considered
 

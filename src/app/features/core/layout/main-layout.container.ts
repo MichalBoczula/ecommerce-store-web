@@ -1,4 +1,4 @@
-import { DEMO_CLIENT_ID } from '../../../shared/application/demo-client-id';
+import { CustomerContext } from '../../../shared/application/customer-context';
 import { Component, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet } from '@angular/router';
@@ -37,7 +37,8 @@ export class MainLayoutComponent implements OnInit {
   private readonly usersFacade = inject(UsersFacade);
   private readonly ordersFacade = inject(OrdersFacade);
 
-  private readonly userId: string = inject(DEMO_CLIENT_ID);
+  readonly customer = inject(CustomerContext);
+  private get userId(): string | null { return this.customer.clientId(); }
 
   readonly sidenavMode = computed<'over'>(() => 'over');
   readonly sidenavOpened = computed(() => false);
@@ -57,8 +58,10 @@ export class MainLayoutComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.usersFacade.loadFavorites(this.userId);
-    this.ordersFacade.loadCart(this.userId);
+    if (this.userId) {
+      this.usersFacade.loadFavorites(this.userId);
+      this.ordersFacade.loadCart(this.userId);
+    }
   }
 
   onNavClick(sidenav: { close: () => void }): void {
@@ -75,5 +78,9 @@ export class MainLayoutComponent implements OnInit {
 
   onOrdersClick(): void {
     this.router.navigate(['/orders']);
+  }
+
+  onAccountClick(): void {
+    this.router.navigate(['/profile']);
   }
 }

@@ -1,4 +1,4 @@
-import { DEMO_CLIENT_ID } from '../../../../shared/application/demo-client-id';
+import { CustomerContext } from '../../../../shared/application/customer-context';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -16,7 +16,9 @@ import { OrderHistoryFacade } from '../../application/order-history.facade';
 })
 export class OrderListComponent implements OnInit {
     private readonly facade = inject(OrderHistoryFacade);
-    private readonly clientId = inject(DEMO_CLIENT_ID);
+    private readonly customer = inject(CustomerContext);
+    readonly selectedClientId = this.customer.clientId;
+    private get clientId(): string | null { return this.customer.clientId(); }
 
     readonly status = this.facade.listStatus;
     readonly error = this.facade.listError;
@@ -28,6 +30,6 @@ export class OrderListComponent implements OnInit {
     }
 
     reload(): void {
-        this.facade.loadOrders(this.clientId);
+        if (this.clientId) this.facade.loadOrders(this.clientId);
     }
 }

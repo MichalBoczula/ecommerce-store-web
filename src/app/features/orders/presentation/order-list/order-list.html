@@ -4,6 +4,10 @@
         <a mat-button routerLink="/cart">View cart</a>
     </header>
 
+    @if (!selectedClientId()) {
+        <p role="status">Select a demo customer in your <a routerLink="/profile">profile</a> to view orders.</p>
+    }
+
     @if (status() === 'loading') {
         <p role="status">Loading orders...</p>
     } @else if (status() === 'error') {

@@ -1,3 +1,4 @@
+import { CustomerContext } from '../../../../shared/application/customer-context';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
@@ -20,6 +21,7 @@ describe('mobile phone list', () => {
         const orders = { addItem: vi.fn() };
         const router = { navigate: vi.fn() };
         TestBed.configureTestingModule({ imports: [MobilePhoneList], providers: [
+                { provide: CustomerContext, useValue: { clientId: () => '3fa85f64-5717-4562-b3fc-2c963f66afa6' } },
             { provide: MobilePhonesFacade, useValue: phones },
             { provide: UsersFacade, useValue: users },
             { provide: OrdersFacade, useValue: orders },

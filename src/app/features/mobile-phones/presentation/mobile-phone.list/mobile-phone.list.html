@@ -40,11 +40,12 @@
 
                 <div class="button-container">
                     <button matButton="filled" [class.fav-delete-btn]="phone.isFavorite"
-                        (click)="toggleFavorite(phone, $event)" aria-label="Add to favorites">
+                        (click)="toggleFavorite(phone, $event)" [disabled]="!selectedClientId()" aria-label="Add to favorites">
                         <span class="material-symbols-outlined">favorite</span>
                     </button>
 
-                    <button matButton="elevated" color="primary" type="button" (click)="addToCart(phone, $event)">
+                    <button matButton="elevated" color="primary" type="button" (click)="addToCart(phone, $event)"
+                        [disabled]="!selectedClientId()">
                         <span class="material-symbols-outlined">shopping_cart_checkout</span>
                     </button>
                 </div>

@@ -1,3 +1,4 @@
+import { CustomerContext } from '../../../../shared/application/customer-context';
 import { Location } from '@angular/common';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -21,6 +22,7 @@ describe('mobile phone details', () => {
         const users = { favorites: signal([]), loadFavorites: vi.fn(), addFavoriteByProductId: vi.fn(), removeFavorite: vi.fn() };
         const orders = { addItem: vi.fn() };
         TestBed.configureTestingModule({ imports: [MobilePhoneDetails], providers: [
+                { provide: CustomerContext, useValue: { clientId: () => '3fa85f64-5717-4562-b3fc-2c963f66afa6' } },
             { provide: MobilePhonesFacade, useValue: phones },
             { provide: UsersFacade, useValue: users },
             { provide: OrdersFacade, useValue: orders },

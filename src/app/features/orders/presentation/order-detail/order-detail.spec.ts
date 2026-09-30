@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { OrderHistoryFacade } from '../../application/order-history.facade';
 import { Order } from '../../domain/model/order';
 import { OrderDetailComponent } from './order-detail';
+import { CustomerContext } from '../../../../shared/application/customer-context';
 
 const orderId = '11111111-1111-1111-1111-111111111111';
 const order: Order = {
@@ -29,6 +30,7 @@ describe('order details', () => {
             detailError: signal<string | null>(null), loadOrder: vi.fn(),
         };
         TestBed.configureTestingModule({ imports: [OrderDetailComponent], providers: [
+            { provide: CustomerContext, useValue: { clientId: signal(order.clientId) } },
             provideRouter([]), { provide: OrderHistoryFacade, useValue: facade },
             { provide: ActivatedRoute, useValue: { paramMap: params, snapshot: { paramMap: params.value } } },
         ] });
@@ -52,6 +54,7 @@ describe('order details', () => {
             detailError: signal('This order could not be found.'), loadOrder: vi.fn(),
         };
         TestBed.configureTestingModule({ imports: [OrderDetailComponent], providers: [
+            { provide: CustomerContext, useValue: { clientId: signal(order.clientId) } },
             provideRouter([]), { provide: OrderHistoryFacade, useValue: facade },
             { provide: ActivatedRoute, useValue: { paramMap: params, snapshot: { paramMap: params.value } } },
         ] });
@@ -62,5 +65,22 @@ describe('order details', () => {
         expect(fixture.nativeElement.textContent).not.toContain('Saved phone name');
         (fixture.nativeElement.querySelector('[role="alert"] button') as HTMLButtonElement).click();
         expect(facade.loadOrder).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not display another demo customer’s order snapshot', () => {
+        const params = new BehaviorSubject(convertToParamMap({ id: orderId }));
+        const facade = {
+            selectedOrder: signal<Order | null>(order), detailStatus: signal('loaded'),
+            detailError: signal<string | null>(null), loadOrder: vi.fn(),
+        };
+        TestBed.configureTestingModule({ imports: [OrderDetailComponent], providers: [
+            { provide: CustomerContext, useValue: { clientId: signal('22222222-2222-2222-2222-222222222222') } },
+            provideRouter([]), { provide: OrderHistoryFacade, useValue: facade },
+            { provide: ActivatedRoute, useValue: { paramMap: params, snapshot: { paramMap: params.value } } },
+        ] });
+        const fixture = TestBed.createComponent(OrderDetailComponent);
+        fixture.detectChanges();
+        expect(fixture.nativeElement.textContent).not.toContain('Saved phone name');
+        expect(fixture.nativeElement.querySelector('[role=alert]').textContent).toContain('does not belong');
     });
 });
