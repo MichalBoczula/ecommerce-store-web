@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { expect, test, type APIRequestContext, type BrowserContext } from '@playwright/test';
 
-type Cart = { clientId: string; lines: { productId: string; quantity: number }[] };
+type Cart = { id: string; clientId: string; lines: { productId: string; quantity: number }[] };
 type Phone = { id: string; name: string; price?: { amount: number; currency: string } };
 
 async function registerCustomer(request: APIRequestContext): Promise<string> {
@@ -12,7 +12,7 @@ async function registerCustomerWithExternal(request: APIRequestContext): Promise
     const id = randomUUID();
     const externalId = `web-acceptance-${id}`;
     const address = { postalCode: '00-001', city: 'Warsaw', street: 'Main Street', buildingNumber: '10', apartmentNumber: '2' };
-    const response = await request.post('/backend/customers', {
+    const response = await request.post('/backend/registrations/customers', {
         data: {
             externalId,
             individual: {
@@ -27,16 +27,6 @@ async function registerCustomerWithExternal(request: APIRequestContext): Promise
     return { clientId: customer.id, externalId };
 }
 
-async function createCartFixture(request: APIRequestContext, clientId: string): Promise<void> {
-    // Current pinned APIs expose separate customer and cart creation routes.
-    // This fixture provisions cart-specific scenarios until registration orchestrates both.
-    const response = await request.post(`/backend/shopping-carts/${clientId}`);
-    expect(response.ok(), await response.text()).toBeTruthy();
-    const cart = await response.json() as Cart;
-    expect(cart.clientId).toBe(clientId);
-    expect(cart.lines).toEqual([]);
-}
-
 async function selectCustomer(context: BrowserContext, clientId: string): Promise<void> {
     await context.addInitScript(id => localStorage.setItem('demoClientId', id), clientId);
 }
@@ -49,15 +39,16 @@ async function getCart(request: APIRequestContext, clientId: string): Promise<Ca
 
 test('registration creates an empty cart for its customer', async ({ request }) => {
     const clientId = await registerCustomer(request);
-    // Contract expectation: no second create-cart call after registration.
     const cart = await getCart(request, clientId);
     expect(cart.clientId).toBe(clientId);
     expect(cart.lines).toEqual([]);
+    const duplicate = await request.post(`/backend/shopping-carts/${clientId}`);
+    expect(duplicate.status()).toBe(409);
+    expect((await getCart(request, clientId)).id).toBe(cart.id);
 });
 
 test('customer adds, changes quantity and removes a catalog product through the UI', async ({ page, request, context }) => {
     const clientId = await registerCustomer(request);
-    await createCartFixture(request, clientId);
     await selectCustomer(context, clientId);
 
     const phonesResponse = await request.get('/backend/mobile-phones?amount=15');
@@ -85,7 +76,6 @@ test('customer adds, changes quantity and removes a catalog product through the 
 
 test('a product removed from the catalog stays visible as unavailable', async ({ page, request, context }) => {
     const clientId = await registerCustomer(request);
-    await createCartFixture(request, clientId);
     await selectCustomer(context, clientId);
     const missingId = randomUUID();
     const update = await request.put(`/backend/shopping-carts/${clientId}`, {
@@ -102,7 +92,6 @@ test('a product removed from the catalog stays visible as unavailable', async ({
 
 test('checkout creates one order, clears the cart and shows the backend total', async ({ page, request, context }) => {
     const clientId = await registerCustomer(request);
-    await createCartFixture(request, clientId);
     await selectCustomer(context, clientId);
 
     const phonesResponse = await request.get('/backend/mobile-phones?amount=15');
@@ -162,7 +151,6 @@ test('an unknown customer sees the cart error and retry action', async ({ page, 
 
 test('demo profile selects the customer and edits individual and company billing data through Users', async ({ page, request }) => {
     const { clientId, externalId } = await registerCustomerWithExternal(request);
-    await createCartFixture(request, clientId);
     const companyAddress = { postalCode: '00-001', city: 'Warsaw', street: 'Office',
         buildingNumber: '4', apartmentNumber: '1' };
     const companyResponse = await request.post(`/backend/customers/${clientId}/companies`, {
