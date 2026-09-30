@@ -1,4 +1,4 @@
-import { DEMO_CLIENT_ID } from '../../../../shared/application/demo-client-id';
+import { CustomerContext } from '../../../../shared/application/customer-context';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -35,7 +35,8 @@ export class FavoritesComponent implements OnInit {
     private readonly ordersFacade = inject(OrdersFacade);
     private readonly location = inject(Location);
 
-    private readonly userId: string = inject(DEMO_CLIENT_ID);
+    private readonly customer = inject(CustomerContext);
+  private get userId(): string | null { return this.customer.clientId(); }
     private readonly catalogRefresh = signal(0);
 
     readonly displayedColumns: string[] = ['image', 'product', 'price', 'actions'];
@@ -55,7 +56,7 @@ export class FavoritesComponent implements OnInit {
     readonly totalItems = computed(() => this.favoritesList().length);
 
     ngOnInit(): void {
-        this.usersFacade.loadFavorites(this.userId);
+        if (this.userId) this.usersFacade.loadFavorites(this.userId);
     }
 
     retryCatalog(): void {
@@ -65,16 +66,16 @@ export class FavoritesComponent implements OnInit {
     addToCart(item: FavoriteItemViewModel): void {
         if (item.unavailable) return;
         const lineItem = toCartLineItem(item);
-        this.ordersFacade.addItem(this.userId, lineItem);
+        if (this.userId) this.ordersFacade.addItem(this.userId, lineItem);
     }
 
     removeFavorite(productId: string): void {
         if (!productId) return;
-        this.usersFacade.removeFavorite(this.userId, productId);
+        if (this.userId) this.usersFacade.removeFavorite(this.userId, productId);
     }
 
     clearAllFavorites(): void {
-        this.usersFacade.clearAllFavorites(this.userId);
+        if (this.userId) this.usersFacade.clearAllFavorites(this.userId);
     }
 
     goBack(): void {

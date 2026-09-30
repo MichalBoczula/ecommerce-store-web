@@ -5,11 +5,16 @@ type Cart = { clientId: string; lines: { productId: string; quantity: number }[]
 type Phone = { id: string; name: string; price?: { amount: number; currency: string } };
 
 async function registerCustomer(request: APIRequestContext): Promise<string> {
+    return (await registerCustomerWithExternal(request)).clientId;
+}
+
+async function registerCustomerWithExternal(request: APIRequestContext): Promise<{ clientId: string; externalId: string }> {
     const id = randomUUID();
+    const externalId = `web-acceptance-${id}`;
     const address = { postalCode: '00-001', city: 'Warsaw', street: 'Main Street', buildingNumber: '10', apartmentNumber: '2' };
     const response = await request.post('/backend/customers', {
         data: {
-            externalId: `web-acceptance-${id}`,
+            externalId,
             individual: {
                 firstName: 'Acceptance', lastName: 'Customer', email: `${id}@example.com`,
                 phone: '123456789', billingAddress: address, shippingAddress: address,
@@ -19,7 +24,7 @@ async function registerCustomer(request: APIRequestContext): Promise<string> {
     expect(response.ok(), await response.text()).toBeTruthy();
     const customer = await response.json() as { id: string };
     expect(customer.id).toMatch(/^[0-9a-f-]{36}$/i);
-    return customer.id;
+    return { clientId: customer.id, externalId };
 }
 
 async function createCartFixture(request: APIRequestContext, clientId: string): Promise<void> {
@@ -153,4 +158,48 @@ test('an unknown customer sees the cart error and retry action', async ({ page, 
     await page.goto('/cart');
     await expect(page.getByRole('alert')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Retry' })).toBeVisible();
+});
+
+test('demo profile selects the customer and edits individual and company billing data through Users', async ({ page, request }) => {
+    const { clientId, externalId } = await registerCustomerWithExternal(request);
+    await createCartFixture(request, clientId);
+    const companyAddress = { postalCode: '00-001', city: 'Warsaw', street: 'Office',
+        buildingNumber: '4', apartmentNumber: '1' };
+    const companyResponse = await request.post(`/backend/customers/${clientId}/companies`, {
+        data: { companyName: 'Demo Company', taxId: '1234567890',
+            billingAddress: companyAddress, shippingAddress: companyAddress },
+    });
+    expect(companyResponse.ok(), await companyResponse.text()).toBeTruthy();
+    await page.goto('/profile');
+    await expect(page.getByText('This is not authentication.')).toBeVisible();
+    await page.getByLabel('External ID').fill(externalId);
+    await page.getByRole('button', { name: 'Load profile' }).click();
+    await expect(page.getByText(`Customer ID: ${clientId}`)).toBeVisible();
+    await expect(page.getByLabel('First name')).toHaveValue('Acceptance');
+    await page.getByLabel('Last name').fill('Updated');
+    await page.getByLabel('City').first().fill('Krakow');
+    await page.getByRole('button', { name: 'Save profile' }).click();
+    await expect(page.getByText('Profile saved.')).toBeVisible();
+    await page.getByLabel('Company name').fill('Updated Company');
+    await page.getByRole('button', { name: 'Save company' }).click();
+    await expect(page.getByLabel('Company name')).toHaveValue('Updated Company');
+
+    const result = await request.get(`/backend/customers/external/${externalId}`);
+    expect(result.ok(), await result.text()).toBeTruthy();
+    const profile = await result.json() as {
+        id: string; individual: { lastName: string; billingAddress: { city: string } };
+        companies: { companyName: string }[];
+    };
+    expect(profile.id).toBe(clientId);
+    expect(profile.individual.lastName).toBe('Updated');
+    expect(profile.individual.billingAddress.city).toBe('Krakow');
+    expect(profile.companies[0].companyName).toBe('Updated Company');
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('demoCustomer') ?? '{}')))
+        .toEqual({ clientId, externalId });
+    await page.goto('/cart');
+    await expect(page.getByText('Your shopping cart is empty.')).toBeVisible();
+    await page.goto('/orders');
+    await expect(page.getByText('You have no orders yet.')).toBeVisible();
+    await page.goto('/favorites');
+    await expect(page.getByText('Your wishlist is empty.')).toBeVisible();
 });

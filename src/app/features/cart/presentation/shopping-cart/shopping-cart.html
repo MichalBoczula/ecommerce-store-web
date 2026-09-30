@@ -6,6 +6,10 @@
         <h2>Shopping Cart</h2>
     </div>
 
+    @if (!customer.clientId()) {
+    <p role="status">Select a demo customer in your <a routerLink="/profile">profile</a> to view the cart.</p>
+    }
+
     @if (error()) {
     <div class="cart-alert" role="alert">
         <span>{{ error() }}</span>

@@ -1,4 +1,4 @@
-import { DEMO_CLIENT_ID } from '../../../../shared/application/demo-client-id';
+import { CustomerContext } from '../../../../shared/application/customer-context';
 import { CommonModule, Location } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -46,7 +46,9 @@ export class MobilePhoneDetails implements OnInit {
   private readonly usersFacade = inject(UsersFacade);
   private readonly location = inject(Location);
 
-  private readonly userId: string = inject(DEMO_CLIENT_ID);
+  private readonly customer = inject(CustomerContext);
+  readonly selectedClientId = this.customer.clientId;
+  private get userId(): string | null { return this.customer.clientId(); }
 
   readonly details = toSignal(this.facade.details$);
   readonly favorites = this.usersFacade.favorites;
@@ -91,12 +93,12 @@ export class MobilePhoneDetails implements OnInit {
     if (id) {
       this.facade.loadById(id);
     }
-    this.usersFacade.loadFavorites(this.userId);
+    if (this.userId) this.usersFacade.loadFavorites(this.userId);
   }
 
   addToCart(): void {
     const item = this.details();
-    if (!item || !item.id) return;
+    if (!item || !item.id || !this.userId) return;
 
     const lineItem: ShoppingCartLineRequest = {
       productId: item.id.toString(),
@@ -108,7 +110,7 @@ export class MobilePhoneDetails implements OnInit {
 
   toggleFavorite(): void {
     const item = this.details();
-    if (!item?.id) return;
+    if (!item?.id || !this.userId) return;
 
     const productId = item.id.toString();
 

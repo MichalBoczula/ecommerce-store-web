@@ -1,4 +1,4 @@
-import { DEMO_CLIENT_ID } from '../../../../shared/application/demo-client-id';
+import { CustomerContext } from '../../../../shared/application/customer-context';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
@@ -34,7 +34,8 @@ export class ShoppingCartComponent implements OnInit {
   private readonly catalogLookup = inject(CatalogProductsLookup);
   private readonly catalogRefresh = signal(0);
 
-  private readonly userId: string = inject(DEMO_CLIENT_ID);
+  readonly customer = inject(CustomerContext);
+  private get userId(): string | null { return this.customer.clientId(); }
 
   readonly displayedColumns: string[] = ['product', 'price', 'quantity', 'lineTotal', 'actions'];
 
@@ -71,11 +72,11 @@ export class ShoppingCartComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.ordersFacade.loadByClientId(this.userId);
+    if (this.userId) this.ordersFacade.loadByClientId(this.userId);
   }
 
   reload(): void {
-    this.ordersFacade.loadCart(this.userId);
+    if (this.userId) this.ordersFacade.loadCart(this.userId);
     this.retryCatalog();
   }
 
@@ -84,26 +85,26 @@ export class ShoppingCartComponent implements OnInit {
   }
 
   incrementQuantity(item: ShoppingCartLineResponse): void {
-    this.ordersFacade.incrementItem(this.userId, item.productId);
+    if (this.userId) this.ordersFacade.incrementItem(this.userId, item.productId);
   }
 
   decrementQuantity(item: ShoppingCartLineResponse): void {
-    this.ordersFacade.decrementItem(this.userId, item.productId);
+    if (this.userId) this.ordersFacade.decrementItem(this.userId, item.productId);
   }
 
   removeItem(item: ShoppingCartLineResponse): void {
-    this.ordersFacade.removeItem(this.userId, item.productId);
+    if (this.userId) this.ordersFacade.removeItem(this.userId, item.productId);
   }
 
   clearCart(): void {
-    this.ordersFacade.clearCart(this.userId);
+    if (this.userId) this.ordersFacade.clearCart(this.userId);
   }
 
   checkout(): void {
     if (!this.canCheckout()) return;
     const subtotal = this.subtotals()[0];
     this.checkoutEstimate.set({ amount: subtotal.amount, currency: subtotal.currency });
-    this.ordersFacade.checkout(this.userId);
+    if (this.userId) this.ordersFacade.checkout(this.userId);
   }
 
   goBack(): void {

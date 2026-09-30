@@ -27,6 +27,11 @@ export const routes: Routes = [
             .then(m => m.FavoritesComponent)
     },
     {
+        path: 'profile',
+        loadComponent: () => import('./features/users/presentation/customer-profile/customer-profile')
+            .then(m => m.CustomerProfileComponent)
+    },
+    {
         path: 'orders',
         pathMatch: 'full',
         loadComponent: () => import('./features/orders/presentation/order-list/order-list')

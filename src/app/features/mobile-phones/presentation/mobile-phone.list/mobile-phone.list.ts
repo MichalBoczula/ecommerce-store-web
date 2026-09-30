@@ -1,4 +1,4 @@
-import { DEMO_CLIENT_ID } from '../../../../shared/application/demo-client-id';
+import { CustomerContext } from '../../../../shared/application/customer-context';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -27,7 +27,9 @@ export class MobilePhoneList implements OnInit {
   private readonly usersFacade = inject(UsersFacade);
   private readonly router = inject(Router);
 
-  private readonly userId: string = inject(DEMO_CLIENT_ID);
+  private readonly customer = inject(CustomerContext);
+  readonly selectedClientId = this.customer.clientId;
+  private get userId(): string | null { return this.customer.clientId(); }
 
   private readonly rawPhones = toSignal(this.facade.items$, { initialValue: [] });
 
@@ -49,12 +51,12 @@ export class MobilePhoneList implements OnInit {
 
   ngOnInit(): void {
     this.facade.load(15);
-    this.usersFacade.loadFavorites(this.userId);
+    if (this.userId) this.usersFacade.loadFavorites(this.userId);
   }
 
   addToCart(phone: MobilePhone, event: MouseEvent): void {
     event.stopPropagation();
-    if (!phone.id) return;
+    if (!phone.id || !this.userId) return;
 
     const lineItem: ShoppingCartLineRequest = {
       productId: phone.id,
@@ -66,7 +68,7 @@ export class MobilePhoneList implements OnInit {
 
   toggleFavorite(phone: MobilePhone, event?: MouseEvent): void {
     event?.stopPropagation();
-    if (!phone.id) return;
+    if (!phone.id || !this.userId) return;
 
     if (phone.isFavorite) {
       this.usersFacade.removeFavorite(this.userId, phone.id);

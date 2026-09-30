@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Angular storefront for the ECommerce Store portfolio. It presents catalog products, favorites, a shopping cart, checkout, and order history. The browser calls the BFF on the frontend origin; ProductsCatalog, Users, and Orders/Invoices remain separate APIs behind that boundary. This repository does not own customer registration, payment, or invoice creation.
+Angular storefront for the ECommerce Store portfolio. It presents catalog products, favorites, a shopping cart, checkout, order history, and a customer profile. The browser calls the BFF on the frontend origin; ProductsCatalog, Users, and Orders/Invoices remain separate APIs behind that boundary. This repository does not own customer registration, payment, or invoice creation.
 
 ## Engineering approach
 
@@ -15,11 +15,11 @@ The Invoice cart contract stores only `productId` and `quantity`. The cart view 
 | Component | Responsibility |
 | --- | --- |
 | `src/app/features/mobile-phones` | Catalog screens, filtering, product lookup, and mapping. |
-| `src/app/features/users` | Favorites state, repository, and view. |
+| `src/app/features/users` | Favorites and customer profile state, repositories, and views. |
 | `src/app/features/cart` | Cart mutations, checkout command state, catalog enrichment, and view. |
 | `src/app/features/orders` | Order history and detail views using Invoice snapshots. |
 | `src/app/shared/infrastructure` | Same-origin BFF adapter and generated Kiota clients. |
-| `src/app/shared/application/demo-client-id.ts` | Temporary browser-local demo customer selection until WEB/11. |
+| `src/app/shared/application/customer-context.ts` | Shared browser-local demo customer selection for cart, favorites, and orders. |
 | `src/proxy.conf.json` and `nginx.conf` | Remove `/backend` in development and container runtime respectively. |
 | `tests/acceptance` | Browser scenarios through the real frontend, BFF, and upstream containers. |
 
@@ -65,7 +65,7 @@ docker compose -f compose/ecommerce-compose.yml down
 
 Nginx forwards `/backend/` to `bff:8080` on the Compose network. The Compose frontend and `npm start` both use port 4200; stop one before starting the other. Set `WEB_PORT` and `BFF_PORT` to override the host ports for the container stack.
 
-Screens currently use a fallback demo client ID. For an existing customer, set `localStorage.demoClientId` to its GUID and reload. That customer must already have a cart for cart actions to succeed. This browser-local selector is temporary and is not authentication. An absent cart is reported as an error; the UI does not silently create it.
+No customer is selected by default. Open Account → Profile, enter an existing customer external ID, and load the profile. Users returns the customer GUID; the demo context stores it for cart, favorites, and orders and reloads the app when the selection changes. The profile reads and updates individual details, billing address, and shipping address through Users. Existing company name, tax ID, billing address, and shipping address can also be edited through Users. Legacy `localStorage.demoClientId` sessions still work for cart/favorites/orders, but profile lookup requires the external ID. This browser-local selection is not authentication or authorization. The customer must already have a cart; an absent cart is reported as an incomplete registration.
 
 ## API contracts and Kiota
 
@@ -94,9 +94,9 @@ Run the portable stages after `npm ci`:
 
 Unit tests use Angular TestBed with Vitest. Coverage covers handwritten code and excludes generated Kiota clients. The configured minimums are 65% statements, 55% branches, 55% functions, and 65% lines. For a focused unit run use `npm test`; for coverage use `npm run test:coverage`.
 
-Install the Playwright browser once with `npx playwright install --with-deps chromium`. Acceptance starts an isolated Compose project, waits for BFF and catalog, then removes its containers and volumes. It uses ports 14200 and 15137 by default (`WEB_PORT` and `BFF_PORT` override them). To run against an already running stack use `ACCEPTANCE_BASE_URL=http://127.0.0.1:4200 npm run test:acceptance`. Each scenario registers a unique customer. Cart-specific fixtures currently create their carts separately; the registration scenario deliberately does not. The checkout scenario checks one created order, an empty cart, and the returned final total. See [ADR-0002](docs/adr/0002-testing-boundaries.md) and [local verification](docs/local-verification.md).
+Install the Playwright browser once with `npx playwright install --with-deps chromium`. Acceptance starts an isolated Compose project, waits for BFF and catalog, then removes its containers and volumes. It uses ports 14200 and 15137 by default (`WEB_PORT` and `BFF_PORT` override them). To run against an already running stack use `ACCEPTANCE_BASE_URL=http://127.0.0.1:4200 npm run test:acceptance`. Each scenario registers a unique customer. Cart-specific fixtures currently create their carts separately; the registration scenario deliberately does not. The checkout scenario checks one created order, an empty cart, and the returned final total. The profile scenario selects a customer by external ID and saves their individual billing data. See [ADR-0002](docs/adr/0002-testing-boundaries.md) and [local verification](docs/local-verification.md).
 
-`bash scripts/verify.sh` performs a clean install, every portable stage, and a frontend image build. It requires a working Docker daemon. **Known gate:** the pinned BFF proxies `POST /customers` without creating an Invoice cart. The registration acceptance scenario gets a cart 404, so the required quality gate remains red until BFF/11 and WEB/8A provide and exercise the explicit registration flow. The fifth browser scenario verifies checkout and passes in CI; the registration scenario still fails.
+`bash scripts/verify.sh` performs a clean install, every portable stage, and a frontend image build. It requires a working Docker daemon. **Known gate:** the pinned BFF proxies `POST /customers` without creating an Invoice cart. The registration acceptance scenario gets a cart 404, so the required quality gate remains red until BFF/11 and WEB/8A provide and exercise the explicit registration flow. The checkout scenario passed in CI; the registration scenario still fails.
 
 ## CI and operations
 
@@ -108,4 +108,4 @@ For reviews, use the [definition of done](docs/definition-of-done.md) and [PR te
 
 ## Architecture decisions
 
-The [ADR index](docs/adr/README.md) records the frontend/BFF boundary, test strategy, and scanned image publication policy. New decisions use sequential repository-local numbers and keep superseded records in history.
+The [ADR index](docs/adr/README.md) records the frontend/BFF boundary, test strategy, scanned image publication, and demo customer context. New decisions use sequential repository-local numbers and keep superseded records in history.

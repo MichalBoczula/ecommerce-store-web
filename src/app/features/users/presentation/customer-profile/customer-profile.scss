@@ -1,0 +1,7 @@
+.profile-page { max-width: 900px; margin: 0 auto; padding: 32px; }
+.selector { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 24px 0; }
+.profile-form { display: grid; gap: 20px; }
+.fields { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); padding: 16px; }
+label { display: flex; flex-direction: column; gap: 4px; }
+input { border: 1px solid #888; border-radius: 4px; padding: 8px; font: inherit; }
+[role="alert"] { color: #9a1b1b; }

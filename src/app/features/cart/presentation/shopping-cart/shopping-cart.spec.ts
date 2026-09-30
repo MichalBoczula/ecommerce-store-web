@@ -1,3 +1,4 @@
+import { CustomerContext } from '../../../../shared/application/customer-context';
 import { Location } from '@angular/common';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -42,6 +43,7 @@ describe('shopping cart screen', () => {
         TestBed.configureTestingModule({
             imports: [ShoppingCartComponent],
             providers: [
+                { provide: CustomerContext, useValue: { clientId: () => '3fa85f64-5717-4562-b3fc-2c963f66afa6' } },
                 provideRouter([]),
                 { provide: OrdersFacade, useValue: facade },
                 { provide: CatalogProductsLookup, useValue: { observe: () => of({

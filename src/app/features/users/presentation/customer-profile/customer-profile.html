@@ -1,0 +1,101 @@
+<section class="profile-page">
+    <h1>Customer profile</h1>
+    <p>Demo mode: choosing an external ID selects a customer in this browser. This is not authentication.</p>
+    @if (selectedId()) {
+    <p>Selected customer ID: <code>{{ selectedId() }}</code></p>
+    <button mat-button type="button" (click)="clearSelection()">Clear demo customer</button>
+    }
+
+    <form class="selector" (ngSubmit)="load()">
+        <label for="externalId">External ID</label>
+        <input id="externalId" name="externalId" [(ngModel)]="externalId" required autocomplete="off">
+        <button mat-button type="submit" [disabled]="!externalId.trim() || loadStatus() === 'loading'">Load profile</button>
+    </form>
+    @if (selectedId() && !selectedExternalId()) {
+    <p role="status">This demo customer has only a GUID. Enter its external ID to load the profile.</p>
+    }
+    @if (loadStatus() === 'loading') { <p role="status">Loading profile...</p> }
+    @if (loadStatus() === 'notFound' || loadStatus() === 'error') {
+    <p role="alert">{{ error() }}</p>
+    }
+
+    @if (profile(); as current) {
+    <p>Customer ID: {{ current.id }}</p>
+    @if (current.updatedAt) { <p>Last updated: {{ current.updatedAt | date:'medium' }}</p> }
+    @if (individual(); as person) {
+    <form #profileForm="ngForm" (ngSubmit)="save(profileForm)" class="profile-form">
+        <mat-card>
+            <mat-card-header><mat-card-title>Individual details</mat-card-title></mat-card-header>
+            <mat-card-content class="fields">
+                <label>First name <input name="firstName" [(ngModel)]="person.firstName" required></label>
+                <label>Last name <input name="lastName" [(ngModel)]="person.lastName" required></label>
+                <label>Email <input name="email" type="email" [(ngModel)]="person.email" required email></label>
+                <label>Phone <input name="phone" [(ngModel)]="person.phone" required></label>
+            </mat-card-content>
+        </mat-card>
+        <mat-card>
+            <mat-card-header><mat-card-title>Billing address</mat-card-title></mat-card-header>
+            <mat-card-content class="fields">
+                <label>Street <input name="billingStreet" [(ngModel)]="person.billingAddress.street" required></label>
+                <label>Building number <input name="billingBuilding" [(ngModel)]="person.billingAddress.buildingNumber" required></label>
+                <label>Apartment number <input name="billingApartment" [(ngModel)]="person.billingAddress.apartmentNumber"></label>
+                <label>City <input name="billingCity" [(ngModel)]="person.billingAddress.city" required></label>
+                <label>Postal code <input name="billingPostal" [(ngModel)]="person.billingAddress.postalCode" required></label>
+            </mat-card-content>
+        </mat-card>
+        <mat-card>
+            <mat-card-header><mat-card-title>Shipping address</mat-card-title></mat-card-header>
+            <mat-card-content class="fields">
+                <label>Street <input name="shippingStreet" [(ngModel)]="person.shippingAddress.street" required></label>
+                <label>Building number <input name="shippingBuilding" [(ngModel)]="person.shippingAddress.buildingNumber" required></label>
+                <label>Apartment number <input name="shippingApartment" [(ngModel)]="person.shippingAddress.apartmentNumber"></label>
+                <label>City <input name="shippingCity" [(ngModel)]="person.shippingAddress.city" required></label>
+                <label>Postal code <input name="shippingPostal" [(ngModel)]="person.shippingAddress.postalCode" required></label>
+            </mat-card-content>
+        </mat-card>
+        <button mat-flat-button type="submit" [disabled]="profileForm.invalid || saveStatus() === 'saving'">Save profile</button>
+        @if (saveStatus() === 'saving') { <p role="status">Saving profile...</p> }
+        @if (saveStatus() === 'saved') { <p role="status">Profile saved.</p> }
+        @if (saveStatus() === 'conflict' || saveStatus() === 'notFound' || saveStatus() === 'error') {
+        <p role="alert">{{ error() }}</p>
+        <button mat-button type="button" (click)="load()">Reload profile</button>
+        }
+    </form>
+    }
+    @if (companies().length) {
+    <h2>Company billing data</h2>
+    @for (company of companies(); track company.id) {
+    <form #companyForm="ngForm" (ngSubmit)="saveCompany(company, companyForm)" class="profile-form">
+        <mat-card>
+            <mat-card-header><mat-card-title>Company {{ company.id }}</mat-card-title></mat-card-header>
+            <mat-card-content class="fields">
+                <label>Company name <input name="companyName" [(ngModel)]="company.companyName" required></label>
+                <label>Tax ID <input name="taxId" [(ngModel)]="company.taxId" required></label>
+            </mat-card-content>
+        </mat-card>
+        <mat-card>
+            <mat-card-header><mat-card-title>Company billing address</mat-card-title></mat-card-header>
+            <mat-card-content class="fields">
+                <label>Street <input name="companyBillingStreet" [(ngModel)]="company.billingAddress.street" required></label>
+                <label>Building number <input name="companyBillingBuilding" [(ngModel)]="company.billingAddress.buildingNumber" required></label>
+                <label>Apartment number <input name="companyBillingApartment" [(ngModel)]="company.billingAddress.apartmentNumber"></label>
+                <label>City <input name="companyBillingCity" [(ngModel)]="company.billingAddress.city" required></label>
+                <label>Postal code <input name="companyBillingPostal" [(ngModel)]="company.billingAddress.postalCode" required></label>
+            </mat-card-content>
+        </mat-card>
+        <mat-card>
+            <mat-card-header><mat-card-title>Company shipping address</mat-card-title></mat-card-header>
+            <mat-card-content class="fields">
+                <label>Street <input name="companyShippingStreet" [(ngModel)]="company.shippingAddress.street" required></label>
+                <label>Building number <input name="companyShippingBuilding" [(ngModel)]="company.shippingAddress.buildingNumber" required></label>
+                <label>Apartment number <input name="companyShippingApartment" [(ngModel)]="company.shippingAddress.apartmentNumber"></label>
+                <label>City <input name="companyShippingCity" [(ngModel)]="company.shippingAddress.city" required></label>
+                <label>Postal code <input name="companyShippingPostal" [(ngModel)]="company.shippingAddress.postalCode" required></label>
+            </mat-card-content>
+        </mat-card>
+        <button mat-flat-button type="submit" [disabled]="companyForm.invalid || saveStatus() === 'saving'">Save company</button>
+    </form>
+    }
+    }
+    }
+</section>
