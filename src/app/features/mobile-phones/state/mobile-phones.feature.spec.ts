@@ -18,7 +18,7 @@ describe('mobilePhonesFeature reducer', () => {
     };
 
     it('should return initial state for unknown action', () => {
-        const action = { type: 'Unknown' } as any;
+        const action = { type: 'Unknown' };
 
         const state = reducer(undefined, action);
 
@@ -136,7 +136,7 @@ describe('mobilePhonesFeature reducer', () => {
         const result = reducer(
             state,
             Actions.loadMobilePhoneByFilter({
-                filter: {} as any,
+                filter: {},
             })
         );
 

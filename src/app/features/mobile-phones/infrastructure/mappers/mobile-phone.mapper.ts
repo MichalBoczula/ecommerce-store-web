@@ -84,7 +84,7 @@ export function mapMobilePhoneDtoToMobilePhonesDetails(
     };
 }
 
-export function mapMobilePhoneDtoToMobilePhones(dto: MobilePhoneDto, isFav: boolean = false): MobilePhone {
+export function mapMobilePhoneDtoToMobilePhones(dto: MobilePhoneDto, isFav = false): MobilePhone {
     return {
         id: dto.id?.toString() ?? '',
         brand: dto.brand ?? null,

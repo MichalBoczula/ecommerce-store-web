@@ -83,7 +83,23 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            "tsConfig": "tsconfig.spec.json"
+            "tsConfig": "tsconfig.spec.json",
+            "reporters": [
+              "default",
+              ["junit", { "outputFile": "TestResults/unit.xml" }]
+            ],
+            "coverageInclude": ["src/app/**/*.ts"],
+            "coverageExclude": [
+              "src/app/shared/infrastructure/api-clients/**",
+              "**/*.spec.ts"
+            ],
+            "coverageReporters": ["text-summary", "lcov", "html"],
+            "coverageThresholds": {
+              "statements": 65,
+              "branches": 55,
+              "functions": 55,
+              "lines": 65
+            }
           }
         },
         "lint": {

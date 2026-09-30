@@ -1,14 +1,15 @@
 <article class="grid-list">
     @if (phones().length > 0) {
     @for (phone of phones(); track phone.id) {
-    <section class="container" (click)="openDetails(phone.id)">
+    <section class="container">
         <div class="image">
             <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" [alt]="phone.name" />
         </div>
 
         <div class="content-container">
-            <div class="content">
-                <h2>{{ phone.name ?? 'Unknown model' }}</h2>
+            <button type="button" class="content" (click)="openDetails(phone.id)"
+                [attr.aria-label]="'View details for ' + phone.name">
+                <span class="phone-name">{{ phone.name ?? 'Unknown model' }}</span>
 
                 @if (phone.screenSizeInches) {
                 <div class="content-line">
@@ -30,7 +31,7 @@
                     <p class="content-specific">{{ phone.displayType }}</p>
                 </div>
                 }
-            </div>
+            </button>
 
             <div class="sub-content">
                 <div class="price">

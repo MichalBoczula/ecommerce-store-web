@@ -23,6 +23,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Lint handwritten source
+        run: npm run lint
+
       - name: Build application
         run: npm run build -- --configuration production
 
@@ -44,16 +47,25 @@ jobs:
         run: npm ci
 
       - name: Run unit tests
-        continue-on-error: true
-        run: npm test -- --watch=false --browsers=ChromeHeadless
+        run: npm run test:coverage
 
-      - name: Add Jasmine tests summary
+      - name: Upload unit test and coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-reports
+          path: |
+            TestResults/unit.xml
+            coverage/ecommerce-store-web/
+          if-no-files-found: warn
+
+      - name: Add Vitest tests summary
         if: always()
         shell: pwsh
         run: |
           $report = Get-ChildItem ./TestResults -Filter *.xml -Recurse | Select-Object -First 1
 
-          Add-Content $env:GITHUB_STEP_SUMMARY "## Jasmine unit tests"
+          Add-Content $env:GITHUB_STEP_SUMMARY "## Vitest unit tests"
           Add-Content $env:GITHUB_STEP_SUMMARY ""
 
           if (-not $report) {
@@ -120,7 +132,7 @@ jobs:
           Add-Content $env:GITHUB_STEP_SUMMARY ""
 
           if ($failedTests.Count -eq 0) {
-            Add-Content $env:GITHUB_STEP_SUMMARY "All Jasmine unit tests passed."
+            Add-Content $env:GITHUB_STEP_SUMMARY "All Vitest unit tests passed."
             exit 0
           }
 
@@ -133,14 +145,14 @@ jobs:
             Add-Content $env:GITHUB_STEP_SUMMARY "| $($item.Test) | $($item.Error) |"
           }
 
-      - name: Fail job if Jasmine tests failed
+      - name: Fail job if Vitest report is missing or contains failures
         if: always()
         shell: pwsh
         run: |
           $report = Get-ChildItem ./TestResults -Filter *.xml -Recurse | Select-Object -First 1
 
           if (-not $report) {
-            throw "Jasmine JUnit XML file not found."
+            throw "Vitest JUnit XML file not found."
           }
 
           [xml]$xml = Get-Content $report.FullName
@@ -159,7 +171,7 @@ jobs:
           }
 
           if ($failed -gt 0) {
-            throw "$failed Jasmine test(s) failed."
+            throw "$failed Vitest test(s) failed."
           }
 
   build-docker-image:
