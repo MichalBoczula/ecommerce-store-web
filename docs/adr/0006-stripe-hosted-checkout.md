@@ -24,4 +24,4 @@ Vitest covers mapping, URL validation, stale results, association checks, double
 
 ## Consequences and alternatives
 
-Hosted Checkout is a redirect and returns to the originating browser tab. Embedded Checkout or Payment Element can be adopted later if an in-page payment experience becomes a product requirement. Real production access control, worker scheduling and durable document downloads remain explicit follow-up work. The existing pinned published BFF supports the routes; update its image to the scanned STRIPE/4 publication after BFF PR #13 merges.
+Hosted Checkout is a redirect and returns to the originating browser tab. Embedded Checkout or Payment Element can be adopted later if an in-page payment experience becomes a product requirement. Real production access control, worker scheduling and durable document downloads remain explicit follow-up work. Compose pins the scanned STRIPE/4 BFF publication from merged PR #13 by digest; the browser acceptance stack verifies Checkout and fulfillment against that published gateway.

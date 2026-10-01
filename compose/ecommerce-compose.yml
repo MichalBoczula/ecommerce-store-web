@@ -90,7 +90,7 @@ services:
       PAYMENTS_ORDERS_API_BASE_URL: http://invoice:8080
 
   bff:
-    image: mb0101/ecommerce-store-bff-api@sha256:9294d43fdb020d1c670551d0d1a3e1cadbfba6160ff2f756fbabb860832c9769
+    image: mb0101/ecommerce-store-bff-api@sha256:3ac990abd5926390f2267b74394f05106aa776756f73aadbe36d8fe30a9ed59d
     environment:
       ASPNETCORE_URLS: http://+:8080
       GatewaySettings__BaseUrl: http://bff:8080
