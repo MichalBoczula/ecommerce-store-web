@@ -1,9 +1,9 @@
 # Upstream API baseline for Angular
 
 The four OpenAPI documents and `manifest.json` are copied byte-for-byte from
-[`ECommerceStoreBFF/contracts/upstream`](https://github.com/MichalBoczula/ECommerceStoreBFF/tree/d6d323da178f24baaebd5bc9ec4051e7c219b912/contracts/upstream)
-at commit `d6d323da178f24baaebd5bc9ec4051e7c219b912`. The STRIPE/4 baseline is reviewed in BFF PR #13 and passed its upstream image
-verification and CI. The manifest records the
+[`ECommerceStoreBFF/contracts/upstream`](https://github.com/MichalBoczula/ECommerceStoreBFF/tree/369a93914dd3052ba5ae5a85b008c18536076fdf/contracts/upstream)
+at merged commit `369a93914dd3052ba5ae5a85b008c18536076fdf` (BFF PR #13).
+The STRIPE/4 baseline passed its upstream image verification and CI. The manifest records the
 published upstream image digests and each OpenAPI SHA-256. The Invoice API is
 named `orders` in the frontend client because it owns carts and orders too.
 
@@ -26,7 +26,11 @@ new BFF commit and regenerate these clients. Business paths in these OpenAPI
 documents are the public BFF paths. The request adapters set the BFF base URL
 at runtime.
 
-The currently published BFF/12 image remains pinned in Compose: its existing YARP
-catch-all already forwards Checkout and invoice lookup without schema coupling.
-BFF PR #13 updates generated clients, documentation, logging and the security
-patch. Pin its scanned published image after that PR is merged and published.
+Compose pins the scanned BFF image published from that merged commit:
+`mb0101/ecommerce-store-bff-api@sha256:3ac990abd5926390f2267b74394f05106aa776756f73aadbe36d8fe30a9ed59d`.
+[BFF master CI](https://github.com/MichalBoczula/ECommerceStoreBFF/actions/runs/36816259182)
+verified 64 integration tests, image health and security scanning before publishing
+the commit and `latest` tags with this same digest. This image includes STRIPE/4
+contract updates, query-string-free request logging and the OpenSSL security patch.
+The browser acceptance stack uses this exact image for Checkout, signed webhook
+forwarding and completed invoice lookup.

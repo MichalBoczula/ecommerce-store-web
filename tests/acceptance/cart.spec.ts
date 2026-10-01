@@ -169,7 +169,12 @@ test('demo profile selects the customer and edits individual and company billing
     await page.getByRole('button', { name: 'Save profile' }).click();
     await expect(page.getByText('Profile saved.')).toBeVisible();
     await page.getByLabel('Company name').fill('Updated Company');
+    const companySaved = page.waitForResponse(response =>
+        response.request().method() === 'PUT' &&
+        new URL(response.url()).pathname.startsWith(`/backend/customers/${clientId}/companies/`));
     await page.getByRole('button', { name: 'Save company' }).click();
+    const savedResponse = await companySaved;
+    expect(savedResponse.ok(), await savedResponse.text()).toBeTruthy();
     await expect(page.getByLabel('Company name')).toHaveValue('Updated Company');
 
     const result = await request.get(`/backend/customers/external/${externalId}`);

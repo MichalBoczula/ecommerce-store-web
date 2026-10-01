@@ -39,7 +39,7 @@ Set `VERIFY_RESULTS_DIR` for the summary's directory and `VERIFY_SUMMARY_FILE` f
 
 ## Registration coverage
 
-The stack pins BFF/12's published image by digest. Browser scenarios call `/backend/registrations/customers` to create each unique profile and confirm its Invoice cart. No cart fixture hides a missing registration operation. The registration test also checks the cart is empty and that a duplicate cart creation returns 409 without changing its ID. Backend container integration tests cover partial failure and retry. A failed browser run blocks the required quality gate and frontend image job; record CI results rather than treating retries or skipped scenarios as a pass.
+The stack pins the published STRIPE/4 BFF image from merged commit `369a93914dd3052ba5ae5a85b008c18536076fdf` by digest (see `contracts/upstream/README.md` for publication evidence). Browser scenarios call `/backend/registrations/customers` to create each unique profile and confirm its Invoice cart. No cart fixture hides a missing registration operation. The registration test also checks the cart is empty and that a duplicate cart creation returns 409 without changing its ID. Backend container integration tests cover partial failure and retry. A failed browser run blocks the required quality gate and frontend image job; record CI results rather than treating retries or skipped scenarios as a pass.
 
 ## Hosted Checkout coverage
 
