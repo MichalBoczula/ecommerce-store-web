@@ -38,6 +38,13 @@ export class BillingSnapshotKiotaRepository implements BillingSnapshotRepository
                     }
                 }));
             }));
+        }), catchError((error: unknown) => {
+            if (typeof error === 'object' && error !== null && 'errors' in error && Array.isArray(error.errors)) {
+                const messages = error.errors.flatMap((item: unknown) => typeof item === 'object' && item !== null &&
+                    'message' in item && typeof item.message === 'string' ? [item.message] : []);
+                if (messages.length) return throwError(() => new Error(`Invoice billing validation: ${messages.join(' ')}`));
+            }
+            return throwError(() => error);
         }));
     }
 

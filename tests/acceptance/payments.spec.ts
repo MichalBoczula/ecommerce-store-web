@@ -5,11 +5,11 @@ const fixtureUrl = process.env.STRIPE_FIXTURE_URL ?? 'http://127.0.0.1:15138';
 type Session = { id: string; amount_total: number; success_url: string; cancel_url: string };
 
 async function createOrder(request: APIRequestContext, context: BrowserContext) {
-    const address = { postalCode: '00-001', city: 'Warsaw', street: 'Main Street', buildingNumber: '10', apartmentNumber: '2' };
+    const address = { postalCode: '00-001', city: 'Warsaw', street: 'MainStreet', buildingNumber: '10', apartmentNumber: '2' };
     const externalId = `web-stripe-${randomUUID()}`;
     const registration = await request.post('/backend/registrations/customers', {
         data: { externalId, individual: {
-            firstName: 'Payment', lastName: 'Customer', email: `${randomUUID()}@example.com`,
+            firstName: 'Payment', lastName: 'Customer', email: `${randomUUID().replaceAll('-', '')}@example.com`,
             phone: '123456789', billingAddress: address, shippingAddress: address,
         } },
     });

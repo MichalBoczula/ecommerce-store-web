@@ -67,4 +67,21 @@ describe('Invoice billing snapshot before Checkout', () => {
         expect(() => mapBillingSnapshot({ ...profile, individual: { ...profile.individual, phone: '+1 555 123 1234' } })).toThrow('Polish');
         expect(mapBillingSnapshot({ ...profile, individual: { ...profile.individual, phone: '0048123456789' } }).phoneNumber).toBe('123456789');
     });
+    it('preserves billing data and surfaces Invoice validation instead of rewriting rejected fields', async () => {
+        const selected = { ...profile, individual: { ...profile.individual, email: 'first-last@example.test',
+            billingAddress: { ...profile.individual.billingAddress, street: 'Main Street' } } };
+        const calls: unknown[] = [];
+        vi.stubGlobal('fetch', vi.fn(async (url: string, init: RequestInit) => {
+            expect(url).toContain(`/backend/client-data-versions/`);
+            if (init.method === 'GET') return json({ status: 404, title: 'Not Found' }, 404);
+            calls.push(JSON.parse(new TextDecoder().decode(init.body as ArrayBuffer)));
+            return new Response(JSON.stringify({ status: 400, detail: 'Validation failed', errors: [
+                { message: 'Street was rejected.' }, { message: 'Email was rejected.' } ] }),
+            { status: 400, headers: { 'content-type': 'application/problem+json' } });
+        }));
+        await expect(firstValueFrom(setup(selected).repository.ensure(clientId, selected.externalId))).rejects.toThrow(
+            'Invoice billing validation: Street was rejected. Email was rejected.');
+        expect(calls).toEqual([mapBillingSnapshot(selected)]);
+    });
+
 });
