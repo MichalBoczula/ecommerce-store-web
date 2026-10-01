@@ -4,6 +4,34 @@
 // @ts-ignore
 import { type AdditionalDataHolder, type Guid, type Parsable, type ParseNode, type SerializationWriter } from '@microsoft/kiota-abstractions';
 
+export interface CheckoutResponse extends AdditionalDataHolder, Parsable {
+    /**
+     * The checkout_status property
+     */
+    checkoutStatus?: CheckoutResponse_checkout_status | null;
+    /**
+     * The checkout_url property
+     */
+    checkoutUrl?: string | null;
+    /**
+     * The expires_at property
+     */
+    expiresAt?: Date | null;
+    /**
+     * The payment property
+     */
+    payment?: PaymentResponse | null;
+}
+export type CheckoutResponse_checkout_status = (typeof CheckoutResponse_checkout_statusObject)[keyof typeof CheckoutResponse_checkout_statusObject];
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {CheckoutResponse}
+ */
+// @ts-ignore
+export function createCheckoutResponseFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoCheckoutResponse;
+}
 /**
  * Creates a new instance of the appropriate class based on discriminator value
  * @param parseNode The parse node to use to read the discriminator value and create the object
@@ -21,6 +49,29 @@ export function createHealthResponseFromDiscriminatorValue(parseNode: ParseNode 
 // @ts-ignore
 export function createPaymentResponseFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
     return deserializeIntoPaymentResponse;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {WebhookAcknowledgement}
+ */
+// @ts-ignore
+export function createWebhookAcknowledgementFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoWebhookAcknowledgement;
+}
+/**
+ * The deserialization information for the current model
+ * @param CheckoutResponse The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoCheckoutResponse(checkoutResponse: Partial<CheckoutResponse> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "checkout_status": n => { checkoutResponse.checkoutStatus = n.getEnumValue<CheckoutResponse_checkout_status>(CheckoutResponse_checkout_statusObject); },
+        "checkout_url": n => { checkoutResponse.checkoutUrl = n.getStringValue(); },
+        "expires_at": n => { checkoutResponse.expiresAt = n.getDateValue(); },
+        "payment": n => { checkoutResponse.payment = n.getObjectValue<PaymentResponse>(createPaymentResponseFromDiscriminatorValue); },
+    }
 }
 /**
  * The deserialization information for the current model
@@ -51,6 +102,17 @@ export function deserializeIntoPaymentResponse(paymentResponse: Partial<PaymentR
         "provider_session_id": n => { paymentResponse.providerSessionId = n.getStringValue(); },
         "status": n => { paymentResponse.status = n.getStringValue(); },
         "updated_at": n => { paymentResponse.updatedAt = n.getDateValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param WebhookAcknowledgement The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoWebhookAcknowledgement(webhookAcknowledgement: Partial<WebhookAcknowledgement> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "received": n => { webhookAcknowledgement.received = n.getBooleanValue() ?? true; },
     }
 }
 export interface HealthResponse extends AdditionalDataHolder, Parsable {
@@ -103,6 +165,21 @@ export interface PaymentResponse extends AdditionalDataHolder, Parsable {
 }
 /**
  * Serializes information the current object
+ * @param CheckoutResponse The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeCheckoutResponse(writer: SerializationWriter, checkoutResponse: Partial<CheckoutResponse> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!checkoutResponse || isSerializingDerivedType) { return; }
+    writer.writeEnumValue<CheckoutResponse_checkout_status>("checkout_status", checkoutResponse.checkoutStatus);
+    writer.writeStringValue("checkout_url", checkoutResponse.checkoutUrl);
+    writer.writeDateValue("expires_at", checkoutResponse.expiresAt);
+    writer.writeObjectValue<PaymentResponse>("payment", checkoutResponse.payment, serializePaymentResponse);
+    writer.writeAdditionalData(checkoutResponse.additionalData);
+}
+/**
+ * Serializes information the current object
  * @param HealthResponse The instance to serialize from.
  * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
  * @param writer Serialization writer to use to serialize this model
@@ -134,5 +211,28 @@ export function serializePaymentResponse(writer: SerializationWriter, paymentRes
     writer.writeDateValue("updated_at", paymentResponse.updatedAt);
     writer.writeAdditionalData(paymentResponse.additionalData);
 }
+/**
+ * Serializes information the current object
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param WebhookAcknowledgement The instance to serialize from.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeWebhookAcknowledgement(writer: SerializationWriter, webhookAcknowledgement: Partial<WebhookAcknowledgement> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!webhookAcknowledgement || isSerializingDerivedType) { return; }
+    writer.writeBooleanValue("received", webhookAcknowledgement.received ?? true);
+    writer.writeAdditionalData(webhookAcknowledgement.additionalData);
+}
+export interface WebhookAcknowledgement extends AdditionalDataHolder, Parsable {
+    /**
+     * The received property
+     */
+    received?: boolean | null;
+}
+export const CheckoutResponse_checkout_statusObject = {
+    Open: "open",
+    Complete: "complete",
+    Expired: "expired",
+} as const;
 /* tslint:enable */
 /* eslint-enable */

@@ -9,3 +9,4 @@ These records describe decisions implemented in the frontend. Use repository-loc
 | [0003](0003-scanned-image-publication.md) | Accepted | Publish only the scanned frontend image after a green mandatory quality gate. |
 | [0004](0004-demo-customer-context.md) | Accepted | Resolve a demo customer by external ID and share the GUID across features. |
 | [0005](0005-payment-preparation.md) | Accepted | Show preparation and read status without treating a created payment as a charge. |
+| [0006](0006-stripe-hosted-checkout.md) | Accepted | Redirect to Stripe-hosted Checkout and poll verified payment/order/invoice state. |

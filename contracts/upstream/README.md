@@ -1,8 +1,9 @@
 # Upstream API baseline for Angular
 
 The four OpenAPI documents and `manifest.json` are copied byte-for-byte from
-[`ECommerceStoreBFF/contracts/upstream`](https://github.com/MichalBoczula/ECommerceStoreBFF/tree/096e56e734b43fc405397167d14e666c72344147/contracts/upstream)
-at commit `096e56e734b43fc405397167d14e666c72344147`. The manifest records the
+[`ECommerceStoreBFF/contracts/upstream`](https://github.com/MichalBoczula/ECommerceStoreBFF/tree/d6d323da178f24baaebd5bc9ec4051e7c219b912/contracts/upstream)
+at commit `d6d323da178f24baaebd5bc9ec4051e7c219b912`. The STRIPE/4 baseline is reviewed in BFF PR #13 and passed its upstream image
+verification and CI. The manifest records the
 published upstream image digests and each OpenAPI SHA-256. The Invoice API is
 named `orders` in the frontend client because it owns carts and orders too.
 
@@ -24,3 +25,8 @@ review the OpenAPI diff, then copy the four documents and manifest from the
 new BFF commit and regenerate these clients. Business paths in these OpenAPI
 documents are the public BFF paths. The request adapters set the BFF base URL
 at runtime.
+
+The currently published BFF/12 image remains pinned in Compose: its existing YARP
+catch-all already forwards Checkout and invoice lookup without schema coupling.
+BFF PR #13 updates generated clients, documentation, logging and the security
+patch. Pin its scanned published image after that PR is merged and published.

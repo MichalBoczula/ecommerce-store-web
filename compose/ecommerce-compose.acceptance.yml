@@ -1,0 +1,33 @@
+# Test-only provider boundary. Never include this file in a deployed stack.
+services:
+  stripe-fixture:
+    image: mb0101/ecommerce-store-payments-api@sha256:154d9900a42689ad84758f87b7f481257a4829835c51ebdcf48f34950f1a2c6b
+    command: ["python", "/test-fixtures/stripe_fixture.py"]
+    volumes:
+      - ../tests/fixtures:/test-fixtures:ro
+    environment:
+      PAYMENTS_MONGODB_CONNECTION_STRING: mongodb://mongodb:27017/?replicaSet=rs0
+      PAYMENTS_MONGODB_DATABASE_NAME: ecommerce-web-payments
+      PAYMENTS_ORDERS_API_BASE_URL: http://invoice:8080
+      PAYMENTS_STRIPE_WEBHOOK_SECRET: whsec_deterministic_checkout_fixture
+    ports:
+      - "127.0.0.1:${STRIPE_FIXTURE_PORT:-15138}:8080"
+    depends_on:
+      mongo-init:
+        condition: service_completed_successfully
+      invoice:
+        condition: service_started
+  payments:
+    command: ["python", "/test-fixtures/payments_bootstrap.py"]
+    volumes:
+      - ../tests/fixtures:/test-fixtures:ro
+    environment:
+      PAYMENTS_ENVIRONMENT: test
+      PAYMENTS_STRIPE_ENABLED: "true"
+      PAYMENTS_STRIPE_SECRET_KEY: sk_test_deterministic_fixture
+      PAYMENTS_STRIPE_WEBHOOK_SECRET: whsec_deterministic_checkout_fixture
+      PAYMENTS_STRIPE_SUCCESS_URL: ${ACCEPTANCE_BASE_URL}/orders?checkout=success
+      PAYMENTS_STRIPE_CANCEL_URL: ${ACCEPTANCE_BASE_URL}/orders?checkout=cancel
+    depends_on:
+      stripe-fixture:
+        condition: service_healthy

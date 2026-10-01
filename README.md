@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Angular storefront for the ECommerce Store portfolio. It presents catalog products, favorites, a shopping cart, checkout, order history, payment preparation, and a customer profile. The browser calls the BFF on the frontend origin; ProductsCatalog, Users, Orders/Invoices, and Payments remain separate APIs behind that boundary. Customer registration belongs to the BFF. The current Payments API records a `created` payment but does not charge the customer.
+Angular storefront for the ECommerce Store portfolio. It presents catalog products, favorites, a shopping cart, checkout, order history, sandbox Stripe-hosted payment, and a customer profile. The browser calls the BFF on the frontend origin; ProductsCatalog, Users, Orders/Invoices, and Payments remain separate APIs behind that boundary. Customer registration belongs to the BFF. Stripe-hosted Checkout handles payment entry in sandbox mode. Only verified backend payment and completed fulfillment are shown as successful; a return URL is a refresh hint.
 
 ## Engineering approach
 
@@ -18,7 +18,7 @@ The Invoice cart contract stores only `productId` and `quantity`. The cart view 
 | `src/app/features/users` | Favorites and customer profile state, repositories, and views. |
 | `src/app/features/cart` | Cart mutations, checkout command state, catalog enrichment, and view. |
 | `src/app/features/orders` | Order history and detail views using Invoice snapshots. |
-| `src/app/features/payments` | Payment preparation and read state through the Payments API. |
+| `src/app/features/payments` | Hosted Checkout, authoritative polling and completed invoice metadata. |
 | `src/app/shared/infrastructure` | Same-origin BFF adapter and generated Kiota clients. |
 | `src/app/shared/application/customer-context.ts` | Shared browser-local demo customer selection for cart, favorites, and orders. |
 | `src/proxy.conf.json` and `nginx.conf` | Remove `/backend` in development and container runtime respectively. |
@@ -95,9 +95,9 @@ Run the portable stages after `npm ci`:
 
 Unit tests use Angular TestBed with Vitest. Coverage covers handwritten code and excludes generated Kiota clients. The configured minimums are 65% statements, 55% branches, 55% functions, and 65% lines. For a focused unit run use `npm test`; for coverage use `npm run test:coverage`.
 
-Install the Playwright browser once with `npx playwright install --with-deps chromium`. Acceptance starts an isolated Compose project, waits for BFF and catalog, then removes its containers and volumes. It uses ports 14200 and 15137 by default (`WEB_PORT` and `BFF_PORT` override them). To run against an already running stack use `ACCEPTANCE_BASE_URL=http://127.0.0.1:4200 npm run test:acceptance`. Each scenario registers a unique customer through BFF's `/registrations/customers`; no fixture creates a cart separately. The registration scenario checks the empty cart and rejects duplicate creation. The checkout scenario checks one created order, an empty cart, and the returned final total. The profile scenario selects a customer by external ID and saves their individual billing data. See [ADR-0002](docs/adr/0002-testing-boundaries.md) and [local verification](docs/local-verification.md).
+Install the Playwright browser once with `npx playwright install --with-deps chromium`. Acceptance starts an isolated Compose project, waits for BFF and catalog, then removes its containers and volumes. It uses ports 14200, 15137 and 15138 by default (`WEB_PORT`, `BFF_PORT` and `STRIPE_FIXTURE_PORT` override them). The acceptance-only Compose overlay redirects the SDK provider boundary to a deterministic fixture; the real APIs, databases, signed webhook verification and one-shot fulfillment worker still run. To run against an already running acceptance stack (including the provider fixture), use `ACCEPTANCE_BASE_URL=http://127.0.0.1:4200 npm run test:acceptance`. Each scenario registers a unique customer through BFF's `/registrations/customers`; no fixture creates a cart separately. The registration scenario checks the empty cart and rejects duplicate creation. The checkout scenario checks one created order, an empty cart, and the returned final total. The profile scenario selects a customer by external ID and saves their individual billing data. See [ADR-0002](docs/adr/0002-testing-boundaries.md) and [local verification](docs/local-verification.md).
 
-`bash scripts/verify.sh` performs a clean install, every portable stage, and a frontend image build. It requires a working Docker daemon. The Compose stack pins the scanned BFF/12 image by digest for the payment acceptance scenario. The mandatory acceptance gate checks all seven browser scenarios against that image; report its actual result before merging or claiming a published frontend image.
+`bash scripts/verify.sh` performs a clean install, every portable stage, and a frontend image build. It requires a working Docker daemon. The Compose stack pins the scanned BFF/12 image by digest for the payment acceptance scenario. The mandatory acceptance gate checks all twelve browser scenarios against that image; report its actual result before merging or claiming a published frontend image.
 
 ## CI and operations
 
@@ -110,3 +110,9 @@ For reviews, use the [definition of done](docs/definition-of-done.md) and [PR te
 ## Architecture decisions
 
 The [ADR index](docs/adr/README.md) records the frontend/BFF boundary, test strategy, scanned image publication, demo customer context, and payment preparation. New decisions use sequential repository-local numbers and keep superseded records in history.
+
+## Stripe-hosted Checkout (STRIPE/4)
+
+Open an order for the selected demo customer and choose **Pay with Stripe**. Purchase money comes from the saved Orders snapshot. Stripe collects card/BLIK data on its own page. The return screen refreshes payment, order and completed invoice state up to 15 reads at two-second intervals, then offers a manual refresh. Pending Checkout can be resumed; failed/expired attempts can be retried. A successful payment with delayed order/invoice fulfillment never shows another Pay action. No card data, Stripe secret or hosted URL is stored in application state.
+
+The local stack keeps Stripe disabled until explicitly configured. Follow [sandbox browser smoke](docs/stripe-sandbox-smoke.md) to enable actual test-mode Stripe and run the worker. The acceptance fixture overlay is separate and never uses actual Stripe. Customer selection remains demo-only; production authentication/ownership, recurring fulfillment scheduling (DEP/6) and durable PDF download delivery (DEP/7) remain separate work. Completed invoice metadata is displayed, while local storage URLs are not rendered as download links. See [ADR-0006](docs/adr/0006-stripe-hosted-checkout.md).

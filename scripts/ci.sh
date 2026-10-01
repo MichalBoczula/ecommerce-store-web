@@ -20,6 +20,7 @@ case "$command" in
     for script in scripts/*.sh; do bash -n "$script"; done
     node --check scripts/check-upstream-contracts.mjs
     node --check scripts/summarize-junit.mjs
+    python3 -m py_compile tests/fixtures/payments_bootstrap.py tests/fixtures/stripe_fixture.py
     ;;
   contract)
     node scripts/check-upstream-contracts.mjs

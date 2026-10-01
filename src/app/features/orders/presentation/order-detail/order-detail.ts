@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -24,11 +24,17 @@ export class OrderDetailComponent implements OnInit {
     private readonly payments = inject(PaymentsFacade);
     readonly customer = inject(CustomerContext);
 
+    private watchKey: string | null = null;
+    readonly returnHint = signal<string | null>(null);
+
     readonly status = this.facade.detailStatus;
     readonly error = this.facade.detailError;
     readonly order = computed(() => {
         const selected = this.facade.selectedOrder();
-        return selected?.clientId === this.customer.clientId() ? selected : null;
+        if (selected?.clientId !== this.customer.clientId()) return null;
+        const progress = this.payments.progress();
+        return progress?.order.id === selected.id && progress.order.clientId === this.customer.clientId()
+            ? progress.order : selected;
     });
     readonly paymentStatus = computed(() => this.payments.orderId() === this.order()?.id
         ? this.payments.status() : 'idle');
@@ -39,16 +45,33 @@ export class OrderDetailComponent implements OnInit {
         return order && this.payments.orderId() === order.id ? this.payments.payment() : null;
     });
 
+    readonly invoice = computed(() => this.payments.progress()?.order.id === this.order()?.id &&
+        this.payments.clientId() === this.customer.clientId() ? this.payments.progress()?.invoice : null);
+    readonly exhausted = this.payments.exhausted;
+    readonly canCheckout = computed(() => {
+        const order = this.order();
+        return order?.status === 'Created' && order.totalCurrency === 'PLN' && order.totalAmount >= 2 &&
+            ['ready', 'watching'].includes(this.paymentStatus()) && !!this.payments.progress() &&
+            !['succeeded', 'cancelled'].includes(this.payment()?.status ?? '');
+    });
+
     constructor() {
         effect(() => {
-            const order = this.order();
-            if (this.status() === 'loaded' && order?.status === 'Created') {
-                this.payments.load(order.id);
+            const order = this.facade.selectedOrder();
+            const clientId = this.customer.clientId();
+            const key = this.status() === 'loaded' && order?.clientId === clientId && clientId
+                ? `${clientId}:${order.id}` : null;
+            if (key !== this.watchKey) {
+                this.watchKey = key;
+                if (key && clientId && order) this.payments.watch(clientId, order.id);
+                else this.payments.stopWatching();
             }
         });
+        this.destroyRef.onDestroy(() => this.payments.stopWatching());
     }
 
     ngOnInit(): void {
+        this.returnHint.set(this.route.snapshot.queryParamMap?.get('checkout') ?? null);
         this.route.paramMap.pipe(
             map(params => params.get('id')),
             distinctUntilChanged(),
@@ -64,13 +87,13 @@ export class OrderDetailComponent implements OnInit {
     }
 
     reloadPayment(orderId: string): void {
-        if (this.order()?.id === orderId) this.payments.load(orderId);
+        const clientId = this.customer.clientId();
+        if (clientId && this.order()?.id === orderId) this.payments.watch(clientId, orderId);
     }
 
-    preparePayment(): void {
+    checkout(): void {
         const order = this.order();
-        if (order?.status === 'Created' && this.paymentStatus() === 'ready' && !this.payment()) {
-            this.payments.prepare(order.id);
-        }
+        const clientId = this.customer.clientId();
+        if (order && clientId && this.canCheckout()) this.payments.checkout(clientId, order.id);
     }
 }

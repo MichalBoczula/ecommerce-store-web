@@ -40,4 +40,30 @@ describe('Payments Kiota repository', () => {
             { url: `/backend/payments/order/${orderId}`, method: 'GET' },
         ]);
     });
+    it('creates bodyless Checkout from server-owned payment money and validates the provider URL', async () => {
+        let body: unknown = 'not-called';
+        vi.stubGlobal('fetch', vi.fn(async (url: string, init: RequestInit) => {
+            expect(url).toBe(`/backend/payments/${orderId}/checkout`);
+            body = init.body;
+            return new Response(JSON.stringify({ payment: response, checkout_status: 'open',
+                checkout_url: 'https://checkout.stripe.com/c/pay/cs_test_demo', expires_at: '2026-10-01T12:00:00Z' }),
+            { headers: { 'content-type': 'application/json' } });
+        }));
+        const checkout = await firstValueFrom(new PaymentsKiotaRepository().checkout(orderId));
+        expect(body).toBeUndefined();
+        expect(checkout.payment.amountMinor).toBe(19000);
+        expect(checkout.url).toBe('https://checkout.stripe.com/c/pay/cs_test_demo');
+    });
+
+    it('rejects an untrusted hosted URL and an empty Checkout response', async () => {
+        const fetch = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify({ payment: response,
+            checkout_status: 'open', checkout_url: 'https://attacker.test/c/pay/cs_test_demo' }),
+        { headers: { 'content-type': 'application/json' } })).mockResolvedValueOnce(new Response('{}',
+        { headers: { 'content-type': 'application/json' } }));
+        vi.stubGlobal('fetch', fetch);
+        const repository = new PaymentsKiotaRepository();
+        await expect(firstValueFrom(repository.checkout(orderId))).rejects.toThrow('trusted');
+        await expect(firstValueFrom(repository.checkout(orderId))).rejects.toThrow('incomplete');
+    });
+
 });
