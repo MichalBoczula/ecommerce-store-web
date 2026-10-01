@@ -46,3 +46,8 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Private sandbox configuration and Python acceptance bytecode
+.env
+.env.*
+**/__pycache__/

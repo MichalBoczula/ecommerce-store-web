@@ -8,8 +8,11 @@ export WEB_PORT="${WEB_PORT:-14200}"
 export BFF_PORT="${BFF_PORT:-15137}"
 export ACCEPTANCE_BASE_URL="http://127.0.0.1:${WEB_PORT}"
 
+export STRIPE_FIXTURE_PORT="${STRIPE_FIXTURE_PORT:-15138}"
+export STRIPE_FIXTURE_URL="http://127.0.0.1:${STRIPE_FIXTURE_PORT}"
+
 project="ecommerce-web-acceptance-$$"
-compose=(docker compose -p "$project" -f compose/ecommerce-compose.yml)
+compose=(docker compose -p "$project" -f compose/ecommerce-compose.yml -f compose/ecommerce-compose.acceptance.yml)
 cleanup() {
   local status=$?
   if (( status != 0 )); then

@@ -38,6 +38,10 @@ import { CustomerProfileKiotaRepository } from './features/users/infrastructure/
 import { CustomerProfileFacade } from './features/users/application/customer-profile.facade';
 import { customerProfileFeature } from './features/users/state/customer-profile.feature';
 import { CustomerProfileEffects } from './features/users/state/customer-profile.effects';
+import { PaymentProgressRepository } from './features/payments/domain/interfaces/payment-progress-repository.port';
+import { PaymentProgressKiotaRepository } from './features/payments/infrastructure/api/payment-progress-kiota-repository';
+import { BillingSnapshotRepository } from './features/payments/domain/interfaces/billing-snapshot-repository.port';
+import { BillingSnapshotKiotaRepository } from './features/payments/infrastructure/api/billing-snapshot-kiota-repository';
 import { PaymentsRepository } from './features/payments/domain/interfaces/payments-repository.port';
 import { PaymentsKiotaRepository } from './features/payments/infrastructure/api/payments-kiota-repository';
 import { PaymentsFacade } from './features/payments/application/payments.facade';
@@ -73,6 +77,8 @@ export const appConfig: ApplicationConfig = {
     OrderHistoryFacade,
     { provide: CustomerProfileRepository, useClass: CustomerProfileKiotaRepository },
     CustomerProfileFacade,
+    { provide: BillingSnapshotRepository, useClass: BillingSnapshotKiotaRepository },
+    { provide: PaymentProgressRepository, useClass: PaymentProgressKiotaRepository },
     { provide: PaymentsRepository, useClass: PaymentsKiotaRepository },
     PaymentsFacade,
 

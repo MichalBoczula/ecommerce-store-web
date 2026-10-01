@@ -6,6 +6,8 @@ import { type WithOrder_ItemRequestBuilder, WithOrder_ItemRequestBuilderNavigati
 // @ts-ignore
 import { OrderRequestBuilderNavigationMetadata, type OrderRequestBuilder } from './order/index.js';
 // @ts-ignore
+import { type WebhooksRequestBuilder, WebhooksRequestBuilderNavigationMetadata } from './webhooks/index.js';
+// @ts-ignore
 import { type BaseRequestBuilder, type Guid, type KeysToExcludeForNavigationMetadata, type NavigationMetadata } from '@microsoft/kiota-abstractions';
 
 /**
@@ -16,6 +18,10 @@ export interface PaymentsRequestBuilder extends BaseRequestBuilder<PaymentsReque
      * The order property
      */
     get order(): OrderRequestBuilder;
+    /**
+     * The webhooks property
+     */
+    get webhooks(): WebhooksRequestBuilder;
     /**
      * Gets an item from the ApiSdk.payments.item collection
      * @param order_id Unique identifier of the item
@@ -37,6 +43,9 @@ export const PaymentsRequestBuilderNavigationMetadata: Record<Exclude<keyof Paym
     },
     order: {
         navigationMetadata: OrderRequestBuilderNavigationMetadata,
+    },
+    webhooks: {
+        navigationMetadata: WebhooksRequestBuilderNavigationMetadata,
     },
 };
 /* tslint:enable */

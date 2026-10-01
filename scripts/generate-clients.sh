@@ -58,6 +58,7 @@ generate invoice orders OrdersApiClient
 # Preserve the exact upstream artifact and normalize nullable unions only for
 # Kiota's TypeScript generator. The checksum above always checks the original.
 payments_spec="$PWD/.tools/payments-kiota.openapi.json"
+mkdir -p "$PWD/.tools"
 trap 'rm -f "$payments_spec"' EXIT
 node scripts/normalize-payments-openapi.mjs contracts/upstream/payments.openapi.json "$payments_spec"
 "$kiota_bin" generate \

@@ -17,4 +17,15 @@ describe('payment state', () => {
         expect(stale.payment).toBeNull();
         expect(stale.status).toBe('loading');
     });
+    it('does not accept payment/invoice progress from a previously selected demo customer', () => {
+        const original = paymentsFeature.reducer(undefined, PaymentsActions.watch({ clientId: 'customer-a', orderId: orderA }));
+        const current = paymentsFeature.reducer(original, PaymentsActions.watch({ clientId: 'customer-b', orderId: orderB }));
+        const stale = paymentsFeature.reducer(current, PaymentsActions.watchSuccess({ clientId: 'customer-a', orderId: orderA,
+            exhausted: false, progress: { payment: null, invoice: { id: 'private-invoice', orderId: orderA, createdAt: new Date() },
+                order: { id: orderA, clientId: 'customer-a', createdAt: new Date(), updatedAt: null,
+                    status: 'Paid', totalAmount: 10, totalCurrency: 'PLN', lines: [] } } }));
+        expect(stale).toBe(current);
+        expect(stale.progress).toBeNull();
+    });
+
 });
