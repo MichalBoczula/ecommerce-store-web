@@ -1,11 +1,11 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CheckoutBrowser, validateCheckoutUrl } from './checkout-browser';
 
 const clientId = '11111111-1111-1111-1111-111111111111';
 const orderId = '22222222-2222-2222-2222-222222222222';
 
 describe('hosted Checkout navigation', () => {
-    afterEach(() => sessionStorage.clear());
+    afterEach(() => { vi.unstubAllGlobals(); sessionStorage.clear(); });
     it('accepts only an HTTPS sandbox Checkout URL with no credentials', () => {
         const valid = 'https://checkout.stripe.com/c/pay/cs_test_demo#fixture';
         expect(validateCheckoutUrl(valid)).toBe(valid);
@@ -26,4 +26,13 @@ describe('hosted Checkout navigation', () => {
         sessionStorage.setItem('stripeCheckoutReturn', JSON.stringify({ clientId, orderId: '../bad' }));
         expect(browser.returningOrder(clientId)).toBeNull();
     });
+    it('still opens Checkout when tab storage is unavailable', () => {
+        const assign = vi.fn();
+        vi.stubGlobal('window', { location: { assign } });
+        vi.stubGlobal('sessionStorage', { setItem: () => { throw new Error('Storage blocked'); } });
+        const url = 'https://checkout.stripe.com/c/pay/cs_test_demo';
+        new CheckoutBrowser().redirect(clientId, orderId, url);
+        expect(assign).toHaveBeenCalledExactlyOnceWith(url);
+    });
+
 });

@@ -13,7 +13,7 @@ For a focused run after `npm ci`:
 
 | Stage | Command | Result |
 | --- | --- | --- |
-| Source | `bash scripts/ci.sh source` | `git diff --check`, shell syntax, Node script syntax. |
+| Source | `bash scripts/ci.sh source` | `git diff --check`, shell syntax, Node script syntax and Python fixture compilation. |
 | Contract | `bash scripts/ci.sh contract` | OpenAPI SHA-256 verification, Kiota 1.34.1 regeneration, clean generated tree. |
 | Audit | `bash scripts/ci.sh audit` | npm high/critical advisories fail; moderate findings are shown. |
 | Build | `bash scripts/ci.sh build` | Handwritten lint and production build. |
@@ -35,8 +35,14 @@ Generated client drift is checked against tracked files and untracked additions.
 
 Set `VERIFY_RESULTS_DIR` for the summary's directory and `VERIFY_SUMMARY_FILE` for a different Markdown summary file. CI sets the latter to `$GITHUB_STEP_SUMMARY` and uploads test outputs with `if: always()`. Each test stage clears its previous report before running; a missing or failing JUnit result does not pass silently.
 
-`scripts/run-acceptance.sh` uses a unique Compose project, ports 14200 (web) and 15137 (BFF) by default, and removes containers and volumes on exit. Override `WEB_PORT` and `BFF_PORT` if those host ports are occupied. To use an existing stack without Compose setup, run `ACCEPTANCE_BASE_URL=http://127.0.0.1:4200 npm run test:acceptance`. The browser talks only to the frontend origin and `/backend` BFF path. A failing run preserves Playwright artifacts and Compose logs before cleanup.
+`scripts/run-acceptance.sh` uses a unique Compose project, ports 14200 (web), 15137 (BFF) and 15138 (test provider fixture) by default, and removes containers and volumes on exit. Override `WEB_PORT`, `BFF_PORT` and `STRIPE_FIXTURE_PORT` if those host ports are occupied. To use an existing acceptance stack with the fixture overlay without Compose setup, run `ACCEPTANCE_BASE_URL=http://127.0.0.1:4200 npm run test:acceptance`. The browser talks only to the frontend origin and `/backend` BFF path. A failing run preserves Playwright artifacts and Compose logs before cleanup.
 
 ## Registration coverage
 
-The stack pins BFF/11's published image by digest. Browser scenarios call `/backend/registrations/customers` to create each unique profile and confirm its Invoice cart. No cart fixture hides a missing registration operation. The registration test also checks the cart is empty and that a duplicate cart creation returns 409 without changing its ID. Backend container integration tests cover partial failure and retry. A failed browser run blocks the required quality gate and frontend image job; record CI results rather than treating retries or skipped scenarios as a pass.
+The stack pins BFF/12's published image by digest. Browser scenarios call `/backend/registrations/customers` to create each unique profile and confirm its Invoice cart. No cart fixture hides a missing registration operation. The registration test also checks the cart is empty and that a duplicate cart creation returns 409 without changing its ID. Backend container integration tests cover partial failure and retry. A failed browser run blocks the required quality gate and frontend image job; record CI results rather than treating retries or skipped scenarios as a pass.
+
+## Hosted Checkout coverage
+
+The acceptance runner additionally loads `compose/ecommerce-compose.acceptance.yml`. Its provider service is a deterministic HTTP boundary for the pinned Stripe SDK, and only the external hosted provider page is fulfilled by Playwright. Payments, order snapshots, signed webhook verification, MongoDB persistence and invoice PDF fulfillment remain production code in real pinned containers. A test-only endpoint runs the production one-shot fulfillment worker after event delivery; it does not mark orders Paid or insert invoices itself. Fixed fixture keys are not actual Stripe credentials. Never use this overlay outside disposable acceptance tests.
+
+The six payment scenarios cover success with delayed webhook and fulfillment, repeated signed delivery/return, cancel and session resume, failed and expired retries on the stable Payment, repeated Pay clicks and a forged success query. Six existing registration/cart/profile scenarios remain required. Actual hosted Stripe browser smoke is separately documented in [stripe-sandbox-smoke.md](stripe-sandbox-smoke.md); fixture results do not claim that smoke. No coverage, audit, acceptance or image security gate is reduced.

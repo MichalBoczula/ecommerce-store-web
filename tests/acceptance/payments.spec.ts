@@ -6,15 +6,16 @@ type Session = { id: string; amount_total: number; success_url: string; cancel_u
 
 async function createOrder(request: APIRequestContext, context: BrowserContext) {
     const address = { postalCode: '00-001', city: 'Warsaw', street: 'Main Street', buildingNumber: '10', apartmentNumber: '2' };
+    const externalId = `web-stripe-${randomUUID()}`;
     const registration = await request.post('/backend/registrations/customers', {
-        data: { externalId: `web-stripe-${randomUUID()}`, individual: {
+        data: { externalId, individual: {
             firstName: 'Payment', lastName: 'Customer', email: `${randomUUID()}@example.com`,
             phone: '123456789', billingAddress: address, shippingAddress: address,
         } },
     });
     expect(registration.ok(), await registration.text()).toBeTruthy();
     const { id: clientId } = await registration.json() as { id: string };
-    await context.addInitScript(id => localStorage.setItem('demoClientId', id), clientId);
+    await context.addInitScript(selection => localStorage.setItem('demoCustomer', JSON.stringify(selection)), { clientId, externalId });
     const products = await request.get('/backend/mobile-phones?amount=100');
     expect(products.ok(), await products.text()).toBeTruthy();
     const phone = (await products.json() as { id: string; price?: { amount: number; currency: string } }[])
@@ -68,6 +69,9 @@ async function noInvoice(request: APIRequestContext, orderId: string) {
 test('success return waits for signed delivery and real fulfillment; repeats reuse one invoice', async ({ page, context, request }) => {
     const order = await createOrder(request, context);
     const session = await openCheckout(page, request, order.id);
+    const billing = await request.get(`/backend/client-data-versions/client/${order.clientId}`);
+    expect(billing.ok(), await billing.text()).toBeTruthy();
+    expect((await billing.json() as { clientName: string }).clientName).toBe('Payment Customer');
     expect(session.amount_total).toBe(Math.round(order.totalAmount * 100));
     await page.goto(session.success_url);
     await expect(page).toHaveURL(new RegExp(`/orders/${order.id}\\?checkout=success`));

@@ -8,6 +8,7 @@ import { CheckoutBrowser } from '../application/checkout-browser';
 import { PaymentProgressRepository } from '../domain/interfaces/payment-progress-repository.port';
 import { paymentsFeature } from './payments.feature';
 import { pollProgress } from './checkout-polling';
+import { BillingSnapshotRepository } from '../domain/interfaces/billing-snapshot-repository.port';
 import { PaymentsRepository } from '../domain/interfaces/payments-repository.port';
 import { PaymentsActions } from './payments.actions';
 
@@ -22,6 +23,7 @@ export class PaymentsEffects {
     private readonly actions$ = inject(Actions);
     private readonly repository = inject(PaymentsRepository);
 
+    private readonly billing = inject(BillingSnapshotRepository);
     private readonly progress = inject(PaymentProgressRepository);
     private readonly orders = inject(OrderHistoryRepository);
     private readonly customer = inject(CustomerContext);
@@ -44,7 +46,12 @@ export class PaymentsEffects {
                 if (this.state().orderId !== orderId || this.state().clientId !== clientId ||
                     this.customer.clientId() !== clientId || order.clientId !== clientId ||
                     order.id !== orderId || order.status !== 'Created') throw new Error('Refresh the selected order before starting Checkout.');
-                return this.repository.checkout(orderId);
+                return this.billing.ensure(clientId, this.customer.externalId()).pipe(switchMap(() => {
+                    if (this.state().orderId !== orderId || this.state().clientId !== clientId || this.customer.clientId() !== clientId) {
+                        throw new Error('The selected customer or order changed during Checkout.');
+                    }
+                    return this.repository.checkout(orderId);
+                }));
             }),
             mergeMap(checkout => {
                 const current = this.state();

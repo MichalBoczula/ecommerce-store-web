@@ -8,6 +8,7 @@ import { CustomerContext } from '../../../shared/application/customer-context';
 import { OrderHistoryRepository } from '../../orders/domain/interfaces/order-history-repository.port';
 import { CheckoutBrowser } from '../application/checkout-browser';
 import { PaymentProgressRepository } from '../domain/interfaces/payment-progress-repository.port';
+import { BillingSnapshotRepository } from '../domain/interfaces/billing-snapshot-repository.port';
 import { PaymentsRepository } from '../domain/interfaces/payments-repository.port';
 import { Checkout } from '../domain/model/checkout';
 import { PaymentsActions } from './payments.actions';
@@ -23,18 +24,20 @@ function setup() {
     const response = new Subject<Checkout>();
     const repository = { checkout: vi.fn(() => response) };
     const orders = { getById: vi.fn(() => of({ id: orderId, clientId, status: 'Created' })) };
+    const billing = { ensure: vi.fn(() => of(undefined)) };
     const browser = { redirect: vi.fn() };
-    const customer = { clientId: signal<string | null>(clientId) };
+    const customer = { clientId: signal<string | null>(clientId), externalId: () => 'external' };
     const state = { orderId, clientId };
     TestBed.configureTestingModule({ providers: [PaymentsEffects,
         { provide: Actions, useValue: actions }, { provide: Store, useValue: { selectSignal: () => () => state } },
         { provide: PaymentsRepository, useValue: repository }, { provide: OrderHistoryRepository, useValue: orders },
         { provide: CheckoutBrowser, useValue: browser }, { provide: CustomerContext, useValue: customer },
+        { provide: BillingSnapshotRepository, useValue: billing },
         { provide: PaymentProgressRepository, useValue: { get: vi.fn() } },
     ] });
     const results: unknown[] = [];
     const subscription = TestBed.inject(PaymentsEffects).checkout$.subscribe(result => results.push(result));
-    return { actions, response, repository, orders, browser, customer, state, results, subscription };
+    return { actions, response, repository, orders, billing, browser, customer, state, results, subscription };
 }
 
 describe('hosted Checkout effects', () => {
@@ -88,4 +91,14 @@ describe('hosted Checkout effects', () => {
         expect(test.browser.redirect).not.toHaveBeenCalled();
         test.subscription.unsubscribe();
     });
+    it('does not request provider Checkout if billing cannot be confirmed', () => {
+        const test = setup();
+        test.billing.ensure.mockReturnValue(throwError(() => new Error('Billing temporarily unavailable.')));
+        test.actions.next(PaymentsActions.checkout({ clientId, orderId }));
+        expect(test.repository.checkout).not.toHaveBeenCalled();
+        expect(test.results).toEqual([PaymentsActions.checkoutFailure({ clientId, orderId,
+            error: 'Billing temporarily unavailable.' })]);
+        test.subscription.unsubscribe();
+    });
+
 });

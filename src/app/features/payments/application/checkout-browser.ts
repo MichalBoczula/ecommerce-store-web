@@ -15,7 +15,9 @@ export class CheckoutBrowser {
     redirect(clientId: string, orderId: string, url: string): void {
         const destination = validateCheckoutUrl(url);
         // Persist only routing context, never a hosted URL, session secret or card data.
-        sessionStorage.setItem(key, JSON.stringify({ clientId, orderId }));
+        try {
+            sessionStorage.setItem(key, JSON.stringify({ clientId, orderId }));
+        } catch { /* Checkout still works; return through order history if tab storage is unavailable. */ }
         window.location.assign(destination);
     }
 
