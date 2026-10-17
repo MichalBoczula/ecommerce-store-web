@@ -11,7 +11,7 @@ import { type BaseRequestBuilder, type Guid, type Parsable, type ParsableFactory
  */
 export interface ByIdsRequestBuilder extends BaseRequestBuilder<ByIdsRequestBuilder> {
     /**
-     * Returns active mobile phones matching the provided Ids, ordered by Id.
+     * Returns active mobile phones matching the provided Ids, including each mainPhoto, ordered by Id.
      * @param body The request body
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {Promise<MobilePhoneDto[]>}
@@ -21,7 +21,7 @@ export interface ByIdsRequestBuilder extends BaseRequestBuilder<ByIdsRequestBuil
      */
      post(body: Guid[], requestConfiguration?: RequestConfiguration<object> | undefined) : Promise<MobilePhoneDto[] | undefined>;
     /**
-     * Returns active mobile phones matching the provided Ids, ordered by Id.
+     * Returns active mobile phones matching the provided Ids, including each mainPhoto, ordered by Id.
      * @param body The request body
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {RequestInformation}

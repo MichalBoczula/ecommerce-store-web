@@ -6,6 +6,7 @@ export interface MobilePhone {
     camera?: string | null;
     displayType?: string | null;
     name?: string | null;
+    mainPhoto: string | null;
     price?: Money | null;
     screenSizeInches?: number | null;
     isFavorite: boolean;

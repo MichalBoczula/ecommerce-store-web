@@ -777,6 +777,7 @@ export function deserializeIntoMobilePhoneDto(mobilePhoneDto: Partial<MobilePhon
         "camera": n => { mobilePhoneDto.camera = n.getStringValue(); },
         "displayType": n => { mobilePhoneDto.displayType = n.getStringValue(); },
         "id": n => { mobilePhoneDto.id = n.getGuidValue(); },
+        "mainPhoto": n => { mobilePhoneDto.mainPhoto = n.getStringValue(); },
         "name": n => { mobilePhoneDto.name = n.getStringValue(); },
         "price": n => { mobilePhoneDto.price = n.getObjectValue<MoneyDto>(createMoneyDtoFromDiscriminatorValue); },
         "screenSizeInches": n => { mobilePhoneDto.screenSizeInches = n.getNumberValue(); },
@@ -1156,6 +1157,10 @@ export interface MobilePhoneDto extends Parsable {
      * The id property
      */
     id?: Guid | null;
+    /**
+     * The mainPhoto property
+     */
+    mainPhoto?: string | null;
     /**
      * The name property
      */
@@ -1545,6 +1550,7 @@ export function serializeMobilePhoneDto(writer: SerializationWriter, mobilePhone
     writer.writeStringValue("camera", mobilePhoneDto.camera);
     writer.writeStringValue("displayType", mobilePhoneDto.displayType);
     writer.writeGuidValue("id", mobilePhoneDto.id);
+    writer.writeStringValue("mainPhoto", mobilePhoneDto.mainPhoto);
     writer.writeStringValue("name", mobilePhoneDto.name);
     writer.writeObjectValue<MoneyDto>("price", mobilePhoneDto.price, serializeMoneyDto);
     writer.writeNumberValue("screenSizeInches", mobilePhoneDto.screenSizeInches);

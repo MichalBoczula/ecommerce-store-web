@@ -21,7 +21,7 @@ describe('mobile phone effects', () => {
     }
 
     it('reports a failed catalog load and can load again on retry', () => {
-        const phone = { id: 'phone-1', name: 'Available', isFavorite: false };
+        const phone = { id: 'phone-1', name: 'Available', mainPhoto: null, isFavorite: false };
         const getAll = vi.fn()
             .mockReturnValueOnce(throwError(() => new Error('Catalog offline')))
             .mockReturnValueOnce(of([phone]));
@@ -42,7 +42,7 @@ describe('mobile phone effects', () => {
 
     it('passes the filter through and maps the product list', () => {
         const filter = { minimalPrice: 100, maximalPrice: 500 };
-        const phone = { id: 'phone-1', isFavorite: false };
+        const phone = { id: 'phone-1', mainPhoto: null, isFavorite: false };
         const getFilteredMobilePhones = vi.fn(() => of([phone]));
         const { actions, effects } = setup({ getFilteredMobilePhones });
         const results: Action[] = [];

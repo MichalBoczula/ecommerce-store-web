@@ -3,11 +3,16 @@
 .grid-list {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     margin-top: 20px;
     overflow: hidden;
 }
 
 .image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
     margin: 5px;
     border-radius: 10%;
 }
@@ -31,6 +36,8 @@
 }
 
 .container {
+    flex: 0 1 320px;
+    min-width: 0;
     border: solid 1px v.$font-color;
     border-radius: 30px;
     transition: v.$transition;

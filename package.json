@@ -55,19 +55,19 @@
     "zone.js": "^0.16.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^21.2.24",
-    "@angular/build": "^21.2.24",
-    "@angular/cli": "^21.2.24",
-    "@angular/compiler-cli": "^21.2.24",
-    "@angular/platform-browser-dynamic": "^21.2.24",
+    "@angular/build": "^21.2.27",
+    "@angular/cli": "^21.2.27",
+    "@angular/compiler-cli": "21.2.24",
+    "@angular/platform-browser-dynamic": "21.2.24",
     "@playwright/test": "^1.63.0",
+    "@types/node": "^22.20.5",
     "@types/webpack-env": "^1.18.8",
     "@vitest/coverage-v8": "4.1.11",
     "angular-eslint": "21.1.0",
     "eslint": "^9.39.1",
     "jsdom": "^27.1.0",
     "typescript": "~5.9.2",
-    "typescript-eslint": "8.47.0",
+    "typescript-eslint": "8.71.2",
     "vitest": "^4.1.11"
   }
 }

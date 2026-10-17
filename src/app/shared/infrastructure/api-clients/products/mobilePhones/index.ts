@@ -37,7 +37,7 @@ export interface MobilePhonesRequestBuilder extends BaseRequestBuilder<MobilePho
      */
      byId(id: Guid) : MobilePhonesItemRequestBuilder;
     /**
-     * Returns up to the requested amount of active mobile phones ordered by name, then Id.
+     * Returns up to the requested amount of active mobile phones, including each mainPhoto for list images, ordered by name, then Id.
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {Promise<MobilePhoneDto[]>}
      * @throws {ApiProblemDetails} error when the service returns a 400 status code
@@ -54,7 +54,7 @@ export interface MobilePhonesRequestBuilder extends BaseRequestBuilder<MobilePho
      */
      post(body: CreateMobilePhoneExternalDto, requestConfiguration?: RequestConfiguration<object> | undefined) : Promise<MobilePhoneDetailsDto | undefined>;
     /**
-     * Returns up to the requested amount of active mobile phones ordered by name, then Id.
+     * Returns up to the requested amount of active mobile phones, including each mainPhoto for list images, ordered by name, then Id.
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {RequestInformation}
      */
@@ -68,7 +68,7 @@ export interface MobilePhonesRequestBuilder extends BaseRequestBuilder<MobilePho
      toPostRequestInformation(body: CreateMobilePhoneExternalDto, requestConfiguration?: RequestConfiguration<object> | undefined) : RequestInformation;
 }
 /**
- * Returns up to the requested amount of active mobile phones ordered by name, then Id.
+ * Returns up to the requested amount of active mobile phones, including each mainPhoto for list images, ordered by name, then Id.
  */
 export interface MobilePhonesRequestBuilderGetQueryParameters {
     amount?: number;
