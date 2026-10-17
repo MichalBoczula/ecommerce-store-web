@@ -14,9 +14,9 @@ describe('cart catalog enrichment', () => {
             { productId: missingId, quantity: 1 },
             { productId: unpricedId, quantity: 1 },
         ], [
-            { id: firstId.toUpperCase(), name: 'A', price: { amount: 10, currency: 'USD' }, isFavorite: false },
-            { id: secondId, name: 'B', price: { amount: 20, currency: 'EUR' }, isFavorite: false },
-            { id: unpricedId, name: 'C', price: null, isFavorite: false },
+            { id: firstId.toUpperCase(), name: 'A', price: { amount: 10, currency: 'USD' }, mainPhoto: null, isFavorite: false },
+            { id: secondId, name: 'B', price: { amount: 20, currency: 'EUR' }, mainPhoto: null, isFavorite: false },
+            { id: unpricedId, name: 'C', price: null, mainPhoto: null, isFavorite: false },
         ]);
 
         expect(items.map(item => item.quantity)).toEqual([2, 3, 1, 1]);
@@ -29,7 +29,7 @@ describe('cart catalog enrichment', () => {
 
     it('does not include a zero price that the Invoice order validator rejects', () => {
         const items = toCartItemViewModels([{ productId: firstId, quantity: 1 }], [
-            { id: firstId, name: 'Free-looking phone', price: { amount: 0, currency: 'PLN' }, isFavorite: false },
+            { id: firstId, name: 'Free-looking phone', price: { amount: 0, currency: 'PLN' }, mainPhoto: null, isFavorite: false },
         ]);
         expect(estimatedSubtotals(items)).toEqual([]);
     });

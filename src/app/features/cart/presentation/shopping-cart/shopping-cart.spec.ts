@@ -24,7 +24,7 @@ describe('shopping cart screen', () => {
     afterEach(() => TestBed.resetTestingModule());
 
     function render(initialCart: ShoppingCartResponse | null, initialError: string | null = null,
-        products: MobilePhone[] = [{ id: productId, name: 'Test phone', price: { amount: 100, currency: 'PLN' }, isFavorite: false }]) {
+        products: MobilePhone[] = [{ id: productId, name: 'Test phone', mainPhoto: null, price: { amount: 100, currency: 'PLN' }, isFavorite: false }]) {
         const facade = {
             shoppingCart: signal(initialCart),
             status: signal(initialError ? 'error' : 'loaded'),
@@ -92,8 +92,8 @@ describe('shopping cart screen', () => {
         const { fixture } = render({ id: clientId, clientId, lines: [
             { productId, quantity: 2 }, { productId: euroId, quantity: 1 }, { productId: missingId, quantity: 1 },
         ] }, null, [
-            { id: productId, name: 'PL phone', price: { amount: 100, currency: 'PLN' }, isFavorite: false },
-            { id: euroId, name: 'Euro phone', price: { amount: 30, currency: 'EUR' }, isFavorite: false },
+            { id: productId, name: 'PL phone', price: { amount: 100, currency: 'PLN' }, mainPhoto: null, isFavorite: false },
+            { id: euroId, name: 'Euro phone', price: { amount: 30, currency: 'EUR' }, mainPhoto: null, isFavorite: false },
         ]);
         await fixture.whenStable();
         fixture.detectChanges();
@@ -147,7 +147,7 @@ describe('shopping cart screen', () => {
     it('marks a zero-priced catalog product unavailable for checkout', async () => {
         const { fixture } = render({ id: clientId, clientId, lines: [{ productId, quantity: 1 }] },
             null, [{ id: productId, name: 'Test phone',
-                price: { amount: 0, currency: 'PLN' }, isFavorite: false }]);
+                price: { amount: 0, currency: 'PLN' }, mainPhoto: null, isFavorite: false }]);
         await fixture.whenStable();
         fixture.detectChanges();
         expect(fixture.nativeElement.textContent).toContain('Price unavailable');

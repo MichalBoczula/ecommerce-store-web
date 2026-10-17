@@ -91,6 +91,7 @@ export function mapMobilePhoneDtoToMobilePhones(dto: MobilePhoneDto, isFav = fal
         camera: dto.camera ?? null,
         displayType: dto.displayType ?? null,
         name: dto.name ?? null,
+        mainPhoto: dto.mainPhoto ?? null,
         screenSizeInches: dto.screenSizeInches ?? null,
         price: dto.price ? {
             amount: dto.price.amount ?? null,

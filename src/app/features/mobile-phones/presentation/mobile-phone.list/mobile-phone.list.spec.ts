@@ -15,8 +15,10 @@ const productId = '11111111-1111-1111-1111-111111111111';
 describe('mobile phone list', () => {
     afterEach(() => TestBed.resetTestingModule());
 
-    it('loads products and favorites, wires cart action, and exposes a native details button', async () => {
-        const phones = { items$: of([{ id: productId, name: 'Phone', isFavorite: false }]), load: vi.fn() };
+    it.each([
+        'https://photos.example.com/phone/Main.webp', null, '',
+    ])('renders catalog photos (%s) and keeps cart, favorites and details actions', async mainPhoto => {
+        const phones = { items$: of([{ id: productId, name: 'Phone', mainPhoto, isFavorite: false }]), load: vi.fn() };
         const users = { favorites: signal([]), loadFavorites: vi.fn(), addFavoriteByProductId: vi.fn(), removeFavorite: vi.fn() };
         const orders = { addItem: vi.fn() };
         const router = { navigate: vi.fn() };
@@ -35,6 +37,15 @@ describe('mobile phone list', () => {
         expect(phones.load).toHaveBeenCalledWith(15);
         expect(users.loadFavorites).toHaveBeenCalledWith(clientId);
         expect(fixture.nativeElement.textContent).toContain('Phone');
+        const image = fixture.nativeElement.querySelector('.image img') as HTMLImageElement | null;
+        if (mainPhoto) {
+            expect(image?.getAttribute('src')).toBe(mainPhoto);
+            expect(image?.alt).toBe('Phone');
+        } else {
+            expect(image).toBeNull();
+            expect(fixture.nativeElement.querySelector('[role="img"]')?.getAttribute('aria-label'))
+                .toBe('Photo unavailable for Phone');
+        }
 
         const cartButton = fixture.nativeElement.querySelector('button[matButton="elevated"]') as HTMLButtonElement;
         cartButton.click();

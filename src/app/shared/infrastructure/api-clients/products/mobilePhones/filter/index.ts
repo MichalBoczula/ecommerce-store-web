@@ -11,7 +11,7 @@ import { type BaseRequestBuilder, type Parsable, type ParsableFactory, type Requ
  */
 export interface FilterRequestBuilder extends BaseRequestBuilder<FilterRequestBuilder> {
     /**
-     * Returns active mobile phones matching the filter, ordered by name, then Id.
+     * Returns active mobile phones matching the filter, including each mainPhoto, ordered by name, then Id.
      * @param body The request body
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {Promise<MobilePhoneDto[]>}
@@ -20,7 +20,7 @@ export interface FilterRequestBuilder extends BaseRequestBuilder<FilterRequestBu
      */
      post(body: MobilePhoneFilterDto, requestConfiguration?: RequestConfiguration<object> | undefined) : Promise<MobilePhoneDto[] | undefined>;
     /**
-     * Returns active mobile phones matching the filter, ordered by name, then Id.
+     * Returns active mobile phones matching the filter, including each mainPhoto, ordered by name, then Id.
      * @param body The request body
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {RequestInformation}

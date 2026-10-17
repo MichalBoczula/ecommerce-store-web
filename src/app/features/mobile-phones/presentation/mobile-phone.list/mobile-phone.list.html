@@ -3,7 +3,13 @@
     @for (phone of phones(); track phone.id) {
     <section class="container">
         <div class="image">
-            <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" [alt]="phone.name" />
+            @if (phone.mainPhoto) {
+            <img [src]="phone.mainPhoto" [alt]="phone.name ?? 'Mobile phone'" loading="lazy" decoding="async" />
+            } @else {
+            <span role="img" [attr.aria-label]="'Photo unavailable for ' + (phone.name ?? 'mobile phone')">
+                <mat-icon aria-hidden="true">smartphone</mat-icon>
+            </span>
+            }
         </div>
 
         <div class="content-container">

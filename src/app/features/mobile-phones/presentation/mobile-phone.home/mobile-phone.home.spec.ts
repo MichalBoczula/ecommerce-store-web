@@ -8,8 +8,10 @@ import { MobilePhoneHome } from './mobile-phone.home';
 describe('mobile phone home', () => {
     afterEach(() => TestBed.resetTestingModule());
 
-    it('requests and displays top products', async () => {
-        const facade = { top$: of([{ id: 'phone-id', commonDescription: { name: 'Top phone' },
+    it.each([
+        'https://photos.example.com/top-phone/Main.webp', null, '',
+    ])('requests top products and renders their photo state (%s)', async mainPhoto => {
+        const facade = { top$: of([{ id: 'phone-id', commonDescription: { name: 'Top phone', mainPhoto },
             price: { amount: 199, currency: 'USD' } }]), loadTop: vi.fn() };
         TestBed.configureTestingModule({ imports: [MobilePhoneHome], providers: [
             provideRouter([]), { provide: MobilePhonesFacade, useValue: facade },
@@ -20,5 +22,14 @@ describe('mobile phone home', () => {
 
         expect(facade.loadTop).toHaveBeenCalledOnce();
         expect(fixture.nativeElement.textContent).toContain('Top phone');
+        const image = fixture.nativeElement.querySelector('.image img') as HTMLImageElement | null;
+        if (mainPhoto) {
+            expect(image?.getAttribute('src')).toBe(mainPhoto);
+            expect(image?.alt).toBe('Top phone');
+        } else {
+            expect(image).toBeNull();
+            expect(fixture.nativeElement.querySelector('[role="img"]')?.getAttribute('aria-label'))
+                .toBe('Photo unavailable for Top phone');
+        }
     });
 });

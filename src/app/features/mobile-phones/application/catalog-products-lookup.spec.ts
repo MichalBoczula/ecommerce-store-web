@@ -14,7 +14,7 @@ describe('catalog products lookup', () => {
     afterEach(() => TestBed.resetTestingModule());
 
     it('recovers available products after a batch 404 and identifies the unavailable ID', async () => {
-        const products: MobilePhone[] = [firstId, lastId].map(id => ({ id, name: id, isFavorite: false }));
+        const products: MobilePhone[] = [firstId, lastId].map(id => ({ id, name: id, mainPhoto: null, isFavorite: false }));
         const getByIds = vi.fn((ids: string[]) => ids.includes(missingId)
             ? throwError(() => new CatalogProductsNotFoundError())
             : of(products.filter(product => ids.includes(product.id))));

@@ -80,6 +80,29 @@ bash scripts/ci.sh contract
 
 The generator checks the SHA-256 baseline and uses Kiota 1.34.1. The `contract` check expects a clean generated tree: after an intentional contract update, review and commit the new generated sources before running it. CI regenerates the clients and rejects a diff. Keep `kiota-lock.json` committed, and map DTOs only in handwritten infrastructure code. Do not change generated files to accommodate a contract update.
 
+## Catalog photos
+
+Home cards render `commonDescription.mainPhoto` from the top-products response;
+list and filtered cards render the list DTO's `mainPhoto`. The handwritten mapper
+preserves the URL returned by ProductsCatalog through the BFF, including encoded
+spaces and Unicode. Images fit within their cards; a missing or empty URL shows
+an accessible phone icon without an empty image request. URLs are not constructed
+from product names or rewritten to the BFF origin.
+
+The Products Terraform rollout enables anonymous **blob** reads for the existing
+`photos` container. The browser needs no storage credentials or SAS token. The
+pinned Products image contains the Azure Blob seed URLs. Existing local SQL volumes
+retain already-applied seed migrations; pulling a new image does not rewrite those
+rows. Use an intentionally fresh disposable Products database when testing the
+changed original seeds.
+
+Component and Kiota repository tests cover URL deserialization, mapping, rendering
+and missing URLs. `catalog-photos.spec.ts` uses real Products/BFF responses in the
+container stack and fixtures only the external image bytes, so CI does not depend
+on a development storage account. Verify actual anonymous Blob access separately
+after the Terraform apply. The details carousel, cart and order photo presentation
+are the next tasks.
+
 ## Tests and local verification
 
 Run the portable stages after `npm ci`:
@@ -97,7 +120,7 @@ Unit tests use Angular TestBed with Vitest. Coverage covers handwritten code and
 
 Install the Playwright browser once with `npx playwright install --with-deps chromium`. Acceptance starts an isolated Compose project, waits for BFF and catalog, then removes its containers and volumes. It uses ports 14200, 15137 and 15138 by default (`WEB_PORT`, `BFF_PORT` and `STRIPE_FIXTURE_PORT` override them). The acceptance-only Compose overlay redirects the SDK provider boundary to a deterministic fixture; the real APIs, databases, signed webhook verification and one-shot fulfillment worker still run. To run against an already running acceptance stack (including the provider fixture), use `ACCEPTANCE_BASE_URL=http://127.0.0.1:4200 npm run test:acceptance`. Each scenario registers a unique customer through BFF's `/registrations/customers`; no fixture creates a cart separately. The registration scenario checks the empty cart and rejects duplicate creation. The checkout scenario checks one created order, an empty cart, and the returned final total. The profile scenario selects a customer by external ID and saves their individual billing data. See [ADR-0002](docs/adr/0002-testing-boundaries.md) and [local verification](docs/local-verification.md).
 
-`bash scripts/verify.sh` performs a clean install, every portable stage, and a frontend image build. It requires a working Docker daemon. The Compose stack pins the scanned STRIPE/4 BFF image from merged commit `369a93914dd3052ba5ae5a85b008c18536076fdf` by digest for the payment acceptance scenarios. The mandatory acceptance gate checks all twelve browser scenarios against that image; report its actual result before merging or claiming a published frontend image.
+`bash scripts/verify.sh` performs a clean install, every portable stage, and a frontend image build. It requires a working Docker daemon. The Compose stack pins the scanned STRIPE/4 BFF image from merged commit `369a93914dd3052ba5ae5a85b008c18536076fdf` by digest for the payment acceptance scenarios. The mandatory acceptance gate checks browser scenarios against that image; report its actual result before merging or claiming a published frontend image.
 
 ## CI and operations
 
