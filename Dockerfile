@@ -13,7 +13,8 @@ FROM nginx:stable-alpine AS runtime
 
 RUN apk upgrade --no-cache libexpat
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+ENV BFF_URL=http://bff:8080
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 
 COPY --from=build /app/dist/ecommerce-store-web/browser /usr/share/nginx/html
 

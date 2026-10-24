@@ -66,6 +66,27 @@ docker compose -f compose/ecommerce-compose.yml down
 
 Nginx forwards `/backend/` to `bff:8080` on the Compose network. The Compose frontend and `npm start` both use port 4200; stop one before starting the other. Set `WEB_PORT` and `BFF_PORT` to override the host ports for the container stack.
 
+### Azure Container Apps
+
+Set the frontend container's `BFF_URL` to the deployed BFF origin, for example
+`https://ca-ecommercestore-bff-dev.<environment-domain>`, without a trailing slash.
+The default `http://bff:8080` keeps Docker Compose working. The official Nginx
+image renders `nginx.conf` from `/etc/nginx/templates/default.conf.template`
+at startup; no custom startup script or Angular rebuild is required per environment.
+
+Nginx removes `/backend`, sends the BFF host in the upstream Host header, and uses
+SNI and the image's CA certificates for HTTPS. The browser continues to use
+same-origin `/backend` requests. Azure terminates frontend HTTPS and forwards to
+Nginx on port 80. Container readiness at `/` checks the SPA; verify
+`/backend/health` and `/backend/mobile-phones?amount=15` separately to check the
+gateway and catalog flow. A 180-second upstream read timeout accommodates cold
+starts; the BFF and upstream APIs also have their own timeouts.
+
+The shared [Terraform repository](https://github.com/MichalBoczula/ECommerceStore.Terraform)
+supplies `BFF_URL` automatically. This first Azure iteration supports catalog
+browsing and Blob photos; customer, cart, order and payment operations require
+their services in later deployments.
+
 No customer is selected by default. Open Account → Profile, enter an existing customer external ID, and load the profile. Users returns the customer GUID; the demo context stores it for cart, favorites, and orders and reloads the app when the selection changes. The profile reads and updates individual details, billing address, and shipping address through Users. Existing company name, tax ID, billing address, and shipping address can also be edited through Users. Legacy `localStorage.demoClientId` sessions still work for cart/favorites/orders, but profile lookup requires the external ID. This browser-local selection is not authentication or authorization. The customer must already have a cart; an absent cart is reported as an incomplete registration.
 
 ## API contracts and Kiota
