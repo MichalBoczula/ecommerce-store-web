@@ -11,7 +11,7 @@ RUN npm run build
 
 FROM nginx:stable-alpine AS runtime
 
-RUN apk upgrade --no-cache libexpat
+RUN apk upgrade --no-cache libexpat brotli-libs
 
 ENV BFF_URL=http://bff:8080
 COPY nginx.conf /etc/nginx/templates/default.conf.template
