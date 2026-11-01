@@ -2,11 +2,13 @@
   display: block;
 }
 .shell {
+  overflow: visible;
   min-height: 100dvh;
   background: var(--store-page);
   color: var(--store-ink);
 }
 .shell-content {
+  overflow: visible;
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
@@ -60,6 +62,7 @@ main {
   width: min(390px, 100vw);
   padding: 20px;
   background: var(--store-white);
+  color: var(--store-ink);
   border-radius: 0 16px 16px 0;
 }
 .filter-heading {

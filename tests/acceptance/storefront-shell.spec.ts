@@ -33,6 +33,7 @@ test('mobile filters restore focus and bottom navigation remains accessible afte
     const drawer = page.getByRole('dialog', { name: 'Filters' });
     await expect(drawer).toBeVisible();
     await expect(menu).toHaveAttribute('aria-expanded', 'true');
+    await expect(drawer.getByRole('button', { name: 'Close filters' })).toBeFocused();
     await page.keyboard.press('Escape');
     await expect(drawer).toBeHidden();
     await expect(menu).toBeFocused();
@@ -41,12 +42,14 @@ test('mobile filters restore focus and bottom navigation remains accessible afte
     await expect(page).toHaveURL(/\/list$/);
     await expect(drawer).toBeHidden();
     const nav = page.getByRole('navigation', { name: 'Mobile navigation' });
-    await nav.getByRole('link', { name: 'Profile', exact: true }).click();
-    await expect(page).toHaveURL(/\/profile$/);
+    await expect.poll(() => page.evaluate(() => document.body.scrollHeight)).toBeGreaterThan(1688);
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     const bounds = await nav.boundingBox();
     expect(bounds).not.toBeNull();
     expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(845);
+    await expect(page.getByRole('banner')).toBeInViewport();
+    await nav.getByRole('link', { name: 'Profile', exact: true }).click();
+    await expect(page).toHaveURL(/\/profile$/);
     await nav.getByRole('link', { name: 'Cart', exact: true }).click();
     await expect(page).toHaveURL(/\/cart$/);
 });
