@@ -17,6 +17,8 @@ describe('MobilePhonesFacade', () => {
 
   const initialFeatureState: MobilePhonesState = {
     status: 'idle',
+    detailsStatus: 'idle',
+    detailsError: null,
     catalogStatus: 'idle',
     catalogError: null,
     topStatus: 'idle',

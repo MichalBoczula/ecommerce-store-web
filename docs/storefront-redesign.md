@@ -1,6 +1,6 @@
 # Storefront redesign
 
-Task WEB/STORE-03 implements the shared Angular shell from the [approved desktop and mobile Figma design](https://www.figma.com/design/ZRkPrMyrqoNcVn93FMUh07). Task WEB/STORE-04 adds the home and catalog pages, integrating the shared phone card. The header, footer, mobile navigation and filter drawer are live. Product detail and customer/checkout page layouts are subsequent tasks; their existing behavior and API contracts remain in place.
+Task WEB/STORE-03 implements the shared Angular shell from the [approved desktop and mobile Figma design](https://www.figma.com/design/ZRkPrMyrqoNcVn93FMUh07). Task WEB/STORE-04 adds the home and catalog pages, integrating the shared phone card. The header, footer, mobile navigation and filter drawer are live. Task WEB/STORE-05 implements product details. Customer and checkout layouts are subsequent tasks; their existing behavior and API contracts remain in place.
 
 ## Shared presentation
 
@@ -14,11 +14,11 @@ The mobile navigation appears below 768px. Its reserved content space includes t
 
 `src/styles/_storefront.scss` defines the Figma CSS tokens and Material overrides. Shared components use the `--store-*` colors, spacing and radii. `.store-container` centers content at a maximum of 1248px with responsive gutters; `.store-button` applies the 48px high, 8px radius Material button treatment. Typography uses the existing Roboto family, now including the 700 weight.
 
-Legacy page SCSS imports the Sass-only `src/styles/_tokens.scss`, rather than importing the global stylesheet and emitting its CSS into every component. Remove compatibility tokens as those pages are migrated. New pages should use the CSS theme tokens. Fixed mobile purchase controls in the later product task must sit above `--store-mobile-nav-space`.
+Legacy page SCSS imports the Sass-only `src/styles/_tokens.scss`, rather than importing the global stylesheet and emitting its CSS into every component. Remove compatibility tokens as those pages are migrated. New pages should use the CSS theme tokens. The details purchase bar sits above `--store-mobile-nav-space`; the shared layout reserves additional space while that bar exists, keeping the footer reachable.
 
 ## Verification
 
-Shell/component unit tests cover customer loading and guidance, reactive counts, navigation, order detail selection, errors, drawer close behavior, card outputs, disabled actions and missing data. `tests/acceptance/storefront-shell.spec.ts` checks five viewport widths, desktop/mobile filter access, Escape focus restoration and fixed mobile navigation. It runs with the existing real-container acceptance suite. No API, generated client, dependency or coverage threshold changes are required.
+Shell/component unit tests cover customer loading and guidance, reactive counts, navigation, order detail selection, errors, drawer close behavior, card outputs, disabled actions and missing data. `tests/acceptance/storefront-shell.spec.ts` checks five viewport widths, desktop/mobile filter access, Escape focus restoration and fixed mobile navigation. It runs with the existing real-container acceptance suite. API contracts, generated clients and coverage thresholds remain unchanged.
 
 ## Home and catalog behavior
 
@@ -28,6 +28,19 @@ Catalog criteria are encoded as `/list?brand=Xiaomi&minPrice=1000&maxPrice=2600`
 
 A single catalog effect handles list/filter requests, canceling obsolete subscriptions when criteria change. Per-view home/catalog load states prevent a late home response from hiding a catalog loading or error state. Loaded-empty results, errors with Retry, and skeleton loading each have their own presentation. The existing facades, repository ports, BFF adapter and generated clients remain the API boundary. The ordinary catalog still requests the existing 15-product page; pagination, sorting, search and additional facets are outside this task.
 
-The catalog card shows only screen size and display type, which are supplied in the list DTO. It does not invent storage or show the camera field as a processor. The known Samsung S25 Green-name/Black-photo mismatch is retained as source data. Product details and customer/checkout layouts retain their existing designs until their planned tasks.
+The catalog card shows only screen size and display type, which are supplied in the list DTO. It does not invent storage or show the camera field as a processor. The known Samsung S25 Green-name/Black-photo mismatch is retained as source data. Customer and checkout layouts retain their existing designs until their planned tasks.
 
 Additional browser scenarios verify featured-phone cart/favorite mutations through real registered customers, backend currencies, product links, brand shortcuts, desktop budgets, refresh/Back preservation, mobile drawer synchronization and empty-result recovery. Existing cart/photo/payment coverage remains active with selectors adapted to the shared card.
+
+
+## Product details
+
+The responsive details page follows Figma desktop `8:3104` and mobile `8:3216`. Main and additional photos come from the current product response, trimmed and deduplicated in source order. Native keyboard-accessible thumbnail buttons select the active image, skip broken photos and show an accessible fallback when none remain. The obsolete placeholder/dog images and the now-unused Swiper dependency/global registration are removed.
+
+The page displays the supplied amount/currency, including zero, and explicitly handles missing money. Cart commands still send only product ID and quantity one. Saving/removing favorites uses the existing customer/product commands; both IDs scope the saved state. Guest actions remain disabled. The mobile purchase bar stays above bottom navigation, and its shared-shell space reservation clears on navigation, loading and errors.
+
+Brand breadcrumbs use existing catalog query filters; Back retains browser history. The overview uses the actual processor, display, memory and enabled connectivity fields. Storage is informational, not a variant selector; no color, reviews, stock or delivery promises are invented. Descriptions retain all three API text sections. The specifications preserve every available field and explicit Yes/No flags, with readable labels and without duplicated RAM/storage units. This makes seeded pages longer than the abbreviated Figma specification example.
+
+Detail load state is independent of late home/catalog requests. Route changes clear stale products/actions, cancel obsolete requests through the existing effect, and reload the new ID. Loading, error/retry, missing photos and unavailable prices have explicit states.
+
+Unit tests cover data mapping, gallery selection/failure, customer-scoped mutations, guests, stale routes, retry, money and mobile space cleanup. `tests/acceptance/storefront-details.spec.ts` checks the real BFF detail response, four gallery URLs and keyboard selection, specifications, registered-customer cart/favorite persistence, brand links, five widths, mobile bar/navigation geometry and footer reachability. Only external development-storage image bytes are isolated in the gallery scenario; product/customer APIs remain real.

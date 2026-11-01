@@ -17,7 +17,10 @@
     </div>
     <app-mobile-phone-filter (applied)="filters.close()" />
   </mat-sidenav>
-  <mat-sidenav-content class="shell-content">
+  <mat-sidenav-content
+    class="shell-content"
+    [class.with-mobile-action]="layoutState.mobileActionBarVisible()"
+  >
     <app-store-header
       [cartCount]="cartItemsCount()"
       [favoritesCount]="favoritesCount()"

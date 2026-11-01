@@ -14,6 +14,7 @@ export class MobilePhonesFacade {
   readonly catalogStatus$ = this.store.select(mobilePhonesFeature.selectCatalogStatus);
   readonly topStatus$ = this.store.select(mobilePhonesFeature.selectTopStatus);
 
+  readonly detailsStatus$ = this.store.select(mobilePhonesFeature.selectDetailsStatus);
   readonly details$ = this.store.select(mobilePhonesFeature.selectSelectedItem);
   readonly top$ = this.store.select(mobilePhonesFeature.selectTopMobilePhones);
 

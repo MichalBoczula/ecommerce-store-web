@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
+import { StorefrontLayoutState } from '../../../shared/presentation/storefront-layout-state';
 import { StoreHeader } from '../../../shared/presentation/store-header/store-header';
 import { StoreMobileNav } from '../../../shared/presentation/store-mobile-nav/store-mobile-nav';
 import { StoreFooter } from '../../../shared/presentation/store-footer/store-footer';
@@ -39,6 +40,7 @@ export class MainLayoutComponent implements OnInit {
   private readonly usersFacade = inject(UsersFacade);
   private readonly ordersFacade = inject(OrdersFacade);
 
+  readonly layoutState = inject(StorefrontLayoutState);
   readonly customer = inject(CustomerContext);
   private get userId(): string | null {
     return this.customer.clientId();

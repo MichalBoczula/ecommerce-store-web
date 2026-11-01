@@ -1,124 +1,151 @@
+import { StorefrontLayoutState } from '../../../../shared/presentation/storefront-layout-state';
 import { CustomerContext } from '../../../../shared/application/customer-context';
-import { CommonModule, Location } from '@angular/common';
+import { DecimalPipe, Location } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  CUSTOM_ELEMENTS_SCHEMA,
   computed,
+  effect,
   inject,
-  OnInit,
+  signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { MatTableModule } from '@angular/material/table';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
-import { ActivatedRoute } from '@angular/router';
-
+import { MatIconModule } from '@angular/material/icon';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { distinctUntilChanged, map } from 'rxjs';
 import { MobilePhonesFacade } from '../../application/mobile-phones.facade';
 import { OrdersFacade } from '../../../cart/application/orders.facade';
 import { UsersFacade } from '../../../users/application/users.facade';
-import { ShoppingCartLineRequest } from '../../../cart/domain/model/update-shopping-cart/shopping-cart-line-request.model';
+import { CatalogFeedback } from '../catalog-feedback/catalog-feedback';
 import {
   asLines,
   isNotNullOrWhiteSpace,
   toDescriptions,
+  toGalleryPhotos,
+  toGlanceRows,
   toProductName,
   toSpecRows,
+  withUnit,
 } from './mobile-phone.details.utils';
-
-export type SpecRow =
-  | { label: string; kind: 'text'; value: string | string[] }
-  | { label: string; kind: 'bool'; value: boolean };
 
 @Component({
   selector: 'app-mobile-phone-details',
-  standalone: true,
-  imports: [CommonModule, MatTableModule, MatCheckboxModule, MatButtonModule],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [DecimalPipe, RouterLink, MatButtonModule, MatIconModule, CatalogFeedback],
   templateUrl: './mobile-phone.details.html',
   styleUrl: './mobile-phone.details.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MobilePhoneDetails implements OnInit {
+export class MobilePhoneDetails {
   private readonly route = inject(ActivatedRoute);
   private readonly facade = inject(MobilePhonesFacade);
-  private readonly ordersFacade = inject(OrdersFacade);
-  private readonly usersFacade = inject(UsersFacade);
+  private readonly orders = inject(OrdersFacade);
+  private readonly users = inject(UsersFacade);
   private readonly location = inject(Location);
-
-  private readonly customer = inject(CustomerContext);
-  readonly selectedClientId = this.customer.clientId;
-  private get userId(): string | null { return this.customer.clientId(); }
-
-  readonly details = toSignal(this.facade.details$);
-  readonly favorites = this.usersFacade.favorites;
-
-  readonly isFavorite = computed<boolean>(() => {
-    const item = this.details();
-    if (!item?.id) return false;
-
-    const currentId = item.id.toString().toLowerCase();
-    return this.favorites().some(
-      fav => fav.productId?.toString().toLowerCase() === currentId
+  readonly customer = inject(CustomerContext);
+  private readonly routeId = toSignal(
+    this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
+    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' },
+  );
+  readonly status = toSignal(this.facade.detailsStatus$, { initialValue: 'idle' });
+  private readonly rawDetails = toSignal(this.facade.details$, { initialValue: null });
+  readonly details = computed(() => {
+    const item = this.rawDetails();
+    return this.status() === 'loaded' && item?.id.toLowerCase() === this.routeId().toLowerCase()
+      ? item
+      : null;
+  });
+  readonly feedbackStatus = computed(() =>
+    !this.routeId() || (this.status() === 'loaded' && !this.details()) ? 'error' : this.status(),
+  );
+  readonly productName = computed(() =>
+    this.details() ? toProductName(this.details()!) : 'Mobile phone',
+  );
+  readonly specRows = computed(() => (this.details() ? toSpecRows(this.details()!) : []));
+  readonly glanceRows = computed(() => (this.details() ? toGlanceRows(this.details()!) : []));
+  readonly descriptions = computed(() =>
+    this.details() ? toDescriptions(this.details()!).filter(isNotNullOrWhiteSpace) : [],
+  );
+  readonly photos = computed(() => (this.details() ? toGalleryPhotos(this.details()!) : []));
+  readonly selectedPhoto = signal<string | null>(null);
+  readonly failedPhotos = signal<Set<string>>(new Set());
+  readonly activePhoto = computed(() => {
+    const available = this.photos().filter((photo) => !this.failedPhotos().has(photo));
+    return available.find((photo) => photo === this.selectedPhoto()) ?? available[0] ?? null;
+  });
+  readonly isFavorite = computed(() => {
+    const id = this.details()?.id.toLowerCase();
+    const clientId = this.customer.clientId()?.toLowerCase();
+    return (
+      !!id &&
+      !!clientId &&
+      this.users
+        .favorites()
+        .some(
+          (favorite) =>
+            favorite.clientId?.toLowerCase() === clientId &&
+            favorite.productId?.toLowerCase() === id,
+        )
     );
   });
-
-  readonly productName = computed(() => {
-    const item = this.details();
-    return item ? toProductName(item) : '';
+  readonly hasPrice = computed(() => {
+    const price = this.details()?.price;
+    return (
+      typeof price?.amount === 'number' && Number.isFinite(price.amount) && !!price.currency?.trim()
+    );
   });
-
-  readonly specRows = computed(() => {
-    const item = this.details();
-    return item ? toSpecRows(item) : [];
-  });
-
-  readonly descriptions = computed(() => {
-    const item = this.details();
-    return item ? toDescriptions(item) : [];
-  });
-
+  readonly storage = computed(() => withUnit(this.details()?.electronicDetails?.storage, 'GB'));
+  readonly summary = computed(() =>
+    [this.details()?.electronicDetails?.cpu, this.details()?.electronicDetails?.displayType]
+      .filter(isNotNullOrWhiteSpace)
+      .join(' · '),
+  );
   readonly asLines = asLines;
-  readonly isNotNullOrWhiteSpace = isNotNullOrWhiteSpace;
-  readonly displayedColumns: string[] = ['label', 'value'];
 
-  readonly images: string[] = [
-    'https://material.angular.dev/assets/img/examples/shiba2.jpg',
-    'https://material.angular.dev/assets/img/examples/shiba1.jpg',
-    'https://material.angular.dev/assets/img/examples/shiba2.jpg',
-  ];
+  constructor() {
+    const layout = inject(StorefrontLayoutState);
+    effect((onCleanup) => {
+      layout.mobileActionBarVisible.set(!!this.details());
+      onCleanup(() => layout.mobileActionBarVisible.set(false));
+    });
+    this.route.paramMap
+      .pipe(
+        map((params) => params.get('id') ?? ''),
+        distinctUntilChanged(),
+        takeUntilDestroyed(),
+      )
+      .subscribe((id) => this.load(id));
+    const clientId = this.customer.clientId();
+    if (clientId) this.users.loadFavorites(clientId);
+  }
 
-  ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id') ?? '';
-    if (id) {
-      this.facade.loadById(id);
-    }
-    if (this.userId) this.usersFacade.loadFavorites(this.userId);
+  load(id = this.routeId()): void {
+    this.selectedPhoto.set(null);
+    this.failedPhotos.set(new Set());
+    if (id) this.facade.loadById(id);
+  }
+
+  selectPhoto(photo: string): void {
+    if (this.photos().includes(photo) && !this.failedPhotos().has(photo))
+      this.selectedPhoto.set(photo);
+  }
+
+  photoFailed(photo: string): void {
+    this.failedPhotos.update((photos) => new Set([...photos, photo]));
   }
 
   addToCart(): void {
-    const item = this.details();
-    if (!item || !item.id || !this.userId) return;
-
-    const lineItem: ShoppingCartLineRequest = {
-      productId: item.id.toString(),
-      quantity: 1,
-    };
-
-    this.ordersFacade.addItem(this.userId, lineItem);
+    const item = this.details(),
+      clientId = this.customer.clientId();
+    if (item?.id && clientId) this.orders.addItem(clientId, { productId: item.id, quantity: 1 });
   }
 
   toggleFavorite(): void {
-    const item = this.details();
-    if (!item?.id || !this.userId) return;
-
-    const productId = item.id.toString();
-
-    if (this.isFavorite()) {
-      this.usersFacade.removeFavorite(this.userId, productId);
-    } else {
-      this.usersFacade.addFavoriteByProductId(this.userId, productId);
-    }
+    const item = this.details(),
+      clientId = this.customer.clientId();
+    if (!item?.id || !clientId) return;
+    if (this.isFavorite()) this.users.removeFavorite(clientId, item.id);
+    else this.users.addFavoriteByProductId(clientId, item.id);
   }
 
   goBack(): void {
