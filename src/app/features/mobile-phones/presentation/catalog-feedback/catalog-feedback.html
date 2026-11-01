@@ -1,0 +1,40 @@
+@if (status() === 'loading' || status() === 'idle') {
+  <div role="status" class="loading-state">
+    <p>Loading smartphones</p>
+    <div class="skeleton-grid" aria-hidden="true">
+      @for (skeleton of skeletons; track skeleton) {
+        <div class="skeleton">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line short"></div>
+        </div>
+      }
+    </div>
+  </div>
+} @else {
+  <div class="feedback" [attr.role]="status() === 'error' ? 'alert' : 'status'">
+    <span class="symbol" [class.error]="status() === 'error'"
+      ><img
+        [src]="status() === 'error' ? 'icons/catalog-error.svg' : 'icons/catalog-empty.svg'"
+        alt=""
+    /></span>
+    @if (status() === 'error') {
+      <h3>Couldn’t load phones</h3>
+      <p>The catalog is unavailable right now. Try loading it again.</p>
+      <button class="store-button" mat-flat-button type="button" (click)="retry.emit()">
+        Retry
+      </button>
+    } @else {
+      <h3>No phones found</h3>
+      @if (canEditFilters()) {
+        <p>Adjust your brand or price filters and try again.</p>
+        <button class="store-button" mat-flat-button type="button" (click)="editFilters.emit()">
+          Edit filters
+        </button>
+      } @else {
+        <p>Explore the catalog to find your next phone.</p>
+        <a class="store-button" mat-flat-button routerLink="/list">Browse phones</a>
+      }
+    }
+  </div>
+}

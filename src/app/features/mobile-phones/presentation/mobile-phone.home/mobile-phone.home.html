@@ -1,27 +1,95 @@
-<article class="grid-list">
-    @if (top$ | async; as phones) {
-    @for (phone of phones; track phone.id) {
-    <section class="container">
-        <div class="image">
-            @if (phone.commonDescription?.mainPhoto; as mainPhoto) {
-            <img [src]="mainPhoto" [alt]="phone.commonDescription?.name ?? 'Mobile phone'" decoding="async" />
-            } @else {
-            <span role="img" [attr.aria-label]="'Photo unavailable for ' + (phone.commonDescription?.name ?? 'mobile phone')">
+<div class="store-container home-page">
+  <section class="hero" aria-labelledby="home-heading">
+    <div class="hero-copy">
+      <p class="eyebrow">SMARTPHONES, SIMPLY.</p>
+      <h1 id="home-heading"><span>Your next phone.</span><span>A better everyday.</span></h1>
+      <p class="intro">
+        Find the right fit for your day. Explore phones from Apple, Samsung, Xiaomi and Motorola.
+      </p>
+      <a class="store-button explore-button" mat-flat-button routerLink="/list"
+        >Explore smartphones</a
+      >
+    </div>
+    @if (heroPhones().length) {
+      <div class="hero-devices">
+        @for (phone of heroPhones(); track phone.id) {
+          <a
+            class="hero-device"
+            [routerLink]="['/details', phone.id]"
+            [attr.aria-label]="'Explore ' + phone.name"
+          >
+            <div class="hero-image">
+              @if (phone.mainPhoto && !failedHeroPhotos().has(phone.id)) {
+                <img
+                  [src]="phone.mainPhoto"
+                  alt=""
+                  decoding="async"
+                  (error)="heroPhotoFailed(phone.id)"
+                />
+              } @else {
                 <mat-icon aria-hidden="true">smartphone</mat-icon>
+              }
+            </div>
+            <span class="hero-name" [title]="phone.name ?? ''">{{ phone.name }}</span>
+            <span class="hero-price">
+              @if ((phone.price?.amount ?? null) !== null && phone.price?.currency) {
+                {{ phone.price?.amount | number: '1.0-2' }} {{ phone.price?.currency }}
+              } @else {
+                Price unavailable
+              }
             </span>
-            }
-        </div>
-        <div class="phone-name-container">
-            <h4>{{phone.commonDescription!.name}}</h4>
-            <h4>price: {{phone.price!.amount}}$</h4>
-        </div>
-    </section>
+          </a>
+        }
+      </div>
     }
+  </section>
+  <section class="brands" aria-labelledby="brands-heading">
+    <h2 id="brands-heading">Find your favorite brand</h2>
+    <nav class="brand-links" aria-label="Shop by brand">
+      @for (brand of brands; track brand) {
+        <a [routerLink]="['/list']" [queryParams]="{ brand }">{{ brand }}</a>
+      }
+    </nav>
+  </section>
+  <section
+    class="featured"
+    aria-labelledby="featured-heading"
+    [attr.aria-busy]="status() === 'loading' || status() === 'idle'"
+  >
+    <div class="section-heading">
+      <h2 id="featured-heading">Featured phones</h2>
+      <a routerLink="/list">View all phones</a>
+    </div>
+    @if (status() === 'loaded' && phones().length) {
+      <div class="featured-grid">
+        @for (phone of phones(); track phone.id) {
+          <app-store-phone-card
+            [attr.data-product-id]="phone.id"
+            [productId]="phone.id"
+            [name]="phone.name ?? 'Unknown model'"
+            [brand]="phone.brand"
+            [photo]="phone.mainPhoto"
+            [price]="phone.price"
+            [saved]="phone.isFavorite"
+            [actionsDisabled]="!customer.clientId()"
+            (addToCart)="addToCart(phone)"
+            (toggleFavorite)="toggleFavorite(phone)"
+          />
+        }
+        <div class="catalog-callout">
+          <div>
+            <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+            <h3>Find your fit.</h3>
+            <p>Explore smartphones, from everyday essentials to flagship power.</p>
+          </div>
+          <a class="store-button" mat-flat-button routerLink="/list"
+            ><span class="desktop-cta">Browse all phones</span
+            ><span class="mobile-cta">View all</span></a
+          >
+        </div>
+      </div>
+    } @else {
+      <app-catalog-feedback [status]="status()" (retry)="load()" />
     }
-</article>
-<article class="grid-list">
-    <button matFab extended routerLink="/list" class="home-btn">
-        <mat-icon>home</mat-icon>
-        Check more ...
-    </button>
-</article>
+  </section>
+</div>

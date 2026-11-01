@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { MobilePhonesFacade } from './mobile-phones.facade';
@@ -11,113 +11,117 @@ import { MobilePhone } from '../domain/model/mobile-phone';
 import { FilterMobilePhone } from '../domain/model/filter-mobile-phones';
 
 describe('MobilePhonesFacade', () => {
-    let facade: MobilePhonesFacade;
-    let store: MockStore;
-    let dispatchSpy: Mock;
+  let facade: MobilePhonesFacade;
+  let store: MockStore;
+  let dispatchSpy: Mock;
 
-    const initialFeatureState: MobilePhonesState = {
-        status: 'idle',
-        items: [],
-        topMobilePhones: [],
-        selectedItem: null,
-        error: null,
-    };
+  const initialFeatureState: MobilePhonesState = {
+    status: 'idle',
+    catalogStatus: 'idle',
+    catalogError: null,
+    topStatus: 'idle',
+    topError: null,
+    items: [],
+    topMobilePhones: [],
+    selectedItem: null,
+    error: null,
+  };
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            providers: [
-                MobilePhonesFacade,
-                provideMockStore({
-                    initialState: {
-                        mobilePhones: initialFeatureState,
-                    },
-                }),
-            ],
-        });
-
-        facade = TestBed.inject(MobilePhonesFacade);
-        store = TestBed.inject(MockStore);
-        dispatchSpy = vi.spyOn(store, 'dispatch');
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        MobilePhonesFacade,
+        provideMockStore({
+          initialState: {
+            mobilePhones: initialFeatureState,
+          },
+        }),
+      ],
     });
 
-    afterEach(() => {
-        store.resetSelectors();
-    });
+    facade = TestBed.inject(MobilePhonesFacade);
+    store = TestBed.inject(MockStore);
+    dispatchSpy = vi.spyOn(store, 'dispatch');
+  });
 
-    it('should dispatch loadMobilePhones', () => {
-        facade.load(10);
+  afterEach(() => {
+    store.resetSelectors();
+  });
 
-        expect(dispatchSpy).toHaveBeenCalledWith(Actions.loadMobilePhones({ amount: 10 }));
-    });
+  it('should dispatch loadMobilePhones', () => {
+    facade.load(10);
 
-    it('should dispatch loadMobilePhoneById', () => {
-        facade.loadById('abc');
+    expect(dispatchSpy).toHaveBeenCalledWith(Actions.loadMobilePhones({ amount: 10 }));
+  });
 
-        expect(dispatchSpy).toHaveBeenCalledWith(Actions.loadMobilePhoneById({ id: 'abc' }));
-    });
+  it('should dispatch loadMobilePhoneById', () => {
+    facade.loadById('abc');
 
-    it('should dispatch loadTopMobilePhone', () => {
-        facade.loadTop();
+    expect(dispatchSpy).toHaveBeenCalledWith(Actions.loadMobilePhoneById({ id: 'abc' }));
+  });
 
-        expect(dispatchSpy).toHaveBeenCalledWith(Actions.loadTopMobilePhone());
-    });
+  it('should dispatch loadTopMobilePhone', () => {
+    facade.loadTop();
 
-    it('should dispatch loadMobilePhoneByFilter', () => {
-        const filter: FilterMobilePhone = { brand: 'Apple' };
+    expect(dispatchSpy).toHaveBeenCalledWith(Actions.loadTopMobilePhone());
+  });
 
-        facade.loadByFilter(filter);
+  it('should dispatch loadMobilePhoneByFilter', () => {
+    const filter: FilterMobilePhone = { brand: 'Apple' };
 
-        expect(dispatchSpy).toHaveBeenCalledWith(Actions.loadMobilePhoneByFilter({ filter }));
-    });
+    facade.loadByFilter(filter);
 
-    it('should expose items$ from store', async () => {
-        const items = [{ id: '1' }] as MobilePhone[];
+    expect(dispatchSpy).toHaveBeenCalledWith(Actions.loadMobilePhoneByFilter({ filter }));
+  });
 
-        store.overrideSelector(mobilePhonesFeature.selectItems, items);
-        store.refreshState();
+  it('should expose items$ from store', async () => {
+    const items = [{ id: '1' }] as MobilePhone[];
 
-        const result = await firstValueFrom(facade.items$);
+    store.overrideSelector(mobilePhonesFeature.selectItems, items);
+    store.refreshState();
 
-        expect(result).toEqual(items);
-    });
+    const result = await firstValueFrom(facade.items$);
 
-    it('should expose status$ from store', async () => {
-        store.overrideSelector(mobilePhonesFeature.selectStatus, 'loaded');
-        store.refreshState();
+    expect(result).toEqual(items);
+  });
 
-        const result = await firstValueFrom(facade.status$);
+  it('should expose status$ from store', async () => {
+    store.overrideSelector(mobilePhonesFeature.selectStatus, 'loaded');
+    store.refreshState();
 
-        expect(result).toBe('loaded');
-    });
+    const result = await firstValueFrom(facade.status$);
 
-    it('should expose error$ from store', async () => {
-        store.overrideSelector(mobilePhonesFeature.selectError, 'boom');
-        store.refreshState();
+    expect(result).toBe('loaded');
+  });
 
-        const result = await firstValueFrom(facade.error$);
+  it('should expose error$ from store', async () => {
+    store.overrideSelector(mobilePhonesFeature.selectError, 'boom');
+    store.refreshState();
 
-        expect(result).toBe('boom');
-    });
+    const result = await firstValueFrom(facade.error$);
 
-    it('should expose details$ from store', async () => {
-        const selectedItem = { id: 'details-1' } as MobilePhoneDetails;
+    expect(result).toBe('boom');
+  });
 
-        store.overrideSelector(mobilePhonesFeature.selectSelectedItem, selectedItem);
-        store.refreshState();
+  it('should expose details$ from store', async () => {
+    const selectedItem = { id: 'details-1' } as MobilePhoneDetails;
 
-        const result = await firstValueFrom(facade.details$);
+    store.overrideSelector(mobilePhonesFeature.selectSelectedItem, selectedItem);
+    store.refreshState();
 
-        expect(result).toEqual(selectedItem);
-    });
+    const result = await firstValueFrom(facade.details$);
 
-    it('should expose top$ from store', async () => {
-        const topMobilePhones = [{ id: 'top-1' }] as TopMobilePhone[];
+    expect(result).toEqual(selectedItem);
+  });
 
-        store.overrideSelector(mobilePhonesFeature.selectTopMobilePhones, topMobilePhones);
-        store.refreshState();
+  it('should expose top$ from store', async () => {
+    const topMobilePhones = [{ id: 'top-1' }] as TopMobilePhone[];
 
-        const result = await firstValueFrom(facade.top$);
+    store.overrideSelector(mobilePhonesFeature.selectTopMobilePhones, topMobilePhones);
+    store.refreshState();
 
-        expect(result).toEqual(topMobilePhones);
-    });
+    const result = await firstValueFrom(facade.top$);
+
+    expect(result).toEqual(topMobilePhones);
+  });
 });
