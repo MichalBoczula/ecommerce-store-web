@@ -13,11 +13,7 @@
     @if (heroPhones().length) {
       <div class="hero-devices">
         @for (phone of heroPhones(); track phone.id) {
-          <a
-            class="hero-device"
-            [routerLink]="['/details', phone.id]"
-            [attr.aria-label]="'Explore ' + phone.name"
-          >
+          <a class="hero-device" [routerLink]="['/details', phone.id]">
             <div class="hero-image">
               @if (phone.mainPhoto && !failedHeroPhotos().has(phone.id)) {
                 <img

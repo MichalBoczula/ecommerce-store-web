@@ -37,14 +37,13 @@
         class="mobile-cart"
         mat-icon-button
         routerLink="/cart"
-        aria-label="Cart"
         [matBadge]="cartCount()"
         [matBadgeHidden]="cartCount() === 0"
         [matBadgeDescription]="cartCount() + ' items in cart'"
         routerLinkActive="active"
         ariaCurrentWhenActive="page"
       >
-        <mat-icon>shopping_cart</mat-icon>
+        <mat-icon>shopping_cart</mat-icon><span class="cdk-visually-hidden">Cart</span>
       </a>
       <button
         class="filter-menu"

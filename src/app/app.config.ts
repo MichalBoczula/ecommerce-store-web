@@ -1,5 +1,5 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, isDevMode } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideState, provideStore } from '@ngrx/store';
@@ -51,7 +51,13 @@ import { PaymentsEffects } from './features/payments/state/payments.effects';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
+    provideRouter(
+      routes,
+      withInMemoryScrolling({
+        scrollPositionRestoration: 'enabled',
+        anchorScrolling: 'enabled',
+      }),
+    ),
     provideHttpClient(withFetch()),
     provideAnimations(),
     provideStore(),
@@ -62,7 +68,14 @@ export const appConfig: ApplicationConfig = {
     provideState(orderHistoryFeature),
     provideState(customerProfileFeature),
     provideState(paymentsFeature),
-    provideEffects(MobilePhonesEffects, OrdersEffects, FavoritesEffects, OrderHistoryEffects, CustomerProfileEffects, PaymentsEffects),
+    provideEffects(
+      MobilePhonesEffects,
+      OrdersEffects,
+      FavoritesEffects,
+      OrderHistoryEffects,
+      CustomerProfileEffects,
+      PaymentsEffects,
+    ),
 
     // Mobile Phones Providers
     { provide: MobilePhonesRepository, useClass: MobilePhonesKiotaRepository },

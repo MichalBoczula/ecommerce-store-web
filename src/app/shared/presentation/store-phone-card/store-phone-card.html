@@ -25,7 +25,7 @@
       @if (showPhoto()) {
         <img
           [src]="photo()"
-          [alt]="name()"
+          alt=""
           loading="lazy"
           decoding="async"
           (error)="failedPhoto.set(photo())"
@@ -53,7 +53,7 @@
     mat-flat-button
     type="button"
     [disabled]="actionsDisabled()"
-    [attr.aria-label]="'Add ' + name() + ' to cart'"
+    [attr.aria-label]="'Add to cart: ' + name()"
     (click)="addToCart.emit()"
   >
     Add to cart

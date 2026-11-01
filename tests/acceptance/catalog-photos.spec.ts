@@ -33,7 +33,7 @@ test('home and list display the main photos returned through the BFF', async ({ 
         await page.goto(screen.path);
         await expect(page.locator('.image img')).toHaveCount(screen.phones.length);
         for (const phone of screen.phones) {
-            const image = page.getByRole('img', { name: phone.name, exact: true });
+            const image = page.getByRole('link', { name: `View details for ${phone.name}`, exact: true }).locator('.image img');
             await expect(image).toHaveAttribute('src', phone.mainPhoto);
             await image.scrollIntoViewIfNeeded();
             await expect.poll(() => image.evaluate(element => (element as HTMLImageElement).naturalWidth))

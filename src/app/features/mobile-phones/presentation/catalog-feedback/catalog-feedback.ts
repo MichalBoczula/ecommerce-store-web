@@ -16,6 +16,7 @@ export class CatalogFeedback {
   readonly errorTitle = input('Couldn’t load phones');
   readonly errorDescription = input('The catalog is unavailable right now. Try loading it again.');
   readonly canEditFilters = input(false);
+  readonly headingLevel = input<2 | 3>(3);
   readonly retry = output<void>();
   readonly editFilters = output<void>();
   readonly skeletons = [0, 1, 2];

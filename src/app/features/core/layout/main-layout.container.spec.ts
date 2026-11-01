@@ -129,4 +129,15 @@ describe('storefront shell', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeNull();
   });
+  it('focuses new page content while preserving focus for filter-only navigation', async () => {
+    const { fixture, router } = await setup();
+    const main = fixture.nativeElement.querySelector('main') as HTMLElement;
+    const focus = vi.spyOn(main, 'focus');
+    await router.navigateByUrl('/list');
+    expect(focus).toHaveBeenCalledExactlyOnceWith({ preventScroll: true });
+    await router.navigateByUrl('/list?brand=Apple');
+    expect(focus).toHaveBeenCalledTimes(1);
+    await router.navigateByUrl('/orders/order-1');
+    expect(focus).toHaveBeenCalledTimes(2);
+  });
 });

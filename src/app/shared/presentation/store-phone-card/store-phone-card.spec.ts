@@ -26,7 +26,13 @@ describe('shared phone card', () => {
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('.price')?.textContent).toContain('3,999 PLN');
     expect(element.querySelector('a')?.getAttribute('href')).toBe('/details/phone-1');
-    expect(element.querySelector('img')?.alt).toBe('Catalog phone');
+    expect(element.querySelector('img')?.alt).toBe('');
+    expect(element.querySelector('.details')?.getAttribute('aria-label')).toBe(
+      'View details for Catalog phone',
+    );
+    expect(element.querySelector('.add-button')?.getAttribute('aria-label')).toBe(
+      'Add to cart: Catalog phone',
+    );
     element.querySelector<HTMLButtonElement>('.favorite')?.click();
     expect(save).toHaveBeenCalledOnce();
     expect(add).not.toHaveBeenCalled();

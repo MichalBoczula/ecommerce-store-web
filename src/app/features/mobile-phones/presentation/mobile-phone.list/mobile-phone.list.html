@@ -21,6 +21,7 @@
       <app-mobile-phone-filter />
     </aside>
     <div class="catalog-results" [attr.aria-busy]="status() === 'loading' || status() === 'idle'">
+      <h2 class="cdk-visually-hidden">Available smartphones</h2>
       <div class="active-filters" aria-label="Active catalog filters">
         <span class="brand-label">{{ filter().brand ?? 'All brands' }}</span>
         @if ((filter().minimalPrice ?? null) !== null) {
