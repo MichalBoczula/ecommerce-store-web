@@ -1,6 +1,6 @@
 @if (status() === 'loading' || status() === 'idle') {
   <div role="status" class="loading-state">
-    <p>Loading smartphones</p>
+    <p>{{ loadingLabel() }}</p>
     <div class="skeleton-grid" aria-hidden="true">
       @for (skeleton of skeletons; track skeleton) {
         <div class="skeleton">
@@ -19,8 +19,8 @@
         alt=""
     /></span>
     @if (status() === 'error') {
-      <h3>Couldn’t load phones</h3>
-      <p>The catalog is unavailable right now. Try loading it again.</p>
+      <h3>{{ errorTitle() }}</h3>
+      <p>{{ errorDescription() }}</p>
       <button class="store-button" mat-flat-button type="button" (click)="retry.emit()">
         Retry
       </button>

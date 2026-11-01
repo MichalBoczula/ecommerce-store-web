@@ -87,3 +87,9 @@ main {
     scroll-margin-top: 92px;
   }
 }
+
+@media (max-width: 767px) {
+  .shell-content.with-mobile-action {
+    padding-bottom: calc(var(--store-mobile-nav-space) + 108px);
+  }
+}

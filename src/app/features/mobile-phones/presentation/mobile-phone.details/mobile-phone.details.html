@@ -1,98 +1,189 @@
-<article class="grid-list">
-    <div class="header-container">
-        <button mat-icon-button type="button" (click)="goBack()" aria-label="Go back to previous page">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </button>
-
-        <h1 class="title producName">{{ productName() }}</h1>
-        <div class="button-container">
-            <button matButton="filled" [class.fav-delete-btn]="isFavorite()" (click)="toggleFavorite()"
-                [disabled]="!selectedClientId()" aria-label="Add to favorites">
-                <span class="material-symbols-outlined">favorite</span>
-            </button>
-            <button matButton="elevated" type="button" (click)="addToCart()" [disabled]="!selectedClientId()"
-                aria-label="Add to shopping cart">
-                <span class="material-symbols-outlined">shopping_cart_checkout</span>
-            </button>
+<article class="store-container details-page">
+  <div class="breadcrumb-row">
+    <button
+      mat-button
+      type="button"
+      class="back-button"
+      (click)="goBack()"
+      aria-label="Go back to previous page"
+    >
+      Back
+    </button>
+    <nav aria-label="Breadcrumb" class="breadcrumbs">
+      <a routerLink="/list">Smartphones</a>
+      @if (details()?.commonDescription?.brand; as brand) {
+        <span aria-hidden="true">/</span
+        ><a routerLink="/list" [queryParams]="{ brand }">{{ brand }}</a>
+      }
+      @if (details()) {
+        <span aria-hidden="true">/</span><span aria-current="page">{{ productName() }}</span>
+      }
+    </nav>
+  </div>
+  @if (details(); as phone) {
+    <div class="product-overview">
+      <section class="gallery" aria-label="Product photos">
+        <div class="main-photo">
+          @if (activePhoto(); as photo) {
+            <img
+              [src]="photo"
+              [alt]="
+                productName() +
+                ' — photo ' +
+                (photos().indexOf(photo) + 1) +
+                ' of ' +
+                photos().length
+              "
+              decoding="async"
+              (error)="photoFailed(photo)"
+            />
+          } @else {
+            <span
+              class="photo-fallback"
+              role="img"
+              [attr.aria-label]="'Photo unavailable for ' + productName()"
+              ><mat-icon aria-hidden="true">smartphone</mat-icon
+              ><span>Photo unavailable</span></span
+            >
+          }
         </div>
-    </div>
-
-    <swiper-container class="swiper" slides-per-view="1" loop="true" navigation="true" pagination="true">
-        @for (img of images; track img) {
-        <swiper-slide>
-            <img class="carousel-img" [src]="img" alt="Mobile Phone Preview" />
-        </swiper-slide>
+        @if (photos().length > 1) {
+          <div class="gallery-thumbnails" role="group" aria-label="Choose product photo">
+            @for (photo of photos(); track photo; let index = $index) {
+              <button
+                type="button"
+                class="thumbnail"
+                [class.selected]="activePhoto() === photo"
+                [attr.aria-pressed]="activePhoto() === photo"
+                [attr.aria-label]="
+                  'View photo ' + (index + 1) + ' of ' + photos().length + ' for ' + productName()
+                "
+                [disabled]="failedPhotos().has(photo)"
+                (click)="selectPhoto(photo)"
+              >
+                @if (!failedPhotos().has(photo)) {
+                  <img
+                    [src]="photo"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    (error)="photoFailed(photo)"
+                  />
+                } @else {
+                  <span>Unavailable</span>
+                }
+              </button>
+            }
+          </div>
         }
-    </swiper-container>
-
-    @if (descriptions(); as descs) {
-    @if (descs[0] && isNotNullOrWhiteSpace(descs[0])) {
-    <section class="container">
-        <div class="image">
-            <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Description Image 1" />
-        </div>
-
-        <div class="content-container">
-            <div class="content">
-                {{ descs[0] }}
-            </div>
-        </div>
-    </section>
-    }
-
-    @if (descs[1] && isNotNullOrWhiteSpace(descs[1])) {
-    <section class="reverse-container">
-        <div class="reverse-image">
-            <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Description Image 2" />
-        </div>
-
-        <div class="reverse-content-container">
-            <div class="reverse-content">
-                {{ descs[1] }}
-            </div>
-        </div>
-    </section>
-    }
-
-    @if (descs[2] && isNotNullOrWhiteSpace(descs[2])) {
-    <section class="container">
-        <div class="image">
-            <img src="https://material.angular.dev/assets/img/examples/shiba2.jpg" alt="Description Image 3" />
-        </div>
-
-        <div class="content-container">
-            <div class="content">
-                {{ descs[2] }}
-            </div>
-        </div>
-    </section>
-    }
-    }
-
-    <h2 class="title">Specification</h2>
-
-    <div class="spec-table">
-        <table mat-table [dataSource]="specRows()" class="mat-elevation-z0">
-
-            <ng-container matColumnDef="label">
-                <td mat-cell *matCellDef="let row" class="label">
-                    {{ row.label }}
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="value">
-                <td mat-cell *matCellDef="let row" class="value">
-                    @if (row.kind === 'bool') {
-                    <mat-checkbox class="spec-checkbox" [checked]="row.value" disabled></mat-checkbox>
-                    } @else {
-                    @for (v of asLines(row.value); track v) {
-                    <div class="value-line">{{ v }}</div>
-                    }
-                    }
-                </td>
-            </ng-container>
-
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
+      </section>
+      <section class="purchase-panel" aria-labelledby="product-heading">
+        @if (phone.commonDescription?.brand) {
+          <p class="brand">{{ phone.commonDescription?.brand }}</p>
+        }
+        <h1 id="product-heading">{{ productName() }}</h1>
+        @if (summary()) {
+          <p class="product-summary">{{ summary() }}</p>
+        }
+        <p class="product-price">
+          @if (hasPrice()) {
+            {{ phone.price?.amount | number: '1.0-2' }} {{ phone.price?.currency }}
+          } @else {
+            <span class="unpriced">Price unavailable</span>
+          }
+        </p>
+        @if (storage()) {
+          <p class="storage">{{ storage() }} storage</p>
+        }
+        <button
+          class="store-button purchase-button"
+          mat-flat-button
+          type="button"
+          [disabled]="!customer.clientId()"
+          (click)="addToCart()"
+        >
+          Add to cart
+        </button>
+        <button
+          class="store-button save-button"
+          mat-stroked-button
+          type="button"
+          [attr.aria-pressed]="isFavorite()"
+          [class.saved]="isFavorite()"
+          [disabled]="!customer.clientId()"
+          (click)="toggleFavorite()"
+        >
+          {{ isFavorite() ? 'Remove from favorites' : 'Save to favorites' }}
+        </button>
+        @if (glanceRows().length) {
+          <section class="glance" aria-labelledby="glance-heading">
+            <h2 id="glance-heading">At a glance</h2>
+            <dl>
+              @for (row of glanceRows(); track row.label) {
+                <div>
+                  <dt>{{ row.label }}</dt>
+                  <dd>{{ row.value }}</dd>
+                </div>
+              }
+            </dl>
+          </section>
+        }
+      </section>
     </div>
+    @if (descriptions().length) {
+      <section class="detail-section description" aria-labelledby="description-heading">
+        <h2 id="description-heading">Made for your everyday</h2>
+        @for (description of descriptions(); track $index) {
+          <p>{{ description }}</p>
+        }
+      </section>
+    }
+    @if (specRows().length) {
+      <section class="detail-section specifications" aria-labelledby="specifications-heading">
+        <h2 id="specifications-heading">Specifications</h2>
+        <dl>
+          @for (row of specRows(); track row.label) {
+            <div>
+              <dt>{{ row.label }}</dt>
+              <dd>
+                @if (row.kind === 'bool') {
+                  {{ row.value ? 'Yes' : 'No' }}
+                } @else {
+                  @for (value of asLines(row.value); track $index) {
+                    <span class="spec-value">{{ value }}</span>
+                  }
+                }
+              </dd>
+            </div>
+          }
+        </dl>
+      </section>
+    }
+    <section class="mobile-purchase" aria-label="Mobile purchase">
+      <p>
+        @if (hasPrice()) {
+          {{ phone.price?.amount | number: '1.0-2' }} {{ phone.price?.currency }}
+        } @else {
+          <span class="unpriced">Price unavailable</span>
+        }
+      </p>
+      <button
+        class="store-button"
+        mat-flat-button
+        type="button"
+        [disabled]="!customer.clientId()"
+        (click)="addToCart()"
+      >
+        Add to cart
+      </button>
+    </section>
+  } @else {
+    <app-catalog-feedback
+      [status]="feedbackStatus()"
+      loadingLabel="Loading phone"
+      errorTitle="Couldn’t load this phone"
+      errorDescription="Try again or return to the smartphone catalog."
+      (retry)="load()"
+    />
+  }
 </article>

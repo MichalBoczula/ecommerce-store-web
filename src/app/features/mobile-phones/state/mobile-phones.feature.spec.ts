@@ -8,6 +8,8 @@ describe('mobilePhonesFeature reducer', () => {
 
   const initialState: MobilePhonesState = {
     status: 'idle',
+    detailsStatus: 'idle',
+    detailsError: null,
     catalogStatus: 'idle',
     catalogError: null,
     topStatus: 'idle',
@@ -157,5 +159,16 @@ describe('mobilePhonesFeature reducer', () => {
     expect(catalogFailed.catalogStatus).toBe('error');
     expect(catalogFailed.catalogError).toBe('Unavailable');
     expect(catalogFailed.topStatus).toBe('loaded');
+  });
+  it('clears stale details and keeps their status independent from other requests', () => {
+    let state = reducer(initialState, Actions.loadMobilePhoneByIdSuccess({ item: { id: 'old' } }));
+    state = reducer(state, Actions.loadMobilePhoneById({ id: 'new' }));
+    expect(state.selectedItem).toBeNull();
+    expect(state.detailsStatus).toBe('loading');
+    state = reducer(state, Actions.loadTopMobilePhoneSuccess({ items: [] }));
+    expect(state.detailsStatus).toBe('loading');
+    state = reducer(state, Actions.loadMobilePhoneByIdFailure({ error: 'Not found' }));
+    expect(state.detailsStatus).toBe('error');
+    expect(state.selectedItem).toBeNull();
   });
 });

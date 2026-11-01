@@ -7,6 +7,8 @@ describe('mobilePhonesFeature selectors', () => {
   const state: { mobilePhones: MobilePhonesState } = {
     mobilePhones: {
       status: 'loaded',
+      detailsStatus: 'loaded',
+      detailsError: null,
       catalogStatus: 'loaded',
       catalogError: null,
       topStatus: 'loaded',

@@ -12,6 +12,9 @@ import { LoadStatus } from '../../state/mobile-phones.feature';
 })
 export class CatalogFeedback {
   readonly status = input.required<LoadStatus>();
+  readonly loadingLabel = input('Loading smartphones');
+  readonly errorTitle = input('Couldn’t load phones');
+  readonly errorDescription = input('The catalog is unavailable right now. Try loading it again.');
   readonly canEditFilters = input(false);
   readonly retry = output<void>();
   readonly editFilters = output<void>();

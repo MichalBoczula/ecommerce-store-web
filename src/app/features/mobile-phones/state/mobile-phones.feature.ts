@@ -8,6 +8,8 @@ export type LoadStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
 export interface MobilePhonesState {
   status: LoadStatus;
+  detailsStatus: LoadStatus;
+  detailsError: string | null;
   catalogStatus: LoadStatus;
   catalogError: string | null;
   topStatus: LoadStatus;
@@ -20,6 +22,8 @@ export interface MobilePhonesState {
 
 const initialState: MobilePhonesState = {
   status: 'idle',
+  detailsStatus: 'idle',
+  detailsError: null,
   catalogStatus: 'idle',
   catalogError: null,
   topStatus: 'idle',
@@ -55,13 +59,28 @@ export const mobilePhonesFeature = createFeature({
       catalogError: error,
     })),
 
-    on(Actions.loadMobilePhoneById, (s) => ({ ...s, status: 'loading', error: null })),
+    on(Actions.loadMobilePhoneById, (s) => ({
+      ...s,
+      status: 'loading',
+      error: null,
+      detailsStatus: 'loading',
+      detailsError: null,
+      selectedItem: null,
+    })),
     on(Actions.loadMobilePhoneByIdSuccess, (s, { item }) => ({
       ...s,
       status: 'loaded',
       selectedItem: item,
+      detailsStatus: 'loaded',
     })),
-    on(Actions.loadMobilePhoneByIdFailure, (s, { error }) => ({ ...s, status: 'error', error })),
+    on(Actions.loadMobilePhoneByIdFailure, (s, { error }) => ({
+      ...s,
+      status: 'error',
+      error,
+      detailsStatus: 'error',
+      detailsError: error,
+      selectedItem: null,
+    })),
 
     on(Actions.loadTopMobilePhone, (s) => ({
       ...s,
