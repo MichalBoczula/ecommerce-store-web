@@ -43,14 +43,14 @@ test('saved phone cards retain real photos, add to cart, remove and clear favori
     await expect(page.locator('app-store-phone-card')).toHaveCount(3);
     for (const phone of saved) {
         const card = page.locator(`app-store-phone-card[data-product-id="${phone.id}"]`);
-        await expect(card.getByRole('img', { name: phone.name, exact: true })).toHaveAttribute('src', phone.mainPhoto);
+        await expect(card.getByRole('link', { name: `View details for ${phone.name}`, exact: true }).locator('img')).toHaveAttribute('src', phone.mainPhoto);
         await expect(card.locator('.price')).toHaveText(money(phone.price.amount, phone.price.currency));
     }
     for (const width of [360, 390, 768, 1024, 1440]) {
         await page.setViewportSize({ width, height: 844 });
         expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
     }
-    await page.locator(`app-store-phone-card[data-product-id="${saved[0].id}"]`).getByRole('button', { name: `Add ${saved[0].name} to cart`, exact: true }).click();
+    await page.locator(`app-store-phone-card[data-product-id="${saved[0].id}"]`).getByRole('button', { name: `Add to cart: ${saved[0].name}`, exact: true }).click();
     await expect.poll(async () => {
         const response = await request.get(`/backend/shopping-carts/client/${clientId}`);
         expect(response.ok()).toBeTruthy();

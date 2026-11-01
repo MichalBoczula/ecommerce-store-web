@@ -1,7 +1,22 @@
 @use 'styles/storefront';
+@use 'styles/fonts';
 @import '@angular/material/prebuilt-themes/azure-blue.css';
 
 @include storefront.theme;
+
+html {
+  scroll-padding-top: 128px;
+  scroll-padding-bottom: calc(var(--store-mobile-nav-space) + 16px);
+}
+
+@media (max-width: 767px) {
+  html {
+    scroll-padding-top: 92px;
+  }
+  html:has(.with-mobile-action) {
+    scroll-padding-bottom: calc(var(--store-mobile-nav-space) + 108px);
+  }
+}
 
 body {
   margin: 0;

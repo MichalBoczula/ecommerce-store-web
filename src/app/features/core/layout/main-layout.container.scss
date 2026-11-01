@@ -22,7 +22,6 @@ app-store-header {
 main {
   flex: 1;
   min-width: 0;
-  scroll-margin-top: 128px;
 }
 .skip-link {
   position: fixed;
@@ -82,9 +81,6 @@ main {
     align-items: flex-start;
     flex-direction: column;
     gap: 4px;
-  }
-  main {
-    scroll-margin-top: 92px;
   }
 }
 

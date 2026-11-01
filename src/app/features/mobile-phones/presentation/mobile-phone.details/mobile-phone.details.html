@@ -56,7 +56,12 @@
                 [class.selected]="activePhoto() === photo"
                 [attr.aria-pressed]="activePhoto() === photo"
                 [attr.aria-label]="
-                  'View photo ' + (index + 1) + ' of ' + photos().length + ' for ' + productName()
+                  (failedPhotos().has(photo) ? 'Unavailable photo ' : 'View photo ') +
+                  (index + 1) +
+                  ' of ' +
+                  photos().length +
+                  ' for ' +
+                  productName()
                 "
                 [disabled]="failedPhotos().has(photo)"
                 (click)="selectPhoto(photo)"
@@ -178,8 +183,10 @@
       </button>
     </section>
   } @else {
+    <h1 class="cdk-visually-hidden">Phone details</h1>
     <app-catalog-feedback
       [status]="feedbackStatus()"
+      [headingLevel]="2"
       loadingLabel="Loading phone"
       errorTitle="Couldn’t load this phone"
       errorDescription="Try again or return to the smartphone catalog."

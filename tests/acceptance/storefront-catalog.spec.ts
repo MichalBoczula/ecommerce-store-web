@@ -33,7 +33,7 @@ test('featured phones keep backend currency, cart, favorites and product navigat
     await expect(card).toBeVisible();
     const amount = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(phone.price.amount);
     await expect(card.locator('.price')).toContainText(`${amount} ${phone.price.currency}`);
-    await card.getByRole('button', { name: `Add ${phone.commonDescription.name} to cart`, exact: true }).click();
+    await card.getByRole('button', { name: `Add to cart: ${phone.commonDescription.name}`, exact: true }).click();
     await expect.poll(async () => {
         const response = await request.get(`/backend/shopping-carts/client/${clientId}`);
         expect(response.ok()).toBeTruthy();

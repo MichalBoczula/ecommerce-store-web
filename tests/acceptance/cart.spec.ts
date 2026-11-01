@@ -60,7 +60,7 @@ test('customer adds, changes quantity and removes a catalog product through the 
     await page.goto('/list');
     const card = page.locator('app-store-phone-card').filter({ has: page.getByRole('link', { name: `View details for ${phone.name}` }) });
     await expect(card).toBeVisible();
-    await card.getByRole('button', { name: `Add ${phone.name} to cart`, exact: true }).click();
+    await card.getByRole('button', { name: `Add to cart: ${phone.name}`, exact: true }).click();
     await expect.poll(async () => (await getCart(request, clientId)).lines).toEqual([{ productId: phone.id, quantity: 1 }]);
 
     await page.goto('/cart');
@@ -110,7 +110,7 @@ test('checkout creates one order, clears the cart and shows the backend total', 
     const card = page.locator('app-store-phone-card').filter({
         has: page.getByRole('link', { name: `View details for ${phone.name}` }),
     });
-    await card.getByRole('button', { name: `Add ${phone.name} to cart`, exact: true }).click();
+    await card.getByRole('button', { name: `Add to cart: ${phone.name}`, exact: true }).click();
     await expect.poll(async () => (await getCart(request, clientId)).lines).toEqual([
         { productId: phone.id, quantity: 1 },
     ]);

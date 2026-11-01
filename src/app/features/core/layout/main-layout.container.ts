@@ -1,7 +1,14 @@
 import { CustomerContext } from '../../../shared/application/customer-context';
-import { Component, computed, inject, OnInit, viewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Component, computed, DestroyRef, inject, OnInit, viewChild } from '@angular/core';
+import { CommonModule, DOCUMENT, ViewportScroller } from '@angular/common';
+import {
+  NavigationEnd,
+  NavigationStart,
+  Router,
+  RouterLink,
+  RouterOutlet,
+  Scroll,
+} from '@angular/router';
 
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
@@ -37,6 +44,10 @@ import { OrdersFacade } from '../../cart/application/orders.facade';
 })
 export class MainLayoutComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly document = inject(DOCUMENT);
+  private readonly viewport = inject(ViewportScroller);
+  private previousPage: string | null = null;
+  private cancelScrollRestore?: () => void;
   private readonly usersFacade = inject(UsersFacade);
   private readonly ordersFacade = inject(OrdersFacade);
 
@@ -49,6 +60,11 @@ export class MainLayoutComponent implements OnInit {
   private readonly filters = viewChild<MatSidenav>('filters');
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => this.cancelScrollRestore?.());
+    this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
+      if (event instanceof NavigationStart) this.cancelScrollRestore?.();
+      if (event instanceof Scroll && event.position) this.restoreScroll(event.position);
+    });
     inject(CatalogFilterDrawer)
       .openRequested$.pipe(takeUntilDestroyed())
       .subscribe(() => this.filters()?.open());
@@ -57,7 +73,44 @@ export class MainLayoutComponent implements OnInit {
         filter((event) => event instanceof NavigationEnd),
         takeUntilDestroyed(),
       )
-      .subscribe(() => this.filters()?.close());
+      .subscribe((event) => {
+        this.filters()?.close();
+        const page = event.urlAfterRedirects.split(/[?#]/)[0];
+        if (this.previousPage !== null && this.previousPage !== page) {
+          this.document.getElementById('main-content')?.focus({ preventScroll: true });
+        }
+        this.previousPage = page;
+      });
+  }
+
+  private restoreScroll(position: [number, number]): void {
+    const view = this.document.defaultView;
+    const main = this.document.getElementById('main-content');
+    if (!view || !main || typeof ResizeObserver === 'undefined') return;
+    const ready = () =>
+      this.document.documentElement.scrollHeight - view.innerHeight >= position[1];
+    if (ready()) {
+      this.viewport.scrollToPosition(position);
+      return;
+    }
+    // Router scrolling can run while API-backed pages still show their short loading state.
+    // Restore after content grows, unless the user has started interacting elsewhere.
+    const interactions = ['wheel', 'touchstart', 'pointerdown', 'keydown'];
+    const observer = new ResizeObserver(() => {
+      if (ready()) {
+        this.viewport.scrollToPosition(position);
+        cancel();
+      }
+    });
+    const cancel = () => {
+      observer.disconnect();
+      for (const event of interactions) view.removeEventListener(event, cancel);
+      this.cancelScrollRestore = undefined;
+    };
+    this.cancelScrollRestore = cancel;
+    for (const event of interactions)
+      view.addEventListener(event, cancel, { passive: true, once: true });
+    observer.observe(main);
   }
 
   readonly favorites = this.usersFacade.favorites;

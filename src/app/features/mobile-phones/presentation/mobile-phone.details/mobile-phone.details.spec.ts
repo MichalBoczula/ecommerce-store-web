@@ -102,6 +102,9 @@ describe('product details', () => {
     element.querySelector('.main-photo img')?.dispatchEvent(new Event('error'));
     fixture.detectChanges();
     expect(element.querySelector('.main-photo img')?.getAttribute('src')).toContain('Main.webp');
+    expect(element.querySelectorAll('.thumbnail')[1].getAttribute('aria-label')).toContain(
+      'Unavailable photo 2',
+    );
     for (const photo of fixture.componentInstance.photos())
       fixture.componentInstance.photoFailed(photo);
     fixture.detectChanges();

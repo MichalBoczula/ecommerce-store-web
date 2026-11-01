@@ -18,14 +18,17 @@
         [src]="status() === 'error' ? 'icons/catalog-error.svg' : 'icons/catalog-empty.svg'"
         alt=""
     /></span>
+    @if (headingLevel() === 2) {
+      <h2>{{ status() === 'error' ? errorTitle() : 'No phones found' }}</h2>
+    } @else {
+      <h3>{{ status() === 'error' ? errorTitle() : 'No phones found' }}</h3>
+    }
     @if (status() === 'error') {
-      <h3>{{ errorTitle() }}</h3>
       <p>{{ errorDescription() }}</p>
       <button class="store-button" mat-flat-button type="button" (click)="retry.emit()">
         Retry
       </button>
     } @else {
-      <h3>No phones found</h3>
       @if (canEditFilters()) {
         <p>Adjust your brand or price filters and try again.</p>
         <button class="store-button" mat-flat-button type="button" (click)="editFilters.emit()">

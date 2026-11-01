@@ -1,5 +1,8 @@
 <section class="store-container page">
   <div class="back-link-row"><a mat-button routerLink="/orders">Back to orders</a></div>
+  @if (customer.clientId() && (status() !== 'loaded' || !order())) {
+    <h1 class="cdk-visually-hidden">Order details</h1>
+  }
   @if (!customer.clientId()) {
     <div class="panel empty-state" role="status">
       <h1>Choose your demo customer</h1>
