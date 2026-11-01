@@ -1,52 +1,62 @@
-<mat-sidenav-container class="container">
-    <mat-sidenav #sidenav class="sidenav" [mode]="sidenavMode()" [opened]="sidenavOpened()">
-        <button class="brand" type="button" (click)="sidenav.toggle()" aria-label="Toggle categories">
-            <mat-icon>store</mat-icon>
-            <span class="brand-name">eCommerce</span>
-        </button>
-        <mat-nav-list>
-            <app-mobile-phone-filter></app-mobile-phone-filter>
-        </mat-nav-list>
-    </mat-sidenav>
-
-    <mat-sidenav-content>
-        <mat-toolbar color="primary" class="toolbar">
-            <button class="menu" mat-icon-button (click)="sidenav.toggle()" aria-label="Toggle menu">
-                <mat-icon class="title-icon">menu</mat-icon>
-                <span class="title">Menu</span>
-            </button>
-
-            <div>
-                <button mat-icon-button aria-label="Orders" (click)="onOrdersClick()">
-                    <mat-icon>receipt_long</mat-icon>
-                </button>
-                <button mat-icon-button aria-label="Favorites" (click)="onFavoritesClick()"
-                    [matBadge]="favoritesCount()" [matBadgeHidden]="favoritesCount() === 0" matBadgeColor="accent">
-                    <mat-icon class="favorites">favorite</mat-icon>
-                </button>
-
-                <button mat-icon-button aria-label="Cart" (click)="onCartClick()" [matBadge]="cartItemsCount()"
-                    [matBadgeHidden]="cartItemsCount() === 0" matBadgeColor="accent">
-                    <mat-icon class="cart">shopping_cart</mat-icon>
-                </button>
-
-                <button mat-icon-button aria-label="Account" (click)="onAccountClick()">
-                    <mat-icon class="account">account_circle</mat-icon>
-                </button>
-            </div>
-        </mat-toolbar>
-        @if (showCartError) {
-            <div class="cart-error-banner" role="alert">
-                <span>{{ cartError() }}</span>
-                <button mat-button type="button" (click)="onCartClick()">View cart</button>
-            </div>
-        }
-        @if (!customer.clientId()) {
-            <div class="cart-error-banner" role="status">
-                <span>No demo customer is selected. Choose an external ID in your profile to use the cart, favorites and orders.</span>
-                <button mat-button type="button" (click)="onAccountClick()">Open profile</button>
-            </div>
-        }
-        <router-outlet></router-outlet>
-    </mat-sidenav-content>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<mat-sidenav-container class="shell">
+  <mat-sidenav
+    #filters
+    id="catalog-filters"
+    class="filter-drawer"
+    mode="over"
+    fixedInViewport
+    role="dialog"
+    aria-labelledby="filter-heading"
+  >
+    <div class="filter-heading">
+      <h2 id="filter-heading">Filters</h2>
+      <button mat-icon-button type="button" (click)="filters.close()" aria-label="Close filters">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <app-mobile-phone-filter (applied)="filters.close()" />
+  </mat-sidenav>
+  <mat-sidenav-content class="shell-content">
+    <app-store-header
+      [cartCount]="cartItemsCount()"
+      [favoritesCount]="favoritesCount()"
+      [filtersOpen]="filters.opened"
+      (openFilters)="filters.open()"
+    />
+    <main id="main-content" tabindex="-1">
+      @if (showCartError) {
+        <div class="store-container notice notice-error" role="alert">
+          <span>{{ cartError() }}</span>
+          <a class="store-button" mat-button routerLink="/cart">View cart</a>
+        </div>
+      }
+      @if (!customer.clientId()) {
+        <div class="store-container notice" role="status">
+          <span
+            >No demo customer is selected. Choose an external ID in your profile to use the cart,
+            favorites and orders.</span
+          >
+          <a class="store-button" mat-button routerLink="/profile">Open profile</a>
+        </div>
+      }
+      @if (showCatalogFilters) {
+        <div class="store-container desktop-filters">
+          <button
+            class="store-button"
+            mat-stroked-button
+            type="button"
+            (click)="filters.open()"
+            aria-controls="catalog-filters"
+            [attr.aria-expanded]="filters.opened"
+          >
+            <mat-icon>tune</mat-icon>Filters
+          </button>
+        </div>
+      }
+      <router-outlet />
+    </main>
+    <app-store-footer />
+    <app-store-mobile-nav [cartCount]="cartItemsCount()" [favoritesCount]="favoritesCount()" />
+  </mat-sidenav-content>
 </mat-sidenav-container>

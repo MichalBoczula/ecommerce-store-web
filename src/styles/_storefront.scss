@@ -1,0 +1,80 @@
+@use '@angular/material' as mat;
+
+@mixin theme {
+  :root {
+    --store-blue: #165dde;
+    --store-blue-dark: #1049b3;
+    --store-blue-soft: #eaf1ff;
+    --store-ink: #172235;
+    --store-muted: #56647b;
+    --store-white: #ffffff;
+    --store-page: #f6f8fc;
+    --store-navy: #0e2344;
+    --store-green: #147d55;
+    --store-green-soft: #ebf8f1;
+    --store-amber: #956200;
+    --store-amber-soft: #fff5de;
+    --store-red: #c63c4b;
+    --store-red-soft: #fff0f1;
+    --store-border: #d9d9d9;
+    --store-space-1: 4px;
+    --store-space-2: 8px;
+    --store-space-3: 12px;
+    --store-space-4: 16px;
+    --store-space-6: 24px;
+    --store-space-8: 32px;
+    --store-space-12: 48px;
+    --store-space-16: 64px;
+    --store-radius-small: 8px;
+    --store-radius: 16px;
+    --store-content-width: 1248px;
+    --store-gutter: 32px;
+    --store-mobile-nav-height: 66px;
+    --store-mobile-nav-space: 0px;
+    color-scheme: light;
+
+    @include mat.theme-overrides(
+      (
+        primary: #165dde,
+        on-primary: #ffffff,
+        primary-container: #eaf1ff,
+        on-primary-container: #1049b3,
+        surface: #ffffff,
+        on-surface: #172235,
+        on-surface-variant: #56647b,
+        error: #c63c4b,
+        outline-variant: #d9d9d9,
+        body-large-font: Roboto,
+        body-medium-font: Roboto,
+        label-large-font: Roboto,
+      )
+    );
+  }
+
+  .store-container {
+    width: min(var(--store-content-width), calc(100% - 2 * var(--store-gutter)));
+    margin-inline: auto;
+  }
+
+  .store-button {
+    @include mat.button-overrides(
+      (
+        filled-container-shape: 8px,
+        filled-container-height: 48px,
+        outlined-container-shape: 8px,
+        outlined-container-height: 48px,
+        text-container-shape: 8px,
+        text-container-height: 48px,
+      )
+    );
+  }
+
+  @media (max-width: 767px) {
+    :root {
+      --store-gutter: 20px;
+      --store-mobile-nav-space: calc(
+        var(--store-mobile-nav-height) + env(safe-area-inset-bottom, 0px)
+      );
+    }
+  }
+}

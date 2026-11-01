@@ -1,6 +1,6 @@
 <div class="filter-form-container">
   <form class="filter-form" [formGroup]="form" (ngSubmit)="onSubmit()">
-    <mat-form-field>
+    <mat-form-field appearance="outline">
       <mat-label>Brand</mat-label>
       <mat-select formControlName="brand">
         <mat-option [value]="null">All</mat-option>
@@ -11,16 +11,18 @@
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field class="minimal-price-container">
-      <mat-label>Minimal Price</mat-label>
+    <p class="price-label">Price range · PLN</p>
+    <mat-form-field appearance="outline" class="minimal-price-container">
+      <mat-label>Minimum price</mat-label>
       <input matInput type="number" formControlName="minimalPrice" />
     </mat-form-field>
 
-    <mat-form-field class="max-price-container">
-      <mat-label>Max Price</mat-label>
+    <mat-form-field appearance="outline" class="max-price-container">
+      <mat-label>Maximum price</mat-label>
       <input matInput type="number" formControlName="maxPrice" />
     </mat-form-field>
 
-    <button mat-flat-button type="submit">Apply filters</button>
+    <button class="store-button" mat-flat-button type="submit">Apply filters</button>
+    <p class="filter-hint">Filter by brand and budget.</p>
   </form>
 </div>

@@ -1,0 +1,62 @@
+<header class="header">
+  <div class="store-container header-inner">
+    <a class="wordmark" routerLink="/home" aria-label="eCommerce home">eCommerce<span>.</span></a>
+    <nav class="desktop-navigation" aria-label="Main navigation">
+      <a routerLink="/list" routerLinkActive="active" ariaCurrentWhenActive="page">Smartphones</a>
+      <a
+        routerLink="/favorites"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        [matBadge]="favoritesCount()"
+        [matBadgeHidden]="favoritesCount() === 0"
+        [matBadgeDescription]="favoritesCount() + ' saved phones'"
+        >Favorites</a
+      >
+      <a routerLink="/orders" routerLinkActive="active" ariaCurrentWhenActive="page">Orders</a>
+    </nav>
+    <div class="header-actions">
+      <a
+        class="profile-link"
+        mat-icon-button
+        routerLink="/profile"
+        aria-label="Profile"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+      >
+        <mat-icon>person_outline</mat-icon>
+      </a>
+      <a
+        class="desktop-cart store-button"
+        mat-button
+        routerLink="/cart"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        >Cart ({{ cartCount() }})</a
+      >
+      <a
+        class="mobile-cart"
+        mat-icon-button
+        routerLink="/cart"
+        aria-label="Cart"
+        [matBadge]="cartCount()"
+        [matBadgeHidden]="cartCount() === 0"
+        [matBadgeDescription]="cartCount() + ' items in cart'"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+      >
+        <mat-icon>shopping_cart</mat-icon>
+      </a>
+      <button
+        class="filter-menu"
+        mat-icon-button
+        type="button"
+        (click)="openFilters.emit()"
+        aria-label="Open filters"
+        aria-controls="catalog-filters"
+        [attr.aria-expanded]="filtersOpen()"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+    </div>
+  </div>
+</header>
