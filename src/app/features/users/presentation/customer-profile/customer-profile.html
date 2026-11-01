@@ -1,101 +1,324 @@
-<section class="profile-page">
-    <h1>Customer profile</h1>
-    <p>Demo mode: choosing an external ID selects a customer in this browser. This is not authentication.</p>
-    @if (selectedId()) {
-    <p>Selected customer ID: <code>{{ selectedId() }}</code></p>
-    <button mat-button type="button" (click)="clearSelection()">Clear demo customer</button>
-    }
-
+<section class="store-container page">
+  <h1>Your profile</h1>
+  <p class="intro">Keep your contact and address details up to date.</p>
+  <section class="notice demo-selector" aria-labelledby="demo-heading">
+    <h2 id="demo-heading">Demo customer</h2>
+    <p>Select an existing customer for this browser. <span>This is not authentication.</span></p>
     <form class="selector" (ngSubmit)="load()">
-        <label for="externalId">External ID</label>
-        <input id="externalId" name="externalId" [(ngModel)]="externalId" required autocomplete="off">
-        <button mat-button type="submit" [disabled]="!externalId.trim() || loadStatus() === 'loading'">Load profile</button>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic"
+        ><mat-label>External ID</mat-label
+        ><input matInput name="externalId" [(ngModel)]="externalId" required autocomplete="off"
+      /></mat-form-field>
+      <button
+        class="store-button"
+        mat-flat-button
+        type="submit"
+        [disabled]="!externalId.trim() || loadStatus() === 'loading'"
+      >
+        Load profile
+      </button>
     </form>
+    @if (selectedId()) {
+      <p class="selected-id">
+        Selected customer ID: <code>{{ selectedId() }}</code>
+      </p>
+      <button mat-button type="button" (click)="clearSelection()">Clear demo customer</button>
+    }
     @if (selectedId() && !selectedExternalId()) {
-    <p role="status">This demo customer has only a GUID. Enter its external ID to load the profile.</p>
+      <p role="status">
+        This demo customer has only a GUID. Enter its external ID to load the profile.
+      </p>
     }
-    @if (loadStatus() === 'loading') { <p role="status">Loading profile...</p> }
-    @if (loadStatus() === 'notFound' || loadStatus() === 'error') {
-    <p role="alert">{{ error() }}</p>
-    }
-
-    @if (profile(); as current) {
-    <p>Customer ID: {{ current.id }}</p>
-    @if (current.updatedAt) { <p>Last updated: {{ current.updatedAt | date:'medium' }}</p> }
+  </section>
+  @if (loadStatus() === 'loading') {
+    <p class="notice" role="status">Loading profile...</p>
+  }
+  @if (loadStatus() === 'notFound' || loadStatus() === 'error') {
+    <p class="notice alert" role="alert">{{ error() }}</p>
+  }
+  @if (profile(); as current) {
+    <div class="profile-metadata">
+      <p>Customer ID: {{ current.id }}</p>
+      @if (current.updatedAt) {
+        <p>Last updated: {{ current.updatedAt | date: 'medium' }}</p>
+      }
+    </div>
     @if (individual(); as person) {
-    <form #profileForm="ngForm" (ngSubmit)="save(profileForm)" class="profile-form">
-        <mat-card>
-            <mat-card-header><mat-card-title>Individual details</mat-card-title></mat-card-header>
-            <mat-card-content class="fields">
-                <label>First name <input name="firstName" [(ngModel)]="person.firstName" required></label>
-                <label>Last name <input name="lastName" [(ngModel)]="person.lastName" required></label>
-                <label>Email <input name="email" type="email" [(ngModel)]="person.email" required email></label>
-                <label>Phone <input name="phone" [(ngModel)]="person.phone" required></label>
-            </mat-card-content>
-        </mat-card>
-        <mat-card>
-            <mat-card-header><mat-card-title>Billing address</mat-card-title></mat-card-header>
-            <mat-card-content class="fields">
-                <label>Street <input name="billingStreet" [(ngModel)]="person.billingAddress.street" required></label>
-                <label>Building number <input name="billingBuilding" [(ngModel)]="person.billingAddress.buildingNumber" required></label>
-                <label>Apartment number <input name="billingApartment" [(ngModel)]="person.billingAddress.apartmentNumber"></label>
-                <label>City <input name="billingCity" [(ngModel)]="person.billingAddress.city" required></label>
-                <label>Postal code <input name="billingPostal" [(ngModel)]="person.billingAddress.postalCode" required></label>
-            </mat-card-content>
-        </mat-card>
-        <mat-card>
-            <mat-card-header><mat-card-title>Shipping address</mat-card-title></mat-card-header>
-            <mat-card-content class="fields">
-                <label>Street <input name="shippingStreet" [(ngModel)]="person.shippingAddress.street" required></label>
-                <label>Building number <input name="shippingBuilding" [(ngModel)]="person.shippingAddress.buildingNumber" required></label>
-                <label>Apartment number <input name="shippingApartment" [(ngModel)]="person.shippingAddress.apartmentNumber"></label>
-                <label>City <input name="shippingCity" [(ngModel)]="person.shippingAddress.city" required></label>
-                <label>Postal code <input name="shippingPostal" [(ngModel)]="person.shippingAddress.postalCode" required></label>
-            </mat-card-content>
-        </mat-card>
-        <button mat-flat-button type="submit" [disabled]="profileForm.invalid || saveStatus() === 'saving'">Save profile</button>
-        @if (saveStatus() === 'saving') { <p role="status">Saving profile...</p> }
-        @if (saveStatus() === 'saved') { <p role="status">Profile saved.</p> }
-        @if (saveStatus() === 'conflict' || saveStatus() === 'notFound' || saveStatus() === 'error') {
-        <p role="alert">{{ error() }}</p>
-        <button mat-button type="button" (click)="load()">Reload profile</button>
-        }
-    </form>
+      <form #profileForm="ngForm" (ngSubmit)="save(profileForm)" class="profile-form">
+        <div class="profile-columns">
+          <div class="profile-column">
+            <section class="panel profile-card" aria-label="Personal details">
+              <h2>Personal details</h2>
+              <div class="fields">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic"
+                  ><mat-label>First name</mat-label
+                  ><input
+                    matInput
+                    name="firstName"
+                    [(ngModel)]="person.firstName"
+                    required
+                    autocomplete="given-name" /></mat-form-field
+                ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                  ><mat-label>Last name</mat-label
+                  ><input
+                    matInput
+                    name="lastName"
+                    [(ngModel)]="person.lastName"
+                    required
+                    autocomplete="family-name" /></mat-form-field
+                ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                  ><mat-label>Email</mat-label
+                  ><input
+                    matInput
+                    name="email"
+                    [(ngModel)]="person.email"
+                    required
+                    type="email"
+                    email
+                    autocomplete="email" /></mat-form-field
+                ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                  ><mat-label>Phone</mat-label
+                  ><input
+                    matInput
+                    name="phone"
+                    [(ngModel)]="person.phone"
+                    required
+                    type="tel"
+                    autocomplete="tel"
+                /></mat-form-field>
+              </div>
+            </section>
+            <section class="panel profile-card" aria-label="Billing address">
+              <h2>Billing address</h2>
+              <div class="fields">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic"
+                  ><mat-label>Street</mat-label
+                  ><input
+                    matInput
+                    name="billingStreet"
+                    [(ngModel)]="person.billingAddress.street"
+                    required /></mat-form-field
+                ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                  ><mat-label>Building number</mat-label
+                  ><input
+                    matInput
+                    name="billingBuilding"
+                    [(ngModel)]="person.billingAddress.buildingNumber"
+                    required /></mat-form-field
+                ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                  ><mat-label>Apartment number</mat-label
+                  ><input
+                    matInput
+                    name="billingApartment"
+                    [(ngModel)]="person.billingAddress.apartmentNumber" /></mat-form-field
+                ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                  ><mat-label>City</mat-label
+                  ><input
+                    matInput
+                    name="billingCity"
+                    [(ngModel)]="person.billingAddress.city"
+                    required /></mat-form-field
+                ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                  ><mat-label>Postal code</mat-label
+                  ><input
+                    matInput
+                    name="billingPostal"
+                    [(ngModel)]="person.billingAddress.postalCode"
+                    required
+                /></mat-form-field>
+              </div>
+            </section>
+          </div>
+          <div class="profile-column">
+            <section class="panel profile-card" aria-label="Shipping address">
+              <h2>Shipping address</h2>
+              <div class="fields">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic"
+                  ><mat-label>Street</mat-label
+                  ><input
+                    matInput
+                    name="shippingStreet"
+                    [(ngModel)]="person.shippingAddress.street"
+                    required /></mat-form-field
+                ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                  ><mat-label>Building number</mat-label
+                  ><input
+                    matInput
+                    name="shippingBuilding"
+                    [(ngModel)]="person.shippingAddress.buildingNumber"
+                    required /></mat-form-field
+                ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                  ><mat-label>Apartment number</mat-label
+                  ><input
+                    matInput
+                    name="shippingApartment"
+                    [(ngModel)]="person.shippingAddress.apartmentNumber" /></mat-form-field
+                ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                  ><mat-label>City</mat-label
+                  ><input
+                    matInput
+                    name="shippingCity"
+                    [(ngModel)]="person.shippingAddress.city"
+                    required /></mat-form-field
+                ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                  ><mat-label>Postal code</mat-label
+                  ><input
+                    matInput
+                    name="shippingPostal"
+                    [(ngModel)]="person.shippingAddress.postalCode"
+                    required
+                /></mat-form-field>
+              </div>
+            </section>
+          </div>
+        </div>
+        <div class="page-actions">
+          <button
+            class="store-button save-profile"
+            mat-flat-button
+            type="submit"
+            [disabled]="profileForm.invalid || saveStatus() === 'saving'"
+          >
+            Save profile
+          </button>
+        </div>
+      </form>
     }
     @if (companies().length) {
-    <h2>Company billing data</h2>
-    @for (company of companies(); track company.id) {
-    <form #companyForm="ngForm" (ngSubmit)="saveCompany(company, companyForm)" class="profile-form">
-        <mat-card>
-            <mat-card-header><mat-card-title>Company {{ company.id }}</mat-card-title></mat-card-header>
-            <mat-card-content class="fields">
-                <label>Company name <input name="companyName" [(ngModel)]="company.companyName" required></label>
-                <label>Tax ID <input name="taxId" [(ngModel)]="company.taxId" required></label>
-            </mat-card-content>
-        </mat-card>
-        <mat-card>
-            <mat-card-header><mat-card-title>Company billing address</mat-card-title></mat-card-header>
-            <mat-card-content class="fields">
-                <label>Street <input name="companyBillingStreet" [(ngModel)]="company.billingAddress.street" required></label>
-                <label>Building number <input name="companyBillingBuilding" [(ngModel)]="company.billingAddress.buildingNumber" required></label>
-                <label>Apartment number <input name="companyBillingApartment" [(ngModel)]="company.billingAddress.apartmentNumber"></label>
-                <label>City <input name="companyBillingCity" [(ngModel)]="company.billingAddress.city" required></label>
-                <label>Postal code <input name="companyBillingPostal" [(ngModel)]="company.billingAddress.postalCode" required></label>
-            </mat-card-content>
-        </mat-card>
-        <mat-card>
-            <mat-card-header><mat-card-title>Company shipping address</mat-card-title></mat-card-header>
-            <mat-card-content class="fields">
-                <label>Street <input name="companyShippingStreet" [(ngModel)]="company.shippingAddress.street" required></label>
-                <label>Building number <input name="companyShippingBuilding" [(ngModel)]="company.shippingAddress.buildingNumber" required></label>
-                <label>Apartment number <input name="companyShippingApartment" [(ngModel)]="company.shippingAddress.apartmentNumber"></label>
-                <label>City <input name="companyShippingCity" [(ngModel)]="company.shippingAddress.city" required></label>
-                <label>Postal code <input name="companyShippingPostal" [(ngModel)]="company.shippingAddress.postalCode" required></label>
-            </mat-card-content>
-        </mat-card>
-        <button mat-flat-button type="submit" [disabled]="companyForm.invalid || saveStatus() === 'saving'">Save company</button>
-    </form>
+      <h2>Company billing data</h2>
+      @for (company of companies(); track company.id) {
+        <form
+          #companyForm="ngForm"
+          (ngSubmit)="saveCompany(company, companyForm)"
+          class="profile-form"
+        >
+          <p class="company-id">Company {{ company.id }}</p>
+          <div class="profile-columns">
+            <div class="profile-column">
+              <section class="panel profile-card" aria-label="Company details">
+                <h2>Company details</h2>
+                <div class="fields">
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic"
+                    ><mat-label>Company name</mat-label
+                    ><input
+                      matInput
+                      name="companyName"
+                      [(ngModel)]="company.companyName"
+                      required /></mat-form-field
+                  ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                    ><mat-label>Tax ID</mat-label
+                    ><input matInput name="taxId" [(ngModel)]="company.taxId" required
+                  /></mat-form-field>
+                </div>
+              </section>
+              <section class="panel profile-card" aria-label="Company billing address">
+                <h2>Company billing address</h2>
+                <div class="fields">
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic"
+                    ><mat-label>Street</mat-label
+                    ><input
+                      matInput
+                      name="companyBillingStreet"
+                      [(ngModel)]="company.billingAddress.street"
+                      required /></mat-form-field
+                  ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                    ><mat-label>Building number</mat-label
+                    ><input
+                      matInput
+                      name="companyBillingBuilding"
+                      [(ngModel)]="company.billingAddress.buildingNumber"
+                      required /></mat-form-field
+                  ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                    ><mat-label>Apartment number</mat-label
+                    ><input
+                      matInput
+                      name="companyBillingApartment"
+                      [(ngModel)]="company.billingAddress.apartmentNumber" /></mat-form-field
+                  ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                    ><mat-label>City</mat-label
+                    ><input
+                      matInput
+                      name="companyBillingCity"
+                      [(ngModel)]="company.billingAddress.city"
+                      required /></mat-form-field
+                  ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                    ><mat-label>Postal code</mat-label
+                    ><input
+                      matInput
+                      name="companyBillingPostal"
+                      [(ngModel)]="company.billingAddress.postalCode"
+                      required
+                  /></mat-form-field>
+                </div>
+              </section>
+            </div>
+            <div class="profile-column">
+              <section class="panel profile-card" aria-label="Company shipping address">
+                <h2>Company shipping address</h2>
+                <div class="fields">
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic"
+                    ><mat-label>Street</mat-label
+                    ><input
+                      matInput
+                      name="companyShippingStreet"
+                      [(ngModel)]="company.shippingAddress.street"
+                      required /></mat-form-field
+                  ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                    ><mat-label>Building number</mat-label
+                    ><input
+                      matInput
+                      name="companyShippingBuilding"
+                      [(ngModel)]="company.shippingAddress.buildingNumber"
+                      required /></mat-form-field
+                  ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                    ><mat-label>Apartment number</mat-label
+                    ><input
+                      matInput
+                      name="companyShippingApartment"
+                      [(ngModel)]="company.shippingAddress.apartmentNumber" /></mat-form-field
+                  ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                    ><mat-label>City</mat-label
+                    ><input
+                      matInput
+                      name="companyShippingCity"
+                      [(ngModel)]="company.shippingAddress.city"
+                      required /></mat-form-field
+                  ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+                    ><mat-label>Postal code</mat-label
+                    ><input
+                      matInput
+                      name="companyShippingPostal"
+                      [(ngModel)]="company.shippingAddress.postalCode"
+                      required
+                  /></mat-form-field>
+                </div>
+              </section>
+            </div>
+          </div>
+          <div class="page-actions">
+            <button
+              class="store-button"
+              mat-flat-button
+              type="submit"
+              [disabled]="companyForm.invalid || saveStatus() === 'saving'"
+            >
+              Save company
+            </button>
+          </div>
+        </form>
+      }
     }
+    @if (saveStatus() === 'saving') {
+      <p class="notice" role="status">Saving profile...</p>
     }
+    @if (saveStatus() === 'saved') {
+      <p class="notice success" role="status">Profile saved.</p>
     }
+    @if (saveStatus() === 'conflict' || saveStatus() === 'notFound' || saveStatus() === 'error') {
+      <div class="notice alert" role="alert">
+        <p>{{ error() }}</p>
+        <button mat-button type="button" (click)="load()">Reload profile</button>
+      </div>
+    }
+  }
 </section>

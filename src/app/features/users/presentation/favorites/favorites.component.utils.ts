@@ -4,36 +4,38 @@ import { ShoppingCartLineRequest } from '../../../cart/domain/model/update-shopp
 import { FavoriteItemViewModel } from '../../domain/model/favorite-item.model';
 
 export function toFavoriteItemViewModels(
-    favorites: Favorite[] | null | undefined,
-    products: MobilePhone[] | null | undefined
+  favorites: Favorite[] | null | undefined,
+  products: MobilePhone[] | null | undefined,
 ): FavoriteItemViewModel[] {
-    const favList = favorites ?? [];
-    const productList = products ?? [];
+  const favList = favorites ?? [];
+  const productList = products ?? [];
 
-    const productMap = new Map<string, MobilePhone>(
-        productList.filter(p => !!p.id).map(p => [p.id.toLowerCase(), p])
-    );
+  const productMap = new Map<string, MobilePhone>(
+    productList.filter((p) => !!p.id).map((p) => [p.id.toLowerCase(), p]),
+  );
 
-    return favList.map(fav => {
-        const product = productMap.get(fav.productId.toLowerCase());
-        return {
-            productId: fav.productId,
-            name: product?.name || (product ? 'Unnamed product' : 'Product unavailable'),
-            brand: product?.brand ?? null,
-            priceAmount: product?.price?.amount ?? null,
-            priceCurrency: product?.price?.currency || null,
-            unavailable: !product,
-            addedAt: fav.addedAt,
-        };
-    });
+  return favList.map((fav) => {
+    const product = productMap.get(fav.productId.toLowerCase());
+    return {
+      productId: fav.productId,
+      name: product?.name || (product ? 'Unnamed product' : 'Product unavailable'),
+      brand: product?.brand ?? null,
+      mainPhoto: product?.mainPhoto ?? null,
+      specifications:
+        [product?.screenSizeInches ? `${product.screenSizeInches}″` : null, product?.displayType]
+          .filter(Boolean)
+          .join(' · ') || null,
+      priceAmount: product?.price?.amount ?? null,
+      priceCurrency: product?.price?.currency || null,
+      unavailable: !product,
+      addedAt: fav.addedAt,
+    };
+  });
 }
 
-export function toCartLineItem(
-    item: FavoriteItemViewModel,
-    quantity = 1
-): ShoppingCartLineRequest {
-    return {
-        productId: item.productId,
-        quantity,
-    };
+export function toCartLineItem(item: FavoriteItemViewModel, quantity = 1): ShoppingCartLineRequest {
+  return {
+    productId: item.productId,
+    quantity,
+  };
 }

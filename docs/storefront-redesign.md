@@ -1,6 +1,6 @@
 # Storefront redesign
 
-Task WEB/STORE-03 implements the shared Angular shell from the [approved desktop and mobile Figma design](https://www.figma.com/design/ZRkPrMyrqoNcVn93FMUh07). Task WEB/STORE-04 adds the home and catalog pages, integrating the shared phone card. The header, footer, mobile navigation and filter drawer are live. Task WEB/STORE-05 implements product details. Customer and checkout layouts are subsequent tasks; their existing behavior and API contracts remain in place.
+Task WEB/STORE-03 implements the shared Angular shell from the [approved desktop and mobile Figma design](https://www.figma.com/design/ZRkPrMyrqoNcVn93FMUh07). Task WEB/STORE-04 adds the home and catalog pages, integrating the shared phone card. The header, footer, mobile navigation and filter drawer are live. Task WEB/STORE-05 implements product details. Task WEB/STORE-06 implements cart, favorites, profile, order history, order details and payment states, retaining the existing customer and checkout flows.
 
 ## Shared presentation
 
@@ -28,7 +28,7 @@ Catalog criteria are encoded as `/list?brand=Xiaomi&minPrice=1000&maxPrice=2600`
 
 A single catalog effect handles list/filter requests, canceling obsolete subscriptions when criteria change. Per-view home/catalog load states prevent a late home response from hiding a catalog loading or error state. Loaded-empty results, errors with Retry, and skeleton loading each have their own presentation. The existing facades, repository ports, BFF adapter and generated clients remain the API boundary. The ordinary catalog still requests the existing 15-product page; pagination, sorting, search and additional facets are outside this task.
 
-The catalog card shows only screen size and display type, which are supplied in the list DTO. It does not invent storage or show the camera field as a processor. The known Samsung S25 Green-name/Black-photo mismatch is retained as source data. Customer and checkout layouts retain their existing designs until their planned tasks.
+The catalog card shows only screen size and display type, which are supplied in the list DTO. It does not invent storage or show the camera field as a processor. The known Samsung S25 Green-name/Black-photo mismatch is retained as source data. The customer and checkout screens use the shared storefront theme as described below.
 
 Additional browser scenarios verify featured-phone cart/favorite mutations through real registered customers, backend currencies, product links, brand shortcuts, desktop budgets, refresh/Back preservation, mobile drawer synchronization and empty-result recovery. Existing cart/photo/payment coverage remains active with selectors adapted to the shared card.
 
@@ -44,3 +44,20 @@ Brand breadcrumbs use existing catalog query filters; Back retains browser histo
 Detail load state is independent of late home/catalog requests. Route changes clear stale products/actions, cancel obsolete requests through the existing effect, and reload the new ID. Loading, error/retry, missing photos and unavailable prices have explicit states.
 
 Unit tests cover data mapping, gallery selection/failure, customer-scoped mutations, guests, stale routes, retry, money and mobile space cleanup. `tests/acceptance/storefront-details.spec.ts` checks the real BFF detail response, four gallery URLs and keyboard selection, specifications, registered-customer cart/favorite persistence, brand links, five widths, mobile bar/navigation geometry and footer reachability. Only external development-storage image bytes are isolated in the gallery scenario; product/customer APIs remain real.
+
+
+## Customer and checkout screens
+
+Task WEB/STORE-06 follows Figma's cart, favorites, profile and order desktop/mobile frames (`14:851` through `14:1998`). Shared Sass presentation in `src/styles/_storefront-pages.scss` keeps page gutters, headings, white panels, notices and responsive spacing consistent without changing the API or application boundaries. The existing shell and bottom-navigation reservation remain in place; these pages do not add a fixed purchase overlay.
+
+Cart rows use current API main photos, accessible broken-photo fallbacks, product links and human-readable quantity/remove labels. The summary still groups estimates by currency, excludes unavailable/nonpositive prices and blocks checkout until all lines have valid prices in a single currency. Quantity changes, removal, clearing and checkout remain the existing facade commands. Final order totals and uncertain-checkout recovery/history links are retained. Unit/line totals use the supplied currency; no shipping charges, discounts or new payment form are introduced.
+
+Favorites reuse `StorePhoneCard`, with current main photos, display specifications, prices, details links and saved state. The displayed list is scoped to the selected customer. Removed/inactive products stay visible as unavailable, cannot be added to the cart, and can still be removed. Clear-all and retry remain available. Guest, empty, loading and failure states are distinct.
+
+Profile keeps external-ID demo selection and its explicit authentication disclaimer, full customer IDs and update metadata. Existing individual and company forms use installed Material outlined fields, with two desktop columns and single-column mobile fields. All contact/billing/shipping fields, required/email validation, complete update payloads and conflict/reload feedback are preserved. Company forms retain separate submissions. Metadata and company sections make the real page longer than the individual-only Figma example.
+
+Order history shows full API order IDs, timestamps, saved totals/currencies and status badges. Order detail reads the stored purchase snapshot and preserves brand, quantity, unit price and line totals; it does not replace historical data with live catalog values or invent abbreviated order numbers. The desktop purchase/payment columns stack on mobile.
+
+Hosted Stripe Checkout, return hints, ownership checks, PLN/minimum-amount eligibility, polling, retry/resume behavior and invoice metadata remain unchanged. Payment presentation follows the pending, confirmed, failed/expired, paused and invoice-ready state frames (`15:1863`, `15:1877`, `15:1891`, `15:1906`, `15:1920`). Exact local Figma SVG exports retain their 24px dimensions inside 48px state symbols. Existing reference, provider, delayed-fulfillment and paused-polling explanations are retained in the panels. Confirmed payments disable further payment while fulfillment is pending. PDF delivery remains unavailable, with no fabricated download link.
+
+`tests/acceptance/storefront-account.spec.ts` adds real-service favorite mutations and cart-to-order/snapshot/payment-layout scenarios, including five viewport widths and API image URLs. The existing profile scenario also checks five widths, mobile required-field validation and individual/company saves. Existing hosted-payment success, cancel, failure/expiry, duplicate-click and forged-return tests remain active. Only external development-storage image bytes and the pre-existing provider boundary are isolated; product/customer/order APIs remain real. The remaining planned task is the final regression and design audit.
