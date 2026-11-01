@@ -65,11 +65,11 @@ test('customer adds, changes quantity and removes a catalog product through the 
 
     await page.goto('/cart');
     await expect(page.getByText(phone.name, { exact: true })).toBeVisible();
-    await page.getByRole('button', { name: `Increase quantity for ${phone.id}` }).click();
+    await page.getByRole('button', { name: `Increase quantity for ${phone.name}` }).click();
     await expect.poll(async () => (await getCart(request, clientId)).lines).toEqual([{ productId: phone.id, quantity: 2 }]);
-    await page.getByRole('button', { name: `Decrease quantity for ${phone.id}` }).click();
+    await page.getByRole('button', { name: `Decrease quantity for ${phone.name}` }).click();
     await expect.poll(async () => (await getCart(request, clientId)).lines).toEqual([{ productId: phone.id, quantity: 1 }]);
-    await page.getByRole('button', { name: `Remove ${phone.id}` }).click();
+    await page.getByRole('button', { name: `Remove ${phone.name}` }).click();
     await expect(page.getByText('Your shopping cart is empty.')).toBeVisible();
     expect((await getCart(request, clientId)).lines).toEqual([]);
 });
@@ -86,7 +86,7 @@ test('a product removed from the catalog stays visible as unavailable', async ({
     await page.goto('/cart');
     await expect(page.getByText('Unavailable in catalog')).toBeVisible();
     await expect(page.getByText('Price unavailable')).toBeVisible();
-    await page.getByRole('button', { name: `Remove ${missingId}` }).click();
+    await page.getByRole('button', { name: `Remove Product unavailable` }).click();
     await expect(page.getByText('Your shopping cart is empty.')).toBeVisible();
 });
 
@@ -135,7 +135,7 @@ test('checkout creates one order, clears the cart and shows the backend total', 
     expect((await getCart(request, clientId)).lines).toEqual([]);
     await expect(page.getByText(`Order placed: ${orders[0].id}`)).toBeVisible();
     await expect(page.getByText('Final total:').locator('..')).toContainText(
-        new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
             .format(orders[0].totalAmount));
     await page.getByRole('link', { name: 'View order' }).click();
     await expect(page.getByText(`Order ${orders[0].id}`)).toBeVisible();
@@ -164,6 +164,16 @@ test('demo profile selects the customer and edits individual and company billing
     await page.getByRole('button', { name: 'Load profile' }).click();
     await expect(page.getByText(`Customer ID: ${clientId}`, { exact: true })).toBeVisible();
     await expect(page.getByLabel('First name')).toHaveValue('Acceptance');
+    for (const width of [360, 390, 768, 1024, 1440]) {
+        await page.setViewportSize({ width, height: 844 });
+        expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    }
+    await page.setViewportSize({ width: 390, height: 844 });
+    const billingCity = page.getByRole('region', { name: 'Billing address', exact: true }).getByLabel('City', { exact: true });
+    await billingCity.fill('');
+    await expect(page.getByRole('button', { name: 'Save profile', exact: true })).toBeDisabled();
+    await billingCity.fill('Warsaw');
+    await expect(page.getByRole('button', { name: 'Save profile', exact: true })).toBeEnabled();
     await page.getByLabel('Last name').fill('Updated');
     await page.getByLabel('City').first().fill('Krakow');
     await page.getByRole('button', { name: 'Save profile' }).click();

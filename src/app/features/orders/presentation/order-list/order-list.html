@@ -1,40 +1,55 @@
-<section class="orders-page">
-    <header class="orders-header">
-        <h1>My Orders</h1>
-        <a mat-button routerLink="/cart">View cart</a>
-    </header>
-
-    @if (!selectedClientId()) {
-        <p role="status">Select a demo customer in your <a routerLink="/profile">profile</a> to view orders.</p>
-    }
-
-    @if (status() === 'loading') {
-        <p role="status">Loading orders...</p>
-    } @else if (status() === 'error') {
-        <div role="alert" class="orders-alert">
-            <span>{{ error() }}</span>
-            <button mat-button type="button" (click)="reload()">Retry</button>
-        </div>
-    } @else if (status() === 'loaded' && orders().length === 0) {
-        <p>You have no orders yet.</p>
-    } @else if (status() === 'loaded') {
-        <div class="order-grid">
-            @for (order of orders(); track order.id) {
-                <mat-card>
-                    <mat-card-header>
-                        <mat-card-title>Order {{ order.id }}</mat-card-title>
-                        <mat-card-subtitle>{{ order.createdAt | date:'medium' }}</mat-card-subtitle>
-                    </mat-card-header>
-                    <mat-card-content>
-                        <p>Status: {{ order.status }}</p>
-                        <p>{{ order.lines.length }} product lines</p>
-                        <p>Total: {{ order.totalAmount | currency:order.totalCurrency:'code' }}</p>
-                    </mat-card-content>
-                    <mat-card-actions>
-                        <a mat-button [routerLink]="['/orders', order.id]" [attr.aria-label]="'View order ' + order.id">View details</a>
-                    </mat-card-actions>
-                </mat-card>
-            }
-        </div>
-    }
+<section class="store-container page">
+  <h1>Your orders</h1>
+  <p class="intro">Order details and payment status in one place.</p>
+  @if (!selectedClientId()) {
+    <div class="panel empty-state" role="status">
+      <h2>Choose your demo customer</h2>
+      <p>Select a demo customer in your <a routerLink="/profile">profile</a> to view orders.</p>
+    </div>
+  } @else if (status() === 'loading') {
+    <p class="notice" role="status">Loading orders...</p>
+  } @else if (status() === 'error') {
+    <div role="alert" class="notice alert">
+      <span>{{ error() }}</span
+      ><button mat-button type="button" (click)="reload()">Retry</button>
+    </div>
+  } @else if (status() === 'loaded' && orders().length === 0) {
+    <div class="panel empty-state">
+      <h2>Your next phone starts here</h2>
+      <p>You have no orders yet.</p>
+      <a mat-flat-button class="store-button" routerLink="/list">Browse smartphones</a>
+    </div>
+  } @else if (status() === 'loaded') {
+    <div class="order-grid">
+      @for (order of orders(); track order.id) {
+        <article class="panel order-card" [attr.data-order-id]="order.id">
+          <div class="order-heading">
+            <h2>Order {{ order.id }}</h2>
+            <span
+              class="order-status"
+              [class.paid]="order.status === 'Paid'"
+              [class.waiting]="order.status === 'Created' || order.status === 'Pending'"
+              [class.cancelled]="order.status === 'Cancelled' || order.status === 'Canceled'"
+              >{{ order.status }}</span
+            >
+          </div>
+          <p class="order-meta">
+            {{ order.createdAt | date: 'medium' }} · {{ order.lines.length }} product
+            {{ order.lines.length === 1 ? 'line' : 'lines' }}
+          </p>
+          <p class="order-total">
+            {{ order.totalAmount | number: '1.0-2' }} {{ order.totalCurrency }}
+          </p>
+          <a
+            class="store-button"
+            mat-stroked-button
+            [routerLink]="['/orders', order.id]"
+            [attr.aria-label]="'View order ' + order.id"
+            >View order</a
+          >
+        </article>
+      }
+    </div>
+  }
+  <div class="page-actions"><a mat-button routerLink="/cart">View cart</a></div>
 </section>

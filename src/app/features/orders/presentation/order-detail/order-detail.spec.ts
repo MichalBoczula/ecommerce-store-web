@@ -13,119 +13,233 @@ import { Payment } from '../../../payments/domain/model/payment';
 
 const orderId = '11111111-1111-1111-1111-111111111111';
 const order: Order = {
-    id: orderId, clientId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-    createdAt: new Date('2026-08-01T12:00:00Z'), updatedAt: null, status: 'Pending',
-    totalAmount: 190, totalCurrency: 'EUR',
-    lines: [{ productVersionId: '44444444-4444-4444-4444-444444444444', quantity: 2,
-        lineTotalAmount: 190, productVersion: { id: '44444444-4444-4444-4444-444444444444',
-            productId: '33333333-3333-3333-3333-333333333333', name: 'Saved phone name',
-            brand: 'Saved brand', priceAmount: 95, priceCurrency: 'EUR' },
-    }],
+  id: orderId,
+  clientId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+  createdAt: new Date('2026-08-01T12:00:00Z'),
+  updatedAt: null,
+  status: 'Pending',
+  totalAmount: 190,
+  totalCurrency: 'EUR',
+  lines: [
+    {
+      productVersionId: '44444444-4444-4444-4444-444444444444',
+      quantity: 2,
+      lineTotalAmount: 190,
+      productVersion: {
+        id: '44444444-4444-4444-4444-444444444444',
+        productId: '33333333-3333-3333-3333-333333333333',
+        name: 'Saved phone name',
+        brand: 'Saved brand',
+        priceAmount: 95,
+        priceCurrency: 'EUR',
+      },
+    },
+  ],
 };
 
 function paymentFacade() {
-    return {
-        orderId: signal<string | null>(null), payment: signal<Payment | null>(null), status: signal('ready'),
-        error: signal<string | null>(null), progress: signal<PaymentProgress | null>(null), clientId: signal(order.clientId),
-        exhausted: signal(false), watch: vi.fn(), stopWatching: vi.fn(), checkout: vi.fn(), load: vi.fn(), prepare: vi.fn(),
-    };
+  return {
+    orderId: signal<string | null>(null),
+    payment: signal<Payment | null>(null),
+    status: signal('ready'),
+    error: signal<string | null>(null),
+    progress: signal<PaymentProgress | null>(null),
+    clientId: signal(order.clientId),
+    exhausted: signal(false),
+    watch: vi.fn(),
+    stopWatching: vi.fn(),
+    checkout: vi.fn(),
+    load: vi.fn(),
+    prepare: vi.fn(),
+  };
 }
 
 describe('order details', () => {
-    afterEach(() => TestBed.resetTestingModule());
+  afterEach(() => TestBed.resetTestingModule());
 
-    it('loads route changes and renders saved product and line totals', () => {
-        const params = new BehaviorSubject(convertToParamMap({ id: orderId }));
-        const facade = {
-            selectedOrder: signal<Order | null>(order), detailStatus: signal('loaded'),
-            detailError: signal<string | null>(null), loadOrder: vi.fn(),
-        };
-        TestBed.configureTestingModule({ imports: [OrderDetailComponent], providers: [
-            { provide: CustomerContext, useValue: { clientId: signal(order.clientId) } },
-            provideRouter([]), { provide: OrderHistoryFacade, useValue: facade },
-            { provide: PaymentsFacade, useValue: paymentFacade() },
-            { provide: ActivatedRoute, useValue: { paramMap: params, snapshot: { paramMap: params.value } } },
-        ] });
-        const fixture = TestBed.createComponent(OrderDetailComponent);
-        fixture.detectChanges();
-
-        expect(facade.loadOrder).toHaveBeenCalledWith(orderId);
-        expect(fixture.nativeElement.textContent).toContain('Saved phone name');
-        expect(fixture.nativeElement.textContent).toContain('Saved brand');
-        expect(fixture.nativeElement.textContent).toContain('95.00');
-        expect(fixture.nativeElement.textContent).toContain('190.00');
-
-        params.next(convertToParamMap({ id: 'another-id' }));
-        expect(facade.loadOrder).toHaveBeenCalledWith('another-id');
+  it('loads route changes and renders saved product and line totals', () => {
+    const params = new BehaviorSubject(convertToParamMap({ id: orderId }));
+    const facade = {
+      selectedOrder: signal<Order | null>(order),
+      detailStatus: signal('loaded'),
+      detailError: signal<string | null>(null),
+      loadOrder: vi.fn(),
+    };
+    TestBed.configureTestingModule({
+      imports: [OrderDetailComponent],
+      providers: [
+        { provide: CustomerContext, useValue: { clientId: signal(order.clientId) } },
+        provideRouter([]),
+        { provide: OrderHistoryFacade, useValue: facade },
+        { provide: PaymentsFacade, useValue: paymentFacade() },
+        {
+          provide: ActivatedRoute,
+          useValue: { paramMap: params, snapshot: { paramMap: params.value } },
+        },
+      ],
     });
+    const fixture = TestBed.createComponent(OrderDetailComponent);
+    fixture.detectChanges();
 
-    it('shows a missing order error instead of stale details', () => {
-        const params = new BehaviorSubject(convertToParamMap({ id: orderId }));
-        const facade = {
-            selectedOrder: signal<Order | null>(null), detailStatus: signal('error'),
-            detailError: signal('This order could not be found.'), loadOrder: vi.fn(),
-        };
-        TestBed.configureTestingModule({ imports: [OrderDetailComponent], providers: [
-            { provide: CustomerContext, useValue: { clientId: signal(order.clientId) } },
-            provideRouter([]), { provide: OrderHistoryFacade, useValue: facade },
-            { provide: PaymentsFacade, useValue: paymentFacade() },
-            { provide: ActivatedRoute, useValue: { paramMap: params, snapshot: { paramMap: params.value } } },
-        ] });
-        const fixture = TestBed.createComponent(OrderDetailComponent);
-        fixture.detectChanges();
+    expect(facade.loadOrder).toHaveBeenCalledWith(orderId);
+    expect(fixture.nativeElement.textContent).toContain('Saved phone name');
+    expect(fixture.nativeElement.textContent).toContain('Saved brand');
+    expect(fixture.nativeElement.textContent).toContain('95 EUR');
+    expect(fixture.nativeElement.textContent).toContain('190 EUR');
 
-        expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain('not be found');
-        expect(fixture.nativeElement.textContent).not.toContain('Saved phone name');
-        (fixture.nativeElement.querySelector('[role="alert"] button') as HTMLButtonElement).click();
-        expect(facade.loadOrder).toHaveBeenCalledTimes(2);
+    params.next(convertToParamMap({ id: 'another-id' }));
+    expect(facade.loadOrder).toHaveBeenCalledWith('another-id');
+  });
+
+  it('shows a missing order error instead of stale details', () => {
+    const params = new BehaviorSubject(convertToParamMap({ id: orderId }));
+    const facade = {
+      selectedOrder: signal<Order | null>(null),
+      detailStatus: signal('error'),
+      detailError: signal('This order could not be found.'),
+      loadOrder: vi.fn(),
+    };
+    TestBed.configureTestingModule({
+      imports: [OrderDetailComponent],
+      providers: [
+        { provide: CustomerContext, useValue: { clientId: signal(order.clientId) } },
+        provideRouter([]),
+        { provide: OrderHistoryFacade, useValue: facade },
+        { provide: PaymentsFacade, useValue: paymentFacade() },
+        {
+          provide: ActivatedRoute,
+          useValue: { paramMap: params, snapshot: { paramMap: params.value } },
+        },
+      ],
     });
+    const fixture = TestBed.createComponent(OrderDetailComponent);
+    fixture.detectChanges();
 
-    it('does not display another demo customer’s order snapshot', () => {
-        const params = new BehaviorSubject(convertToParamMap({ id: orderId }));
-        const facade = {
-            selectedOrder: signal<Order | null>(order), detailStatus: signal('loaded'),
-            detailError: signal<string | null>(null), loadOrder: vi.fn(),
-        };
-        TestBed.configureTestingModule({ imports: [OrderDetailComponent], providers: [
-            { provide: CustomerContext, useValue: { clientId: signal('22222222-2222-2222-2222-222222222222') } },
-            provideRouter([]), { provide: OrderHistoryFacade, useValue: facade },
-            { provide: PaymentsFacade, useValue: paymentFacade() },
-            { provide: ActivatedRoute, useValue: { paramMap: params, snapshot: { paramMap: params.value } } },
-        ] });
-        const fixture = TestBed.createComponent(OrderDetailComponent);
-        fixture.detectChanges();
-        expect(fixture.nativeElement.textContent).not.toContain('Saved phone name');
-        expect(fixture.nativeElement.querySelector('[role=alert]').textContent).toContain('does not belong');
-    });
+    expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain(
+      'not be found',
+    );
+    expect(fixture.nativeElement.textContent).not.toContain('Saved phone name');
+    (fixture.nativeElement.querySelector('[role="alert"] button') as HTMLButtonElement).click();
+    expect(facade.loadOrder).toHaveBeenCalledTimes(2);
+  });
 
-    it('opens hosted Checkout for a Created PLN order without presenting it as paid', () => {
-        const created = { ...order, status: 'Created', totalCurrency: 'PLN' };
-        const params = new BehaviorSubject(convertToParamMap({ id: orderId }));
-        const facade = {
-            selectedOrder: signal<Order | null>(created), detailStatus: signal('loaded'),
-            detailError: signal<string | null>(null), loadOrder: vi.fn(),
-        };
-        const payments = paymentFacade();
-        payments.orderId.set(orderId);
-        payments.progress.set({ order: created, payment: null, invoice: null });
-        TestBed.configureTestingModule({ imports: [OrderDetailComponent], providers: [
-            { provide: CustomerContext, useValue: { clientId: signal(order.clientId) } },
-            provideRouter([]), { provide: OrderHistoryFacade, useValue: facade },
-            { provide: PaymentsFacade, useValue: payments },
-            { provide: ActivatedRoute, useValue: { paramMap: params, snapshot: { paramMap: params.value } } },
-        ] });
-        const fixture = TestBed.createComponent(OrderDetailComponent);
-        fixture.detectChanges();
-        expect(payments.watch).toHaveBeenCalledWith(order.clientId, orderId);
-        expect(fixture.nativeElement.textContent).toContain('Stripe handles card and BLIK entry');
-        const button = [...fixture.nativeElement.querySelectorAll('button')]
-            .find((item: HTMLButtonElement) => item.textContent?.includes('Pay with Stripe')) as HTMLButtonElement;
-        button.click();
-        expect(payments.checkout).toHaveBeenCalledWith(order.clientId, orderId);
-        payments.orderId.set(orderId);
-        payments.payment.set({ id: 'payment-id', orderId, status: 'created', amountMinor: 19000, currency: 'EUR' });
-        fixture.detectChanges();
-        expect(fixture.nativeElement.textContent).toContain('Payment status: created');
-        expect(fixture.nativeElement.textContent).not.toContain('Payment status: paid');
+  it('does not display another demo customer’s order snapshot', () => {
+    const params = new BehaviorSubject(convertToParamMap({ id: orderId }));
+    const facade = {
+      selectedOrder: signal<Order | null>(order),
+      detailStatus: signal('loaded'),
+      detailError: signal<string | null>(null),
+      loadOrder: vi.fn(),
+    };
+    TestBed.configureTestingModule({
+      imports: [OrderDetailComponent],
+      providers: [
+        {
+          provide: CustomerContext,
+          useValue: { clientId: signal('22222222-2222-2222-2222-222222222222') },
+        },
+        provideRouter([]),
+        { provide: OrderHistoryFacade, useValue: facade },
+        { provide: PaymentsFacade, useValue: paymentFacade() },
+        {
+          provide: ActivatedRoute,
+          useValue: { paramMap: params, snapshot: { paramMap: params.value } },
+        },
+      ],
     });
+    const fixture = TestBed.createComponent(OrderDetailComponent);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).not.toContain('Saved phone name');
+    expect(fixture.nativeElement.querySelector('[role=alert]').textContent).toContain(
+      'does not belong',
+    );
+  });
+
+  it('opens hosted Checkout for a Created PLN order without presenting it as paid', () => {
+    const created = { ...order, status: 'Created', totalCurrency: 'PLN' };
+    const params = new BehaviorSubject(convertToParamMap({ id: orderId }));
+    const facade = {
+      selectedOrder: signal<Order | null>(created),
+      detailStatus: signal('loaded'),
+      detailError: signal<string | null>(null),
+      loadOrder: vi.fn(),
+    };
+    const payments = paymentFacade();
+    payments.orderId.set(orderId);
+    payments.progress.set({ order: created, payment: null, invoice: null });
+    TestBed.configureTestingModule({
+      imports: [OrderDetailComponent],
+      providers: [
+        { provide: CustomerContext, useValue: { clientId: signal(order.clientId) } },
+        provideRouter([]),
+        { provide: OrderHistoryFacade, useValue: facade },
+        { provide: PaymentsFacade, useValue: payments },
+        {
+          provide: ActivatedRoute,
+          useValue: { paramMap: params, snapshot: { paramMap: params.value } },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(OrderDetailComponent);
+    fixture.detectChanges();
+    expect(payments.watch).toHaveBeenCalledWith(order.clientId, orderId);
+    expect(fixture.nativeElement.textContent).toContain('Stripe handles card and BLIK entry');
+    const button = [...fixture.nativeElement.querySelectorAll('button')].find(
+      (item: HTMLButtonElement) => item.textContent?.includes('Pay with Stripe'),
+    ) as HTMLButtonElement;
+    button.click();
+    expect(payments.checkout).toHaveBeenCalledWith(order.clientId, orderId);
+    payments.orderId.set(orderId);
+    payments.payment.set({
+      id: 'payment-id',
+      orderId,
+      status: 'created',
+      amountMinor: 19000,
+      currency: 'EUR',
+    });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Payment status: created');
+    expect(fixture.nativeElement.textContent).not.toContain('Payment status: paid');
+    const payment = {
+      id: 'payment-id',
+      orderId,
+      status: 'pending',
+      amountMinor: 19000,
+      currency: 'PLN',
+    };
+    payments.payment.set(payment);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Awaiting verified payment confirmation');
+    expect(button.textContent).toContain('Resume Stripe Checkout');
+    payments.payment.set({ ...payment, status: 'failed' });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('This payment attempt failed or expired');
+    expect(button.disabled).toBe(false);
+    payments.exhausted.set(true);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Automatic checks have paused');
+    const confirmed = { ...payment, status: 'succeeded' };
+    payments.exhausted.set(false);
+    payments.payment.set(confirmed);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.payment-panel h2').textContent.trim()).toBe(
+      'Payment confirmed',
+    );
+    expect(fixture.nativeElement.textContent).toContain(
+      'Order and invoice fulfillment are still processing',
+    );
+    expect(button.disabled).toBe(true);
+    payments.progress.set({
+      order: { ...created, status: 'Paid' },
+      payment: confirmed,
+      invoice: { id: 'invoice-id', orderId, createdAt: new Date('2026-08-01T12:05:00Z') },
+    });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.payment-panel h2').textContent.trim()).toBe(
+      'Invoice ready',
+    );
+    expect(fixture.nativeElement.textContent).toContain('Invoice ready: invoice-id');
+    expect(fixture.nativeElement.textContent).not.toContain('fulfillment are still processing');
+    expect(button.disabled).toBe(true);
+  });
 });

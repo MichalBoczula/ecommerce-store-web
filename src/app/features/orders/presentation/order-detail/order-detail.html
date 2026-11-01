@@ -1,78 +1,153 @@
-<section class="order-page">
-    <a mat-button routerLink="/orders">Back to orders</a>
-
-    @if (!customer.clientId()) {
-        <p role="status">Select a demo customer in your <a routerLink="/profile">profile</a> to view orders.</p>
-    } @else if (status() === 'loading') {
-        <p role="status">Loading order...</p>
-    } @else if (status() === 'error') {
-        <div role="alert" class="order-alert">
-            <span>{{ error() }}</span>
-            <button mat-button type="button" (click)="reload()">Retry</button>
-        </div>
-    } @else if (status() === 'loaded' && order(); as currentOrder) {
-        <h1>Order {{ currentOrder.id }}</h1>
-        <p>Placed {{ currentOrder.createdAt | date:'medium' }}</p>
-        <p>Status: {{ currentOrder.status }}</p>
-
-        <h2>Products at the time of purchase</h2>
+<section class="store-container page">
+  <div class="back-link-row"><a mat-button routerLink="/orders">Back to orders</a></div>
+  @if (!customer.clientId()) {
+    <div class="panel empty-state" role="status">
+      <h1>Choose your demo customer</h1>
+      <p>Select a demo customer in your <a routerLink="/profile">profile</a> to view orders.</p>
+    </div>
+  } @else if (status() === 'loading') {
+    <p class="notice" role="status">Loading order...</p>
+  } @else if (status() === 'error') {
+    <div role="alert" class="notice alert">
+      <span>{{ error() }}</span
+      ><button mat-button type="button" (click)="reload()">Retry</button>
+    </div>
+  } @else if (status() === 'loaded' && order(); as currentOrder) {
+    <h1>Order {{ currentOrder.id }}</h1>
+    <div class="order-meta">
+      <p>Placed {{ currentOrder.createdAt | date: 'medium' }}</p>
+      <p class="order-state" [class.paid]="currentOrder.status === 'Paid'">
+        Status: {{ currentOrder.status }}
+      </p>
+    </div>
+    <div class="order-layout">
+      <section class="panel purchased-products" aria-labelledby="products-heading">
+        <h2 id="products-heading">Products at purchase</h2>
         <div class="order-lines">
-            @for (line of currentOrder.lines; track line.productVersionId) {
-                <mat-card>
-                    <mat-card-header>
-                        <mat-card-title>{{ line.productVersion.name }}</mat-card-title>
-                        <mat-card-subtitle>{{ line.productVersion.brand }}</mat-card-subtitle>
-                    </mat-card-header>
-                    <mat-card-content>
-                        <p>Quantity: {{ line.quantity }}</p>
-                        <p>Unit price: {{ line.productVersion.priceAmount | currency:line.productVersion.priceCurrency:'code' }}</p>
-                        <p>Line total: {{ line.lineTotalAmount | currency:line.productVersion.priceCurrency:'code' }}</p>
-                    </mat-card-content>
-                </mat-card>
-            }
+          @for (line of currentOrder.lines; track line.productVersionId) {
+            <article class="purchased-line">
+              <h3>{{ line.productVersion.name }}</h3>
+              <p class="brand">{{ line.productVersion.brand }}</p>
+              <p>
+                Quantity: {{ line.quantity }} · Unit price:
+                {{ line.productVersion.priceAmount | number: '1.0-2' }}
+                {{ line.productVersion.priceCurrency }}
+              </p>
+              <p>
+                Line total: {{ line.lineTotalAmount | number: '1.0-2' }}
+                {{ line.productVersion.priceCurrency }}
+              </p>
+            </article>
+          }
         </div>
-        <p class="order-total">Order total: {{ currentOrder.totalAmount | currency:currentOrder.totalCurrency:'code' }}</p>
-        <section aria-label="Payment">
-            <h2>Payment</h2>
-            <p>Sandbox payment only. Stripe handles card and BLIK entry on its hosted Checkout page.</p>
-            @if (returnHint() === 'success') {
-                <p role="status">Returned from Stripe. Checking verified payment and fulfillment status...</p>
-            } @else if (returnHint() === 'cancel') {
-                <p role="status">Checkout was closed. You can resume an open Checkout; returning here does not cancel or confirm payment.</p>
-            }
-            @if (paymentStatus() === 'checkingout') {
-                <p role="status">Opening Stripe Checkout...</p>
-            } @else if (paymentStatus() === 'error') {
-                <p role="alert">{{ paymentError() }}</p>
-            }
-            @if (payment(); as currentPayment) {
-                <p role="status">Payment status: {{ currentPayment.status }} (reference {{ currentPayment.id }})</p>
-                @if (currentPayment.status === 'succeeded' && !invoice()) {
-                    <p role="status">Payment confirmed. Order and invoice fulfillment are still processing. You do not need to pay again.</p>
-                } @else if (currentPayment.status === 'failed') {
-                    <p role="status">This payment attempt failed or expired. You can retry Checkout for this order.</p>
-                } @else if (currentPayment.status === 'pending') {
-                    <p role="status">Awaiting verified payment confirmation. You can resume the same open Checkout.</p>
-                }
-            } @else if (paymentStatus() === 'watching') {
-                <p role="status">Checking payment...</p>
-            }
-            @if (invoice(); as completedInvoice) {
-                <p role="status">Invoice ready: {{ completedInvoice.id }} ({{ completedInvoice.createdAt | date:'medium' }})</p>
-                <p>PDF download will be available when document delivery is enabled.</p>
-            }
-            @if (exhausted()) {
-                <p role="status">Automatic checks have paused. Refresh status to check again. A delayed confirmation does not require another payment.</p>
-            }
-            @if (currentOrder.status === 'Created' && (currentOrder.totalCurrency !== 'PLN' || currentOrder.totalAmount < 2)) {
-                <p role="status">Sandbox Checkout supports PLN orders of at least PLN 2.</p>
-            }
-            <button mat-flat-button type="button" [disabled]="!canCheckout()" (click)="checkout()">
-                {{ payment()?.status === 'pending' ? 'Resume Stripe Checkout' : 'Pay with Stripe' }}
-            </button>
-            <button mat-button type="button" [disabled]="paymentStatus() === 'checkingout'" (click)="reloadPayment(currentOrder.id)">Refresh payment status</button>
-        </section>
-    } @else if (status() === 'loaded') {
-        <p role="alert">This order does not belong to the selected demo customer.</p>
-    }
+        <p class="order-total">
+          Order total: {{ currentOrder.totalAmount | number: '1.0-2' }}
+          {{ currentOrder.totalCurrency }}
+        </p>
+      </section>
+      <section
+        class="panel payment-panel"
+        [class.is-state]="!!paymentPresentation()"
+        aria-label="Payment"
+      >
+        @if (paymentPresentation(); as presentation) {
+          <span
+            class="state-symbol"
+            [class]="'state-symbol ' + presentation.tone"
+            aria-hidden="true"
+            ><img [src]="'icons/' + presentation.asset" alt=""
+          /></span>
+        }
+        <h2>{{ paymentPresentation()?.title ?? 'Complete your order' }}</h2>
+        <p class="sandbox">Sandbox payment</p>
+        <p class="payment-description">
+          Stripe handles card and BLIK entry on its hosted Checkout page.
+        </p>
+        @if (returnHint() === 'success') {
+          <p class="notice" role="status">
+            Returned from Stripe. Checking verified payment and fulfillment status...
+          </p>
+        } @else if (returnHint() === 'cancel') {
+          <p class="notice" role="status">
+            Checkout was closed. You can resume an open Checkout; returning here does not cancel or
+            confirm payment.
+          </p>
+        }
+        @if (paymentStatus() === 'checkingout') {
+          <p class="notice" role="status">Opening Stripe Checkout...</p>
+        } @else if (paymentStatus() === 'error') {
+          <p class="notice alert" role="alert">{{ paymentError() }}</p>
+        }
+        @if (payment(); as currentPayment) {
+          <p class="notice" role="status">
+            Payment status: {{ currentPayment.status }} (reference {{ currentPayment.id }})
+          </p>
+          @if (currentPayment.status === 'succeeded' && !invoice()) {
+            <p class="notice success" role="status">
+              Payment confirmed. Order and invoice fulfillment are still processing. You do not need
+              to pay again.
+            </p>
+          } @else if (currentPayment.status === 'failed') {
+            <p class="notice alert" role="status">
+              This payment attempt failed or expired. You can retry Checkout for this order.
+            </p>
+          } @else if (currentPayment.status === 'pending') {
+            <p class="notice" role="status">
+              Awaiting verified payment confirmation. You can resume the same open Checkout.
+            </p>
+          }
+        } @else if (paymentStatus() === 'watching') {
+          <p class="notice" role="status">Checking payment...</p>
+        }
+        @if (invoice(); as completedInvoice) {
+          <p class="notice success" role="status">
+            Invoice ready: {{ completedInvoice.id }} ({{
+              completedInvoice.createdAt | date: 'medium'
+            }})
+          </p>
+          <p class="muted status">
+            PDF download will be available when document delivery is enabled.
+          </p>
+        }
+        @if (exhausted()) {
+          <p class="notice" role="status">
+            Automatic checks have paused. Refresh status to check again. A delayed confirmation does
+            not require another payment.
+          </p>
+        }
+        @if (
+          currentOrder.status === 'Created' &&
+          (currentOrder.totalCurrency !== 'PLN' || currentOrder.totalAmount < 2)
+        ) {
+          <p class="notice" role="status">
+            Sandbox Checkout supports PLN orders of at least PLN 2.
+          </p>
+        }
+
+        <button
+          class="store-button"
+          mat-flat-button
+          type="button"
+          [disabled]="!canCheckout()"
+          (click)="checkout()"
+        >
+          {{ payment()?.status === 'pending' ? 'Resume Stripe Checkout' : 'Pay with Stripe' }}
+        </button>
+        <button
+          class="store-button"
+          mat-stroked-button
+          type="button"
+          [disabled]="paymentStatus() === 'checkingout'"
+          (click)="reloadPayment(currentOrder.id)"
+        >
+          Refresh payment status
+        </button>
+        <p class="payment-footnote">Your saved order total is used for payment.</p>
+      </section>
+    </div>
+  } @else if (status() === 'loaded') {
+    <p class="notice alert" role="alert">
+      This order does not belong to the selected demo customer.
+    </p>
+  }
 </section>

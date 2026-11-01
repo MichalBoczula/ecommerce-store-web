@@ -1,0 +1,111 @@
+@mixin page {
+  :host {
+    display: block;
+  }
+  .page {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding-block: 48px;
+  }
+  h1,
+  h2,
+  h3,
+  p {
+    margin: 0;
+  }
+  h1 {
+    font-size: 36px;
+    line-height: 44px;
+    overflow-wrap: anywhere;
+  }
+  h2 {
+    font-size: 26px;
+    line-height: 34px;
+  }
+  h3 {
+    font-size: 20px;
+    line-height: 28px;
+  }
+  .store-button[mat-stroked-button] {
+    background: var(--store-white);
+    border-color: var(--store-border);
+  }
+  .intro {
+    color: var(--store-muted);
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .panel {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px;
+    background: var(--store-white);
+    border: 1px solid var(--store-border);
+    border-radius: var(--store-radius);
+    min-width: 0;
+  }
+  .notice {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 16px;
+    background: var(--store-blue-soft);
+    border-radius: var(--store-radius);
+    font-size: 14px;
+    line-height: 20px;
+    overflow-wrap: anywhere;
+  }
+  .notice strong {
+    color: var(--store-blue);
+  }
+  .alert {
+    background: var(--store-red-soft);
+    color: var(--store-red);
+  }
+  .success {
+    background: var(--store-green-soft);
+    color: var(--store-green);
+  }
+  .empty-state {
+    align-items: center;
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--store-muted);
+  }
+  .empty-state h2 {
+    color: var(--store-ink);
+  }
+  .page-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .muted {
+    color: var(--store-muted);
+  }
+  .status {
+    font-size: 14px;
+    line-height: 20px;
+  }
+  @media (max-width: 767px) {
+    .page {
+      gap: 24px;
+      padding-block: 20px;
+    }
+    h1 {
+      font-size: 26px;
+      line-height: 34px;
+    }
+    .panel {
+      padding: 20px;
+    }
+    .page-actions {
+      align-items: stretch;
+      flex-direction: column;
+    }
+  }
+}

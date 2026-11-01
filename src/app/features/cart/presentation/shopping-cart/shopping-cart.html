@@ -1,155 +1,211 @@
-<div class="cart-container">
-    <div class="cart-header">
-        <button mat-icon-button type="button" (click)="goBack()" aria-label="Go back">
-            <mat-icon>arrow_back</mat-icon>
-        </button>
-        <h2>Shopping Cart</h2>
+<section class="store-container page">
+  <h1>Your cart</h1>
+  <p class="intro">
+    {{ totalItems() }} {{ totalItems() === 1 ? 'item' : 'items' }}, ready for the next step.
+  </p>
+  @if (!customer.clientId()) {
+    <div class="panel empty-state" role="status">
+      <h2>Choose your demo customer</h2>
+      <p>Select a demo customer in your <a routerLink="/profile">profile</a> to view the cart.</p>
     </div>
-
-    @if (!customer.clientId()) {
-    <p role="status">Select a demo customer in your <a routerLink="/profile">profile</a> to view the cart.</p>
-    }
-
+  } @else {
     @if (error()) {
-    <div class="cart-alert" role="alert">
-        <span>{{ error() }}</span>
-        <button mat-button type="button" (click)="reload()" [disabled]="isUpdating()">Retry</button>
-    </div>
+      <div class="notice alert" role="alert">
+        <span>{{ error() }}</span
+        ><button mat-button type="button" (click)="reload()" [disabled]="isUpdating()">
+          Retry
+        </button>
+      </div>
     }
-
     @if (checkoutStatus() === 'succeeded' && placedOrder(); as order) {
-    <div class="checkout-confirmation" role="status">
+      <div class="notice success checkout-confirmation" role="status">
         <strong>Order placed: {{ order.id }}</strong>
-        <span>Final total: {{ order.totalAmount | currency:order.totalCurrency:'code' }}</span>
+        <p>Final total: {{ order.totalAmount | number: '1.0-2' }} {{ order.totalCurrency }}</p>
         @if (finalPriceChanged()) {
-        <span>The final price changed from the cart estimate. The order uses the backend price.</span>
+          <p>The final price changed from the cart estimate. The order uses the backend price.</p>
         }
         <a mat-button [routerLink]="['/orders', order.id]">View order</a>
-    </div>
+      </div>
     }
     @if (checkoutError()) {
-    <div class="cart-alert" role="alert">
-        <span>{{ checkoutError() }}</span>
-        <a mat-button routerLink="/orders">Check order history</a>
-        <button mat-button type="button" (click)="reload()">Refresh cart</button>
-    </div>
+      <div class="notice alert" role="alert">
+        <span>{{ checkoutError() }}</span
+        ><a mat-button routerLink="/orders">Check order history</a
+        ><button mat-button type="button" (click)="reload()">Refresh cart</button>
+      </div>
     }
-
     @if (status() === 'loading' && !shoppingCart()) {
-    <p role="status">Loading shopping cart...</p>
+      <p class="notice" role="status">Loading shopping cart...</p>
     } @else if (shoppingCart() && cartLines().length > 0) {
-    @if (catalog().status === 'loading') {
-    <p role="status">Loading product details...</p>
-    } @else if (catalog().status === 'error') {
-    <div class="cart-alert" role="alert">
-        <span>Product details could not be loaded: {{ catalog().error }}</span>
-        <button mat-button type="button" (click)="retryCatalog()">Retry</button>
-    </div>
-    } @else {
-    <div class="cart-layout">
-        <table mat-table [dataSource]="items()" class="mat-elevation-z2 cart-table">
-
-            <ng-container matColumnDef="product">
-                <th mat-header-cell *matHeaderCellDef> Product </th>
-                <td mat-cell *matCellDef="let item">
-                    <strong>{{ item.name }}</strong>
-                    @if (item.brand) { <small>{{ item.brand }}</small> }
-                    @if (item.unavailable) { <span class="unavailable">Unavailable in catalog</span> }
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="price">
-                <th mat-header-cell *matHeaderCellDef> Current price </th>
-                <td mat-cell *matCellDef="let item">
-                    @if (!item.unavailable && item.priceAmount !== null && item.priceAmount > 0 && item.priceCurrency) {
-                        {{ item.priceAmount | currency:item.priceCurrency:'code' }}
-                    } @else { <span>Price unavailable</span> }
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="quantity">
-                <th mat-header-cell *matHeaderCellDef> Quantity </th>
-                <td mat-cell *matCellDef="let item">
-                    <div class="quantity-controls">
-                        <button mat-icon-button type="button" (click)="decrementQuantity(item)"
-                            [disabled]="isUpdating()" [attr.aria-label]="'Decrease quantity for ' + item.productId">
-                            <mat-icon>remove</mat-icon>
-                        </button>
-                        <span class="qty-count">{{ item.quantity }}</span>
-                        <button mat-icon-button type="button" (click)="incrementQuantity(item)"
-                            [disabled]="isUpdating()" [attr.aria-label]="'Increase quantity for ' + item.productId">
-                            <mat-icon>add</mat-icon>
-                        </button>
-                    </div>
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="lineTotal">
-                <th mat-header-cell *matHeaderCellDef> Estimated line total </th>
-                <td mat-cell *matCellDef="let item">
-                    @if (!item.unavailable && item.priceAmount !== null && item.priceAmount > 0 && item.priceCurrency) {
-                        {{ item.priceAmount * item.quantity | currency:item.priceCurrency:'code' }}
-                    } @else { <span>Unavailable</span> }
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef> Actions </th>
-                <td mat-cell *matCellDef="let item">
-                    <button mat-icon-button type="button" (click)="removeItem(item)"
-                        [disabled]="isUpdating()" [attr.aria-label]="'Remove ' + item.productId">
-                        <mat-icon>delete</mat-icon>
+      @if (catalog().status === 'loading') {
+        <p class="notice" role="status">Loading product details...</p>
+      } @else if (catalog().status === 'error') {
+        <div class="notice alert" role="alert">
+          <span>Product details could not be loaded: {{ catalog().error }}</span
+          ><button mat-button type="button" (click)="retryCatalog()">Retry</button>
+        </div>
+      } @else {
+        <div class="cart-layout">
+          <div class="cart-items" aria-label="Cart items">
+            @for (item of items(); track item.productId) {
+              <article class="panel cart-line" [attr.data-product-id]="item.productId">
+                <div class="line-product">
+                  <div class="product-photo">
+                    @if (item.mainPhoto && !failedPhotos().has(item.mainPhoto)) {
+                      <img
+                        [src]="item.mainPhoto"
+                        [alt]="item.name"
+                        loading="lazy"
+                        decoding="async"
+                        (error)="photoFailed(item.mainPhoto)"
+                      />
+                    } @else {
+                      <span role="img" [attr.aria-label]="'Photo unavailable for ' + item.name"
+                        ><mat-icon aria-hidden="true">smartphone</mat-icon></span
+                      >
+                    }
+                  </div>
+                  <div class="product-info">
+                    @if (item.unavailable) {
+                      <h2 class="product-name">{{ item.name }}</h2>
+                      <p class="unavailable">Unavailable in catalog</p>
+                    } @else {
+                      <h2 class="product-name">
+                        <a [routerLink]="['/details', item.productId]">{{ item.name }}</a>
+                      </h2>
+                    }
+                    <p class="unit-price">
+                      @if (
+                        !item.unavailable &&
+                        item.priceAmount !== null &&
+                        item.priceAmount > 0 &&
+                        item.priceCurrency
+                      ) {
+                        {{ item.priceAmount | number: '1.0-2' }} {{ item.priceCurrency }}
+                      } @else {
+                        <span class="unpriced">Price unavailable</span>
+                      }
+                    </p>
+                  </div>
+                </div>
+                <div class="line-actions">
+                  <div
+                    class="quantity-controls"
+                    role="group"
+                    [attr.aria-label]="'Quantity for ' + item.name"
+                  >
+                    <button
+                      mat-icon-button
+                      type="button"
+                      (click)="decrementQuantity(item)"
+                      [disabled]="isUpdating()"
+                      [attr.aria-label]="'Decrease quantity for ' + item.name"
+                    >
+                      <mat-icon aria-hidden="true">remove</mat-icon>
                     </button>
-                </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-
-        <!-- Order Summary Card -->
-        <mat-card class="summary-card mat-elevation-z2">
-            <mat-card-header>
-                <mat-card-title>Order Summary</mat-card-title>
-            </mat-card-header>
-
-            <mat-card-content>
-                <div class="summary-row">
-                    <span class="label">Total Items:</span>
-                    <span class="value">{{ totalItems() }}</span>
+                    <span class="qty-count" aria-live="polite">{{ item.quantity }}</span>
+                    <button
+                      mat-icon-button
+                      type="button"
+                      (click)="incrementQuantity(item)"
+                      [disabled]="isUpdating()"
+                      [attr.aria-label]="'Increase quantity for ' + item.name"
+                    >
+                      <mat-icon aria-hidden="true">add</mat-icon>
+                    </button>
+                  </div>
+                  <div class="line-end">
+                    @if (
+                      !item.unavailable &&
+                      item.priceAmount !== null &&
+                      item.priceAmount > 0 &&
+                      item.priceCurrency
+                    ) {
+                      <p class="line-total">
+                        Line total: {{ item.priceAmount * item.quantity | number: '1.0-2' }}
+                        {{ item.priceCurrency }}
+                      </p>
+                    }
+                    <button
+                      mat-icon-button
+                      type="button"
+                      (click)="removeItem(item)"
+                      [disabled]="isUpdating()"
+                      [attr.aria-label]="'Remove ' + item.name"
+                    >
+                      <mat-icon aria-hidden="true">delete_outline</mat-icon>
+                    </button>
+                  </div>
                 </div>
-
-                @for (subtotal of subtotals(); track subtotal.currency) {
-                <div class="summary-row">
-                    <span>Estimated subtotal ({{ subtotal.currency }}):</span>
-                    <strong>{{ subtotal.amount | currency:subtotal.currency:'code' }}</strong>
-                </div>
-                }
-                @if (hasUnpricedItems()) {
-                <p class="unavailable">Some products or prices are unavailable and are excluded from these estimates.</p>
-                }
-                @if (subtotals().length > 1) {
-                <p class="unavailable">Checkout requires products in one currency. Remove products in another currency.</p>
-                }
-                <p>Prices are estimates from the current catalog. The backend checks products again at checkout.</p>
-            </mat-card-content>
-            <mat-card-actions>
-                <button mat-flat-button type="button" (click)="checkout()" [disabled]="!canCheckout()">
-                    Place order
-                </button>
-                <button mat-button type="button" (click)="clearCart()" [disabled]="isUpdating()">Clear cart</button>
-            </mat-card-actions>
-        </mat-card>
-    </div>
-    }
+              </article>
+            }
+          </div>
+          <aside class="panel summary-card" aria-labelledby="summary-heading">
+            <h2 id="summary-heading">Order summary</h2>
+            <p class="summary-row">
+              <span>Items</span><strong>{{ totalItems() }}</strong>
+            </p>
+            <div class="estimates">
+              @for (subtotal of subtotals(); track subtotal.currency) {
+                <p class="estimate-label">
+                  {{
+                    subtotals().length === 1
+                      ? 'Estimated total'
+                      : 'Estimated subtotal (' + subtotal.currency + ')'
+                  }}
+                </p>
+                <p class="estimate">
+                  {{ subtotal.amount | number: '1.0-2' }} {{ subtotal.currency }}
+                </p>
+              }
+              @if (hasUnpricedItems()) {
+                <p class="unavailable">
+                  Some products or prices are unavailable and are excluded from these estimates.
+                </p>
+              }
+              @if (subtotals().length > 1) {
+                <p class="unavailable">
+                  Checkout requires products in one currency. Remove products in another currency.
+                </p>
+              }
+            </div>
+            <p class="muted status">Final prices are checked when your order is placed.</p>
+            <button
+              class="store-button"
+              mat-flat-button
+              type="button"
+              (click)="checkout()"
+              [disabled]="!canCheckout()"
+            >
+              Place order
+            </button>
+            <button
+              class="store-button clear-cart"
+              mat-stroked-button
+              type="button"
+              (click)="clearCart()"
+              [disabled]="isUpdating()"
+            >
+              Clear cart
+            </button>
+          </aside>
+        </div>
+      }
     } @else if (shoppingCart()) {
-    <div class="empty-cart mat-elevation-z1">
-        <mat-icon class="empty-icon">shopping_cart</mat-icon>
+      <div class="panel empty-state">
+        <mat-icon aria-hidden="true">shopping_cart</mat-icon>
+        <h2>Your cart is empty</h2>
         <p>Your shopping cart is empty.</p>
-    </div>
+      </div>
     }
-
     @if (isUpdating()) {
-    <p role="status">{{ checkoutStatus() === 'pending' ? 'Placing order...' : 'Saving cart...' }}</p>
+      <p class="notice" role="status">
+        {{ checkoutStatus() === 'pending' ? 'Placing order...' : 'Saving cart...' }}
+      </p>
     }
-</div>
+  }
+  <div class="page-actions">
+    <a class="store-button" mat-stroked-button routerLink="/list">Continue browsing</a
+    ><button mat-button type="button" (click)="goBack()">Back</button>
+  </div>
+</section>

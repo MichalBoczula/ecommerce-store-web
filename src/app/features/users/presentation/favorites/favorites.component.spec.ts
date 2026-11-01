@@ -1,4 +1,5 @@
 import { CustomerContext } from '../../../../shared/application/customer-context';
+import { provideRouter } from '@angular/router';
 import { Location } from '@angular/common';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -14,49 +15,88 @@ const foundId = '11111111-1111-1111-1111-111111111111';
 const missingId = '22222222-2222-2222-2222-222222222222';
 
 describe('favorites screen', () => {
-    afterEach(() => TestBed.resetTestingModule());
+  afterEach(() => TestBed.resetTestingModule());
 
-    it('loads favorites by ID, shows missing products, and prevents adding them to the cart', async () => {
-        const users = {
-            favorites: signal([
-                { id: 'a', clientId, productId: foundId, addedAt: new Date() },
-                { id: 'b', clientId, productId: missingId, addedAt: new Date() },
-            ]),
-            status: signal('loaded'), error: signal(null),
-            loadFavorites: vi.fn(), removeFavorite: vi.fn(), clearAllFavorites: vi.fn(),
-        };
-        const orders = { addItem: vi.fn() };
-        const observe = vi.fn(() => of({
-            status: 'loaded', error: null,
-            products: [{ id: foundId, name: 'Beyond page 1', price: { amount: 44, currency: 'EUR' }, isFavorite: false }],
-            unavailableIds: [missingId],
-        }));
-        TestBed.configureTestingModule({
-            imports: [FavoritesComponent],
-            providers: [
-                { provide: CustomerContext, useValue: { clientId: () => '3fa85f64-5717-4562-b3fc-2c963f66afa6' } },
-                { provide: UsersFacade, useValue: users },
-                { provide: OrdersFacade, useValue: orders },
-                { provide: CatalogProductsLookup, useValue: { observe } },
-                { provide: Location, useValue: { back: vi.fn() } },
-            ],
-        });
-        const fixture: ComponentFixture<FavoritesComponent> = TestBed.createComponent(FavoritesComponent);
-        fixture.detectChanges();
-        await fixture.whenStable();
-        fixture.detectChanges();
-
-        expect(users.loadFavorites).toHaveBeenCalledWith(clientId);
-        expect(observe).toHaveBeenCalled();
-        const content = fixture.nativeElement.textContent as string;
-        expect(content).toContain('Beyond page 1');
-        expect(content).toContain('Unavailable in catalog');
-        expect(content).toContain('Price unavailable');
-        const buttons = fixture.nativeElement.querySelectorAll('button[aria-label^="Add "]') as NodeListOf<HTMLButtonElement>;
-        expect(buttons.length).toBe(2);
-        expect(buttons[0].disabled).toBe(false);
-        expect(buttons[1].disabled).toBe(true);
-        buttons[0].click();
-        expect(orders.addItem).toHaveBeenCalledWith(clientId, { productId: foundId, quantity: 1 });
+  it('loads favorites by ID, shows missing products, and prevents adding them to the cart', async () => {
+    const users = {
+      favorites: signal([
+        { id: 'a', clientId, productId: foundId, addedAt: new Date() },
+        { id: 'b', clientId, productId: missingId, addedAt: new Date() },
+        {
+          id: 'other-customer',
+          clientId: 'another-customer',
+          productId: 'private-phone',
+          addedAt: new Date(),
+        },
+      ]),
+      status: signal('loaded'),
+      error: signal(null),
+      loadFavorites: vi.fn(),
+      removeFavorite: vi.fn(),
+      clearAllFavorites: vi.fn(),
+    };
+    const orders = { addItem: vi.fn() };
+    const observe = vi.fn(() =>
+      of({
+        status: 'loaded',
+        error: null,
+        products: [
+          {
+            id: foundId,
+            name: 'Beyond page 1',
+            price: { amount: 44, currency: 'EUR' },
+            mainPhoto: 'https://photos.example.com/Main.webp',
+            displayType: 'OLED',
+            screenSizeInches: 6.3,
+            isFavorite: false,
+          },
+        ],
+        unavailableIds: [missingId],
+      }),
+    );
+    TestBed.configureTestingModule({
+      imports: [FavoritesComponent],
+      providers: [
+        provideRouter([]),
+        {
+          provide: CustomerContext,
+          useValue: { clientId: () => '3fa85f64-5717-4562-b3fc-2c963f66afa6' },
+        },
+        { provide: UsersFacade, useValue: users },
+        { provide: OrdersFacade, useValue: orders },
+        { provide: CatalogProductsLookup, useValue: { observe } },
+        { provide: Location, useValue: { back: vi.fn() } },
+      ],
     });
+    const fixture: ComponentFixture<FavoritesComponent> =
+      TestBed.createComponent(FavoritesComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(users.loadFavorites).toHaveBeenCalledWith(clientId);
+    expect(observe).toHaveBeenCalled();
+    const content = fixture.nativeElement.textContent as string;
+    expect(content).toContain('Beyond page 1');
+    expect(fixture.componentInstance.totalItems()).toBe(2);
+    expect(fixture.componentInstance.favoriteItems().map((item) => item.productId)).not.toContain(
+      'private-phone',
+    );
+    expect(content).toContain('Unavailable in catalog');
+    expect(content).toContain('Price unavailable');
+    const buttons = fixture.nativeElement.querySelectorAll(
+      'button[aria-label^="Add "]',
+    ) as NodeListOf<HTMLButtonElement>;
+    expect(buttons.length).toBe(2);
+    expect(
+      fixture.nativeElement.querySelector('app-store-phone-card img').getAttribute('src'),
+    ).toBe('https://photos.example.com/Main.webp');
+    expect(
+      fixture.nativeElement.querySelector('app-store-phone-card .specifications').textContent,
+    ).toContain('6.3″ · OLED');
+    expect(buttons[0].disabled).toBe(false);
+    expect(buttons[1].disabled).toBe(true);
+    buttons[0].click();
+    expect(orders.addItem).toHaveBeenCalledWith(clientId, { productId: foundId, quantity: 1 });
+  });
 });
