@@ -15,7 +15,7 @@ test('storefront navigation adapts across desktop, tablet and mobile widths', as
             await expect(desktop).toBeVisible();
             await expect(mobile).toBeHidden();
         }
-        expect(await page.locator('header').evaluate(element => element.scrollWidth)).toBeLessThanOrEqual(width);
+        expect(await page.getByRole('banner').evaluate(element => element.scrollWidth)).toBeLessThanOrEqual(width);
     }
     await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Smartphones' }).click();
     await expect(page).toHaveURL(/\/list$/);
