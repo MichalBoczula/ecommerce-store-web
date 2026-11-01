@@ -6,27 +6,30 @@ import { FilterMobilePhone } from '../domain/model/filter-mobile-phones';
 
 @Injectable()
 export class MobilePhonesFacade {
-    private readonly store = inject(Store);
+  private readonly store = inject(Store);
 
-    readonly items$ = this.store.select(mobilePhonesFeature.selectItems);
-    readonly status$ = this.store.select(mobilePhonesFeature.selectStatus);
-    readonly error$ = this.store.select(mobilePhonesFeature.selectError);
-    readonly details$ = this.store.select(mobilePhonesFeature.selectSelectedItem);
-    readonly top$ = this.store.select(mobilePhonesFeature.selectTopMobilePhones);
+  readonly items$ = this.store.select(mobilePhonesFeature.selectItems);
+  readonly status$ = this.store.select(mobilePhonesFeature.selectStatus);
+  readonly error$ = this.store.select(mobilePhonesFeature.selectError);
+  readonly catalogStatus$ = this.store.select(mobilePhonesFeature.selectCatalogStatus);
+  readonly topStatus$ = this.store.select(mobilePhonesFeature.selectTopStatus);
 
-    load(amount: number): void {
-        this.store.dispatch(Actions.loadMobilePhones({ amount }));
-    }
+  readonly details$ = this.store.select(mobilePhonesFeature.selectSelectedItem);
+  readonly top$ = this.store.select(mobilePhonesFeature.selectTopMobilePhones);
 
-    loadById(id: string): void {
-        this.store.dispatch(Actions.loadMobilePhoneById({ id }));
-    }
+  load(amount: number): void {
+    this.store.dispatch(Actions.loadMobilePhones({ amount }));
+  }
 
-    loadTop(): void {
-        this.store.dispatch(Actions.loadTopMobilePhone());
-    }
+  loadById(id: string): void {
+    this.store.dispatch(Actions.loadMobilePhoneById({ id }));
+  }
 
-    loadByFilter(filter: FilterMobilePhone): void {
-        this.store.dispatch(Actions.loadMobilePhoneByFilter({ filter }));
-    }
+  loadTop(): void {
+    this.store.dispatch(Actions.loadTopMobilePhone());
+  }
+
+  loadByFilter(filter: FilterMobilePhone): void {
+    this.store.dispatch(Actions.loadMobilePhoneByFilter({ filter }));
+  }
 }

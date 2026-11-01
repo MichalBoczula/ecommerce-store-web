@@ -87,14 +87,3 @@ main {
     scroll-margin-top: 92px;
   }
 }
-
-.desktop-filters {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 24px;
-}
-@media (max-width: 767px) {
-  .desktop-filters {
-    display: none;
-  }
-}

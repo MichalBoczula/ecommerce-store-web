@@ -93,7 +93,7 @@ describe('storefront shell', () => {
   });
 
   it('opens and closes filters, including applying them on the current catalog route', async () => {
-    const { fixture, router, phones } = await setup();
+    const { fixture, router } = await setup();
     await router.navigateByUrl('/list');
     fixture.detectChanges();
     const drawer = fixture.debugElement.query(By.directive(MatSidenav))
@@ -114,7 +114,7 @@ describe('storefront shell', () => {
       new Event('submit'),
     );
     await fixture.whenStable();
-    expect(phones.loadByFilter).toHaveBeenCalled();
+    expect(router.url).toBe('/list');
     expect(drawer.opened).toBe(false);
   });
 

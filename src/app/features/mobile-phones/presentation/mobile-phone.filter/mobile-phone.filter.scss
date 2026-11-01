@@ -21,3 +21,10 @@ mat-form-field {
   font-size: 12px;
   line-height: 16px;
 }
+
+.filter-error {
+  color: var(--store-red);
+  font-size: 14px;
+  line-height: 20px;
+  margin: 0 0 16px;
+}

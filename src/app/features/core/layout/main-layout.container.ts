@@ -12,6 +12,7 @@ import { StoreHeader } from '../../../shared/presentation/store-header/store-hea
 import { StoreMobileNav } from '../../../shared/presentation/store-mobile-nav/store-mobile-nav';
 import { StoreFooter } from '../../../shared/presentation/store-footer/store-footer';
 
+import { CatalogFilterDrawer } from '../../mobile-phones/presentation/mobile-phone.filter/catalog-filter-drawer';
 import { MobilePhoneFilter } from '../../mobile-phones/presentation/mobile-phone.filter/mobile-phone.filter';
 import { UsersFacade } from '../../users/application/users.facade';
 import { OrdersFacade } from '../../cart/application/orders.facade';
@@ -46,16 +47,15 @@ export class MainLayoutComponent implements OnInit {
   private readonly filters = viewChild<MatSidenav>('filters');
 
   constructor() {
+    inject(CatalogFilterDrawer)
+      .openRequested$.pipe(takeUntilDestroyed())
+      .subscribe(() => this.filters()?.open());
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
         takeUntilDestroyed(),
       )
       .subscribe(() => this.filters()?.close());
-  }
-
-  get showCatalogFilters(): boolean {
-    return this.router.url.startsWith('/list');
   }
 
   readonly favorites = this.usersFacade.favorites;

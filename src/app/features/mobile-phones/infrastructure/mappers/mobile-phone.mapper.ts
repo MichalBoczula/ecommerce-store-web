@@ -111,8 +111,8 @@ export function mapTopMobilePhoneDtoToTopMobilePhone(dto: TopMobilePhoneDto): To
             mainPhoto: dto.commonDescription.mainPhoto ?? null,
         } : null,
         price: dto.price ? {
-            amount: dto.price.amount ?? 0,
-            currency: dto.price.currency ?? 'USD',
+            amount: dto.price.amount ?? null,
+            currency: dto.price.currency ?? null,
         } : null,
     };
 }

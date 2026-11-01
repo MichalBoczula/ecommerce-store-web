@@ -19,10 +19,10 @@ test('storefront navigation adapts across desktop, tablet and mobile widths', as
     }
     await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Smartphones' }).click();
     await expect(page).toHaveURL(/\/list$/);
-    await page.getByRole('button', { name: 'Filters', exact: true }).click();
-    await expect(page.getByRole('dialog', { name: 'Filters' })).toBeVisible();
-    await page.getByRole('button', { name: 'Close filters' }).click();
-    await expect(page.getByRole('dialog', { name: 'Filters' })).toBeHidden();
+    const sidebar = page.getByRole('complementary', { name: 'Catalog filters' });
+    await expect(sidebar).toBeVisible();
+    await expect(sidebar.getByRole('combobox', { name: 'Brand' })).toBeVisible();
+    await expect(sidebar.getByRole('button', { name: 'Apply filters' })).toBeEnabled();
 });
 
 test('mobile filters restore focus and bottom navigation remains accessible after scrolling', async ({ page }) => {

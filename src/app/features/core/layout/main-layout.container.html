@@ -40,20 +40,6 @@
           <a class="store-button" mat-button routerLink="/profile">Open profile</a>
         </div>
       }
-      @if (showCatalogFilters) {
-        <div class="store-container desktop-filters">
-          <button
-            class="store-button"
-            mat-stroked-button
-            type="button"
-            (click)="filters.open()"
-            aria-controls="catalog-filters"
-            [attr.aria-expanded]="filters.opened"
-          >
-            <mat-icon>tune</mat-icon>Filters
-          </button>
-        </div>
-      }
       <router-outlet />
     </main>
     <app-store-footer />

@@ -1,65 +1,67 @@
-<article class="grid-list">
-    @if (phones().length > 0) {
-    @for (phone of phones(); track phone.id) {
-    <section class="container">
-        <div class="image">
-            @if (phone.mainPhoto) {
-            <img [src]="phone.mainPhoto" [alt]="phone.name ?? 'Mobile phone'" loading="lazy" decoding="async" />
-            } @else {
-            <span role="img" [attr.aria-label]="'Photo unavailable for ' + (phone.name ?? 'mobile phone')">
-                <mat-icon aria-hidden="true">smartphone</mat-icon>
-            </span>
-            }
-        </div>
-
-        <div class="content-container">
-            <button type="button" class="content" (click)="openDetails(phone.id)"
-                [attr.aria-label]="'View details for ' + phone.name">
-                <span class="phone-name">{{ phone.name ?? 'Unknown model' }}</span>
-
-                @if (phone.screenSizeInches) {
-                <div class="content-line">
-                    <p class="content-title">Screen size:</p>
-                    <p class="content-specific">{{ phone.screenSizeInches }}''</p>
-                </div>
-                }
-
-                @if (phone.camera) {
-                <div class="content-line">
-                    <p class="content-title">Camera:</p>
-                    <p class="content-specific">{{ phone.camera }}</p>
-                </div>
-                }
-
-                @if (phone.displayType) {
-                <div class="content-line">
-                    <p class="content-title">Processor:</p>
-                    <p class="content-specific">{{ phone.displayType }}</p>
-                </div>
-                }
-            </button>
-
-            <div class="sub-content">
-                <div class="price">
-                    {{ phone.price?.amount }} {{ phone.price?.currency }}
-                </div>
-
-                <div class="button-container">
-                    <button matButton="filled" [class.fav-delete-btn]="phone.isFavorite"
-                        (click)="toggleFavorite(phone, $event)" [disabled]="!selectedClientId()" aria-label="Add to favorites">
-                        <span class="material-symbols-outlined">favorite</span>
-                    </button>
-
-                    <button matButton="elevated" color="primary" type="button" (click)="addToCart(phone, $event)"
-                        [disabled]="!selectedClientId()">
-                        <span class="material-symbols-outlined">shopping_cart_checkout</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
+<section class="store-container catalog-page" aria-labelledby="catalog-heading">
+  <h1 id="catalog-heading">Smartphones</h1>
+  <p class="catalog-intro">
+    @if (status() === 'loaded') {
+      {{ phones().length }} {{ phones().length === 1 ? 'phone' : 'phones' }}.
     }
-    } @else {
-    <h1>Loading...</h1>
-    }
-</article>
+    Find the one that fits your everyday.
+  </p>
+  <button
+    class="store-button mobile-filter"
+    mat-stroked-button
+    type="button"
+    (click)="drawer.requestOpen()"
+    aria-controls="catalog-filters"
+  >
+    Filters
+  </button>
+  <div class="catalog-layout">
+    <aside class="catalog-filters" aria-label="Catalog filters">
+      <h2>Filters</h2>
+      <app-mobile-phone-filter />
+    </aside>
+    <div class="catalog-results" [attr.aria-busy]="status() === 'loading' || status() === 'idle'">
+      <div class="active-filters" aria-label="Active catalog filters">
+        <span class="brand-label">{{ filter().brand ?? 'All brands' }}</span>
+        @if ((filter().minimalPrice ?? null) !== null) {
+          <span>From {{ filter().minimalPrice }} PLN</span>
+        }
+        @if ((filter().maximalPrice ?? null) !== null) {
+          <span>Up to {{ filter().maximalPrice }} PLN</span>
+        }
+        @if (status() === 'loaded' && currencies()) {
+          <span>Prices in {{ currencies() }}</span>
+        }
+        @if (filtered()) {
+          <a routerLink="/list">Clear filters</a>
+        }
+      </div>
+      @if (status() === 'loaded' && phones().length) {
+        <div class="catalog-grid">
+          @for (phone of phones(); track phone.id) {
+            <app-store-phone-card
+              [attr.data-product-id]="phone.id"
+              [productId]="phone.id"
+              [name]="phone.name ?? 'Unknown model'"
+              [brand]="phone.brand"
+              [photo]="phone.mainPhoto"
+              [price]="phone.price"
+              [specifications]="specifications(phone)"
+              [saved]="phone.isFavorite"
+              [actionsDisabled]="!customer.clientId()"
+              (addToCart)="addToCart(phone)"
+              (toggleFavorite)="toggleFavorite(phone)"
+            />
+          }
+        </div>
+      } @else {
+        <app-catalog-feedback
+          [status]="status()"
+          [canEditFilters]="true"
+          (retry)="load()"
+          (editFilters)="drawer.requestOpen()"
+        />
+      }
+    </div>
+  </div>
+</section>

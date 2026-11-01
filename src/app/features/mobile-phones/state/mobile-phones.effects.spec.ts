@@ -8,71 +8,119 @@ import { MobilePhonesEffects } from './mobile-phones-effects';
 import * as MobilePhonesActions from './mobile-phones.actions';
 
 describe('mobile phone effects', () => {
-    afterEach(() => TestBed.resetTestingModule());
+  afterEach(() => TestBed.resetTestingModule());
 
-    function setup(repository: Partial<MobilePhonesRepository>) {
-        const actions = new Subject<Action>();
-        TestBed.configureTestingModule({ providers: [
-            MobilePhonesEffects,
-            { provide: Actions, useValue: new Actions(actions) },
-            { provide: MobilePhonesRepository, useValue: repository },
-        ] });
-        return { actions, effects: TestBed.inject(MobilePhonesEffects) };
-    }
-
-    it('reports a failed catalog load and can load again on retry', () => {
-        const phone = { id: 'phone-1', name: 'Available', mainPhoto: null, isFavorite: false };
-        const getAll = vi.fn()
-            .mockReturnValueOnce(throwError(() => new Error('Catalog offline')))
-            .mockReturnValueOnce(of([phone]));
-        const { actions, effects } = setup({ getAll });
-        const results: Action[] = [];
-        const subscription = effects.load$.subscribe(action => results.push(action));
-
-        actions.next(MobilePhonesActions.loadMobilePhones({ amount: 15 }));
-        actions.next(MobilePhonesActions.loadMobilePhones({ amount: 15 }));
-
-        expect(getAll).toHaveBeenCalledTimes(2);
-        expect(results).toEqual([
-            MobilePhonesActions.loadMobilePhonesFailure({ error: 'Error: Catalog offline' }),
-            MobilePhonesActions.loadMobilePhonesSuccess({ items: [phone] }),
-        ]);
-        subscription.unsubscribe();
+  function setup(repository: Partial<MobilePhonesRepository>) {
+    const actions = new Subject<Action>();
+    TestBed.configureTestingModule({
+      providers: [
+        MobilePhonesEffects,
+        { provide: Actions, useValue: new Actions(actions) },
+        { provide: MobilePhonesRepository, useValue: repository },
+      ],
     });
+    return { actions, effects: TestBed.inject(MobilePhonesEffects) };
+  }
 
-    it('passes the filter through and maps the product list', () => {
-        const filter = { minimalPrice: 100, maximalPrice: 500 };
-        const phone = { id: 'phone-1', mainPhoto: null, isFavorite: false };
-        const getFilteredMobilePhones = vi.fn(() => of([phone]));
-        const { actions, effects } = setup({ getFilteredMobilePhones });
-        const results: Action[] = [];
-        const subscription = effects.loadByFilter$.subscribe(action => results.push(action));
+  it('reports a failed catalog load and can load again on retry', () => {
+    const phone = { id: 'phone-1', name: 'Available', mainPhoto: null, isFavorite: false };
+    const getAll = vi
+      .fn()
+      .mockReturnValueOnce(throwError(() => new Error('Catalog offline')))
+      .mockReturnValueOnce(of([phone]));
+    const { actions, effects } = setup({ getAll });
+    const results: Action[] = [];
+    const subscription = effects.load$.subscribe((action) => results.push(action));
 
-        actions.next(MobilePhonesActions.loadMobilePhoneByFilter({ filter }));
+    actions.next(MobilePhonesActions.loadMobilePhones({ amount: 15 }));
+    actions.next(MobilePhonesActions.loadMobilePhones({ amount: 15 }));
 
-        expect(getFilteredMobilePhones).toHaveBeenCalledWith(filter);
-        expect(results).toEqual([MobilePhonesActions.loadMobilePhoneByFilterSuccess({ items: [phone] })]);
-        subscription.unsubscribe();
+    expect(getAll).toHaveBeenCalledTimes(2);
+    expect(results).toEqual([
+      MobilePhonesActions.loadMobilePhonesFailure({ error: 'Error: Catalog offline' }),
+      MobilePhonesActions.loadMobilePhonesSuccess({ items: [phone] }),
+    ]);
+    subscription.unsubscribe();
+  });
+
+  it('passes the filter through and maps the product list', () => {
+    const filter = { minimalPrice: 100, maximalPrice: 500 };
+    const phone = { id: 'phone-1', mainPhoto: null, isFavorite: false };
+    const getFilteredMobilePhones = vi.fn(() => of([phone]));
+    const { actions, effects } = setup({ getFilteredMobilePhones });
+    const results: Action[] = [];
+    const subscription = effects.load$.subscribe((action) => results.push(action));
+
+    actions.next(MobilePhonesActions.loadMobilePhoneByFilter({ filter }));
+
+    expect(getFilteredMobilePhones).toHaveBeenCalledWith(filter);
+    expect(results).toEqual([
+      MobilePhonesActions.loadMobilePhoneByFilterSuccess({ items: [phone] }),
+    ]);
+    subscription.unsubscribe();
+  });
+
+  it('loads a product by ID and reports a top-products failure independently', () => {
+    const phone = { id: 'phone-1' };
+    const getById = vi.fn(() => of(phone));
+    const getTopMobilePhones = vi.fn(() => throwError(() => new Error('Top unavailable')));
+    const { actions, effects } = setup({ getById, getTopMobilePhones });
+    const results: Action[] = [];
+    const detail = effects.loadById$.subscribe((action) => results.push(action));
+    const top = effects.loadTop$.subscribe((action) => results.push(action));
+
+    actions.next(MobilePhonesActions.loadMobilePhoneById({ id: phone.id }));
+    actions.next(MobilePhonesActions.loadTopMobilePhone());
+
+    expect(getById).toHaveBeenCalledWith(phone.id);
+    expect(results).toEqual([
+      MobilePhonesActions.loadMobilePhoneByIdSuccess({ item: phone }),
+      MobilePhonesActions.loadTopMobilePhoneFailure({ error: 'Error: Top unavailable' }),
+    ]);
+    detail.unsubscribe();
+    top.unsubscribe();
+  });
+  it('keeps the latest catalog request when switching between all phones and filters', () => {
+    const all = new Subject<import('../domain/model/mobile-phone').MobilePhone[]>();
+    const filtered = new Subject<import('../domain/model/mobile-phone').MobilePhone[]>();
+    const phone = { id: 'latest', mainPhoto: null, isFavorite: false };
+    const { actions, effects } = setup({
+      getAll: () => all,
+      getFilteredMobilePhones: () => filtered,
     });
+    const results: Action[] = [];
+    const subscription = effects.load$.subscribe((action) => results.push(action));
+    actions.next(MobilePhonesActions.loadMobilePhones({ amount: 15 }));
+    actions.next(MobilePhonesActions.loadMobilePhoneByFilter({ filter: { brand: 'Apple' } }));
+    all.next([]);
+    expect(results).toEqual([]);
+    filtered.next([phone]);
+    expect(results).toEqual([
+      MobilePhonesActions.loadMobilePhoneByFilterSuccess({ items: [phone] }),
+    ]);
+    actions.next(MobilePhonesActions.loadMobilePhones({ amount: 15 }));
+    filtered.next([]);
+    all.next([phone]);
+    expect(results.at(-1)).toEqual(MobilePhonesActions.loadMobilePhonesSuccess({ items: [phone] }));
+    expect(results).toHaveLength(2);
+    subscription.unsubscribe();
+  });
 
-    it('loads a product by ID and reports a top-products failure independently', () => {
-        const phone = { id: 'phone-1' };
-        const getById = vi.fn(() => of(phone));
-        const getTopMobilePhones = vi.fn(() => throwError(() => new Error('Top unavailable')));
-        const { actions, effects } = setup({ getById, getTopMobilePhones });
-        const results: Action[] = [];
-        const detail = effects.loadById$.subscribe(action => results.push(action));
-        const top = effects.loadTop$.subscribe(action => results.push(action));
-
-        actions.next(MobilePhonesActions.loadMobilePhoneById({ id: phone.id }));
-        actions.next(MobilePhonesActions.loadTopMobilePhone());
-
-        expect(getById).toHaveBeenCalledWith(phone.id);
-        expect(results).toEqual([
-            MobilePhonesActions.loadMobilePhoneByIdSuccess({ item: phone }),
-            MobilePhonesActions.loadTopMobilePhoneFailure({ error: 'Error: Top unavailable' }),
-        ]);
-        detail.unsubscribe();
-        top.unsubscribe();
-    });
+  it('keeps filtered requests alive after a failure so retry can succeed', () => {
+    const getFilteredMobilePhones = vi
+      .fn()
+      .mockReturnValueOnce(throwError(() => new Error('Offline')))
+      .mockReturnValueOnce(of([]));
+    const { actions, effects } = setup({ getFilteredMobilePhones });
+    const results: Action[] = [];
+    const subscription = effects.load$.subscribe((action) => results.push(action));
+    const filter = { brand: 'Apple' as const };
+    actions.next(MobilePhonesActions.loadMobilePhoneByFilter({ filter }));
+    actions.next(MobilePhonesActions.loadMobilePhoneByFilter({ filter }));
+    expect(results).toEqual([
+      MobilePhonesActions.loadMobilePhoneByFilterFailure({ error: 'Error: Offline' }),
+      MobilePhonesActions.loadMobilePhoneByFilterSuccess({ items: [] }),
+    ]);
+    subscription.unsubscribe();
+  });
 });
