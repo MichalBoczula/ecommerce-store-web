@@ -1,101 +1,100 @@
-@use '../../../../styles.scss' as v;
-@use '@angular/material' as mat;
-
-.container {
-    height: 100vh;
+:host {
+  display: block;
+}
+.shell {
+  overflow: visible;
+  min-height: 100dvh;
+  background: var(--store-page);
+  color: var(--store-ink);
+}
+.shell-content {
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding-bottom: var(--store-mobile-nav-space);
+}
+app-store-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+main {
+  flex: 1;
+  min-width: 0;
+  scroll-margin-top: 128px;
+}
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 20px;
+  z-index: 100;
+  padding: 12px 20px;
+  background: var(--store-white);
+  color: var(--store-blue);
+  transform: translateY(-160%);
+  border-radius: 8px;
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+.notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  margin-block: 16px;
+  background: var(--store-blue-soft);
+  color: var(--store-ink);
+  border-radius: var(--store-radius-small);
+  font-size: 14px;
+  line-height: 20px;
+}
+.notice a {
+  flex-shrink: 0;
+}
+.notice-error {
+  background: var(--store-red-soft);
+  color: var(--store-red);
+}
+.filter-drawer {
+  width: min(390px, 100vw);
+  padding: 20px;
+  background: var(--store-white);
+  color: var(--store-ink);
+  border-radius: 0 16px 16px 0;
+}
+.filter-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.filter-heading h2 {
+  font-size: 20px;
+  line-height: 28px;
+  margin: 0;
+}
+@media (max-width: 767px) {
+  .notice {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+  main {
+    scroll-margin-top: 92px;
+  }
 }
 
-.toolbar {
-    position: sticky;
-    display: flex;
-    justify-content: space-between;
-    top: 0;
-    z-index: 10;
-    background-color: v.$nav-color;
+.desktop-filters {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 24px;
 }
-
-.title {
-    font-size: 18px;
-    position: relative;
-    top: -5px;
-    font-weight: 600;
-    color: v.$font-color;
-    padding-left: 10px;
-    transition: v.$transition
-}
-
-.title-icon {
-    color: v.$font-color;
-    transition: v.$transition
-}
-
-.spacer {
-    flex: 1;
-}
-
-.content {
-    padding: 16px;
-}
-
-.cart-error-banner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 8px 16px;
-    background: #ffebee;
-    color: #9a1b1b;
-}
-
-.sidenav {
-    background-color: v.$nav-color;
-}
-
-.brand {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-    font-size: 24px;
-    color: v.$font-color;
-    padding: 16px;
-    font-weight: 700;
-}
-
-.item {
-    margin-top: 8px;
-    width: 100%;
-    color: v.$font-color;
-    transition: v.$transition
-}
-
-.item:hover {
-    padding-left: 10px;
-    background-color: rgb(61, 87, 213);
-}
-
-.cart,
-.account {
-    color: v.$font-color;
-    transition: v.$transition
-}
-
-.cart:hover,
-.account:hover {
-    transform: scale(1.25);
-}
-
-.menu {
-    transition: v.$transition
-}
-
-.menu:hover {
-    transform: scale(1.15);
-}
-
-.brand-name {
-    padding-left: 5px;
+@media (max-width: 767px) {
+  .desktop-filters {
+    display: none;
+  }
 }

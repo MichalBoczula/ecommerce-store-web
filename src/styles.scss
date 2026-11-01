@@ -1,50 +1,56 @@
-@use '@angular/material' as mat;
-@import "@angular/material/prebuilt-themes/azure-blue.css";
+@use 'styles/storefront';
+@import '@angular/material/prebuilt-themes/azure-blue.css';
 
-$nav-color: rgb(85, 106, 215);
-$nav-height: 64px;
-$font-color: rgb(227, 224, 224);
-$transition: all 0.2s linear;
+@include storefront.theme;
 
 body {
-    margin: 0;
+  margin: 0;
+  font-family: Roboto, sans-serif;
+  color: var(--store-ink);
+  background: var(--store-page);
 }
 
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .grid-list {
-    margin-left: 20%;
-    margin-right: 20%;
+  margin-left: 20%;
+  margin-right: 20%;
 }
 
 @media (max-width: 2100px) {
-    .grid-list {
-        margin-left: 15%;
-        margin-right: 15%;
-    }
+  .grid-list {
+    margin-left: 15%;
+    margin-right: 15%;
+  }
 }
 
 @media (max-width: 1600px) {
-    .grid-list {
-        margin-left: 10%;
-        margin-right: 10%;
-    }
+  .grid-list {
+    margin-left: 10%;
+    margin-right: 10%;
+  }
 }
 
 @media (max-width: 1324px) {
-    .grid-list {
-        margin-left: 8%;
-        margin-right: 8%;
-    }
+  .grid-list {
+    margin-left: 8%;
+    margin-right: 8%;
+  }
 }
 
 @media (max-width: 1024px) {
-    .grid-list {
-        margin-left: 16px;
-        margin-right: 16px;
-    }
+  .grid-list {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+}
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--store-blue);
+  outline-offset: 4px;
 }

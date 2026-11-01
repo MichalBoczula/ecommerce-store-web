@@ -10,6 +10,8 @@ Features keep handwritten domain models and rules separate from application faca
 
 The Invoice cart contract stores only `productId` and `quantity`. The cart view looks up current product information in ProductsCatalog and labels totals as estimates. Checkout creates an order through Invoice, shows the final total from its saved response, and refreshes cart and order data. Order history uses the `productVersion` snapshot and totals returned by Invoice, so a later catalog change does not rewrite a past order. The frontend does not create a missing cart during an add action; the BFF registration operation confirms one before returning success.
 
+The shared storefront shell and presentation components follow the [approved Figma redesign](docs/storefront-redesign.md). Feature page layouts are being migrated in separate tasks.
+
 ## Architecture
 
 | Component | Responsibility |

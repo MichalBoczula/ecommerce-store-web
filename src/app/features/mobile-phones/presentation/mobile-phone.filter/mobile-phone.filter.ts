@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,11 +16,11 @@ import { MobilePhonesBrand } from '../../domain/model/mobile-phones-brand';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatButtonModule
+    MatButtonModule,
   ],
   templateUrl: './mobile-phone.filter.html',
   styleUrl: './mobile-phone.filter.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MobilePhoneFilter {
   private readonly formBuilder = inject(FormBuilder);
@@ -28,6 +28,8 @@ export class MobilePhoneFilter {
   private readonly facade = inject(MobilePhonesFacade);
 
   protected readonly MobilePhonesBrand = MobilePhonesBrand;
+
+  readonly applied = output<void>();
 
   readonly form = this.formBuilder.group({
     brand: this.formBuilder.control<MobilePhonesBrand | null>(null),
@@ -46,5 +48,6 @@ export class MobilePhoneFilter {
 
     this.facade.loadByFilter(filter);
     this.router.navigate(['/list']);
+    this.applied.emit();
   }
 }

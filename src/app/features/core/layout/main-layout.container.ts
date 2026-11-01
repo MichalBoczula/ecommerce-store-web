@@ -1,15 +1,16 @@
 import { CustomerContext } from '../../../shared/application/customer-context';
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
-import { MatBadgeModule } from '@angular/material/badge';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
+import { StoreHeader } from '../../../shared/presentation/store-header/store-header';
+import { StoreMobileNav } from '../../../shared/presentation/store-mobile-nav/store-mobile-nav';
+import { StoreFooter } from '../../../shared/presentation/store-footer/store-footer';
 
 import { MobilePhoneFilter } from '../../mobile-phones/presentation/mobile-phone.filter/mobile-phone.filter';
 import { UsersFacade } from '../../users/application/users.facade';
@@ -20,12 +21,12 @@ import { OrdersFacade } from '../../cart/application/orders.facade';
   imports: [
     CommonModule,
     MatSidenavModule,
-    MatToolbarModule,
-    MatListModule,
     MatIconModule,
     MatButtonModule,
-    MatDividerModule,
-    MatBadgeModule,
+    StoreHeader,
+    StoreMobileNav,
+    StoreFooter,
+    RouterLink,
     MobilePhoneFilter,
     RouterOutlet,
   ],
@@ -38,10 +39,24 @@ export class MainLayoutComponent implements OnInit {
   private readonly ordersFacade = inject(OrdersFacade);
 
   readonly customer = inject(CustomerContext);
-  private get userId(): string | null { return this.customer.clientId(); }
+  private get userId(): string | null {
+    return this.customer.clientId();
+  }
 
-  readonly sidenavMode = computed<'over'>(() => 'over');
-  readonly sidenavOpened = computed(() => false);
+  private readonly filters = viewChild<MatSidenav>('filters');
+
+  constructor() {
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => this.filters()?.close());
+  }
+
+  get showCatalogFilters(): boolean {
+    return this.router.url.startsWith('/list');
+  }
 
   readonly favorites = this.usersFacade.favorites;
   readonly favoritesCount = computed(() => this.favorites()?.length ?? 0);
@@ -54,7 +69,10 @@ export class MainLayoutComponent implements OnInit {
   readonly cartItemsCount = computed(() => {
     const cart = this.shoppingCart();
     if (!cart?.lines?.length) return 0;
-    return cart.lines.reduce((total: number, line: { quantity?: number }) => total + (line.quantity ?? 1), 0);
+    return cart.lines.reduce(
+      (total: number, line: { quantity?: number }) => total + (line.quantity ?? 1),
+      0,
+    );
   });
 
   ngOnInit(): void {
@@ -62,25 +80,5 @@ export class MainLayoutComponent implements OnInit {
       this.usersFacade.loadFavorites(this.userId);
       this.ordersFacade.loadCart(this.userId);
     }
-  }
-
-  onNavClick(sidenav: { close: () => void }): void {
-    sidenav.close();
-  }
-
-  onCartClick(): void {
-    this.router.navigate(['/cart']);
-  }
-
-  onFavoritesClick(): void {
-    this.router.navigate(['/favorites']);
-  }
-
-  onOrdersClick(): void {
-    this.router.navigate(['/orders']);
-  }
-
-  onAccountClick(): void {
-    this.router.navigate(['/profile']);
   }
 }

@@ -1,0 +1,32 @@
+<nav class="mobile-navigation" aria-label="Mobile navigation">
+  <a routerLink="/list" routerLinkActive="active" ariaCurrentWhenActive="page"
+    ><mat-icon>menu</mat-icon><span>Browse</span></a
+  >
+  <a
+    routerLink="/favorites"
+    routerLinkActive="active"
+    ariaCurrentWhenActive="page"
+    aria-label="Favorites"
+    [matBadge]="favoritesCount()"
+    [matBadgeHidden]="favoritesCount() === 0"
+    [matBadgeDescription]="favoritesCount() + ' saved phones'"
+  >
+    <mat-icon>favorite_border</mat-icon><span>Saved</span>
+  </a>
+  <a
+    routerLink="/cart"
+    routerLinkActive="active"
+    ariaCurrentWhenActive="page"
+    [matBadge]="cartCount()"
+    [matBadgeHidden]="cartCount() === 0"
+    [matBadgeDescription]="cartCount() + ' items in cart'"
+  >
+    <mat-icon>shopping_cart</mat-icon><span>Cart</span>
+  </a>
+  <a routerLink="/orders" routerLinkActive="active" ariaCurrentWhenActive="page"
+    ><mat-icon>receipt_long</mat-icon><span>Orders</span></a
+  >
+  <a routerLink="/profile" routerLinkActive="active" ariaCurrentWhenActive="page"
+    ><mat-icon>person_outline</mat-icon><span>Profile</span></a
+  >
+</nav>

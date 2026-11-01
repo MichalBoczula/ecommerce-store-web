@@ -1,0 +1,61 @@
+<article class="phone-card">
+  <div class="metadata">
+    <span class="brand">{{ brand() }}</span>
+    <button
+      mat-icon-button
+      type="button"
+      class="favorite"
+      [class.saved]="saved()"
+      [attr.aria-label]="
+        (saved() ? 'Remove ' : 'Save ') + name() + (saved() ? ' from favorites' : ' to favorites')
+      "
+      [attr.aria-pressed]="saved()"
+      [disabled]="actionsDisabled()"
+      (click)="toggleFavorite.emit()"
+    >
+      <mat-icon>favorite_border</mat-icon>
+    </button>
+  </div>
+  <a
+    class="details"
+    [routerLink]="['/details', productId()]"
+    [attr.aria-label]="'View details for ' + name()"
+  >
+    <div class="image">
+      @if (showPhoto()) {
+        <img
+          [src]="photo()"
+          [alt]="name()"
+          loading="lazy"
+          decoding="async"
+          (error)="failedPhoto.set(photo())"
+        />
+      } @else {
+        <span role="img" [attr.aria-label]="'Photo unavailable for ' + name()"
+          ><mat-icon>smartphone</mat-icon></span
+        >
+      }
+    </div>
+    <h3>{{ name() }}</h3>
+  </a>
+  @if (specifications()) {
+    <p class="specifications">{{ specifications() }}</p>
+  }
+  <p class="price">
+    @if (hasPrice()) {
+      {{ price()?.amount | number: '1.0-2' }} {{ price()?.currency }}
+    } @else {
+      <span class="price-unavailable">Price unavailable</span>
+    }
+  </p>
+  <button
+    class="store-button add-button"
+    mat-flat-button
+    type="button"
+    [disabled]="actionsDisabled()"
+    [attr.aria-label]="'Add ' + name() + ' to cart'"
+    (click)="addToCart.emit()"
+  >
+    Add to cart
+  </button>
+</article>

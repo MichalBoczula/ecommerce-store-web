@@ -1,12 +1,23 @@
-.filter-form-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+:host {
+  display: block;
 }
-
 .filter-form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+mat-form-field {
+  width: 100%;
+}
+.price-label {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+.filter-hint {
+  margin: 16px 0 0;
+  color: var(--store-muted);
+  font-size: 12px;
+  line-height: 16px;
 }

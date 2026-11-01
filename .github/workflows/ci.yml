@@ -78,8 +78,9 @@ jobs:
 
   acceptance-tests:
     needs: build
-    # MongoDB 8 cannot start on the Linux 6.19+ kernel used by Ubuntu 26.04.
-    runs-on: ubuntu-24.04
+    # Current 24.04 runners also trigger MongoDB 8's kernel startup guard.
+    # The 22.04 image uses kernel 6.8; retain the real database and all tests.
+    runs-on: ubuntu-22.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4

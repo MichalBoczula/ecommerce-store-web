@@ -22,6 +22,8 @@ For a focused run after `npm ci`:
 
 Generated client drift is checked against tracked files and untracked additions. The `contract` stage expects intentional regenerated changes to have been reviewed and committed first. Review upstream OpenAPI changes before regeneration; [the contract baseline](../contracts/upstream/README.md) describes the pinned source and `KIOTA_BIN` override for non-Linux-x64 hosts.
 
+The GitHub acceptance job uses Ubuntu 22.04 because the current Ubuntu 24.04 runner kernel triggers [MongoDB 8's startup guard](https://www.mongodb.com/docs/manual/administration/production-notes/). The [Ubuntu 22.04 runner image](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2204-Readme.md) uses kernel 6.8. Application and database images, real-container tests, and required gates remain unchanged.
+
 ## Reports and cleanup
 
 | Output | Path |
