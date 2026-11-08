@@ -20,9 +20,9 @@
     @if (checkoutStatus() === 'succeeded' && placedOrder(); as order) {
       <div class="notice success checkout-confirmation" role="status">
         <strong>Order placed: {{ order.id }}</strong>
-        <p>Final total: {{ order.totalAmount | number: '1.0-2' }} {{ order.totalCurrency }}</p>
+        <p>Order subtotal: {{ order.totalAmount | number: '1.0-2' }} {{ order.totalCurrency }}</p>
         @if (finalPriceChanged()) {
-          <p>The final price changed from the cart estimate. The order uses the backend price.</p>
+          <p>The order subtotal changed from the cart estimate. The order uses the backend price.</p>
         }
         <a mat-button [routerLink]="['/orders', order.id]">View order</a>
       </div>

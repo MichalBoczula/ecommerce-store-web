@@ -44,7 +44,7 @@
           }
         </div>
         <p class="order-total">
-          Order total: {{ currentOrder.totalAmount | number: '1.0-2' }}
+          Order subtotal: {{ currentOrder.totalAmount | number: '1.0-2' }}
           {{ currentOrder.totalCurrency }}
         </p>
       </section>
@@ -63,6 +63,9 @@
         }
         <h2>{{ paymentPresentation()?.title ?? 'Complete your order' }}</h2>
         <p class="sandbox">Sandbox payment</p>
+        @if (currentOrder.status === 'Created') {
+          <p class="muted">Stripe Checkout shows the amount due, including applicable VAT.</p>
+        }
         <p class="payment-description">
           Stripe handles card and BLIK entry on its hosted Checkout page.
         </p>

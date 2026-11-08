@@ -87,7 +87,7 @@ test('responsive cart places an order and preserves purchase snapshots in the or
     const placedResponse = await placed;
     expect(placedResponse.ok(), await placedResponse.text()).toBeTruthy();
     const order = await placedResponse.json() as Order;
-    await expect(page.locator('.checkout-confirmation')).toContainText(`Final total: ${money(order.totalAmount, order.totalCurrency)}`);
+    await expect(page.locator('.checkout-confirmation')).toContainText(`Order subtotal: ${money(order.totalAmount, order.totalCurrency)}`);
     await page.getByRole('link', { name: 'View order', exact: true }).click();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(`Order ${order.id}`);
     await expect(page.locator('.purchased-line')).toHaveCount(2);
@@ -96,7 +96,7 @@ test('responsive cart places an order and preserves purchase snapshots in the or
         await expect(item).toContainText(`Quantity: ${line.quantity}`);
         await expect(item).toContainText(`Unit price: ${money(line.productVersion.priceAmount, line.productVersion.priceCurrency)}`);
     }
-    await expect(page.locator('.order-total')).toHaveText(`Order total: ${money(order.totalAmount, order.totalCurrency)}`);
+    await expect(page.locator('.order-total')).toHaveText(`Order subtotal: ${money(order.totalAmount, order.totalCurrency)}`);
     await expect(page.getByRole('region', { name: 'Payment', exact: true }).getByRole('button', { name: 'Pay with Stripe', exact: true })).toBeEnabled();
     await expect(page.locator('input[type="tel"], input[name="cardNumber"]')).toHaveCount(0);
     for (const width of [360, 390, 768, 1024, 1440]) {

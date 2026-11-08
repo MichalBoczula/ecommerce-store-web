@@ -38,7 +38,7 @@
             {{ order.lines.length === 1 ? 'line' : 'lines' }}
           </p>
           <p class="order-total">
-            {{ order.totalAmount | number: '1.0-2' }} {{ order.totalCurrency }}
+            Subtotal: {{ order.totalAmount | number: '1.0-2' }} {{ order.totalCurrency }}
           </p>
           <a
             class="store-button"
