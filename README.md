@@ -28,6 +28,9 @@ The shared storefront shell and presentation components follow the [approved Fig
 
 The browser requests `/backend/...` from the frontend origin. Angular's development proxy or Nginx removes `/backend` before forwarding to the BFF. The BFF's public business routes retain upstream paths such as `/mobile-phones`, `/customers`, `/favorites`, `/shopping-carts`, `/orders`, and `/payments`; `/registrations/customers` coordinates a profile and cart. Its `/api/products`, `/api/users`, `/api/orders`, and `/api/payments` prefixes are for proxied OpenAPI documents. There is no separately generated BFF client. The BFF's `/health` checks the gateway process, not all upstream readiness.
 
+The [Web → Products Pact](docs/products-lookup-pact.md) covers the catalog batch
+lookup used by the cart and favorites.
+
 ## Technology stack and repository structure
 
 | Area | Technology |

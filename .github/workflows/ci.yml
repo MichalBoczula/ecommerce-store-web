@@ -67,6 +67,13 @@ jobs:
       - run: npm ci
       - name: Run Vitest and coverage
         run: VERIFY_SUMMARY_FILE="$GITHUB_STEP_SUMMARY" bash scripts/ci.sh unit
+      - name: Verify the Web Products lookup Pact
+        run: npm run test:pact
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-products-pact
+          path: artifacts/verification/pact-web-products/
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -132,6 +139,36 @@ jobs:
             echo "Dependency Review must be $expected; actual result: $DEPENDENCY_REVIEW" >&2
             exit 1
           fi
+
+  publish-web-products-pact:
+    if: >-
+      always() && !cancelled() && needs.quality-gate.result == 'success' &&
+      github.event_name == 'push' && github.ref == 'refs/heads/master' &&
+      vars.PACT_REGISTRY_URL != ''
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-products-pact
+          path: pact-input
+      - name: Publish the Web Products Pact
+        env:
+          PACT_REGISTRY_URL: ${{ vars.PACT_REGISTRY_URL }}
+          PACT_PUBLISHER_TOKEN: ${{ secrets.PACT_PUBLISHER_TOKEN }}
+        run: node scripts/publish-web-products-pact.mjs pact-input web-products-publication.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-products-publication
+          path: web-products-publication.json
+          if-no-files-found: error
 
   docker-image:
     if: ${{ always() && !cancelled() && needs.quality-gate.result == 'success' }}

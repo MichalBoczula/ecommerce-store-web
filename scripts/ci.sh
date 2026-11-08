@@ -19,6 +19,7 @@ case "$command" in
     git diff --check
     for script in scripts/*.sh; do bash -n "$script"; done
     node --check scripts/check-upstream-contracts.mjs
+    node --check scripts/publish-web-products-pact.mjs
     node --check scripts/summarize-junit.mjs
     python3 -m py_compile tests/fixtures/payments_bootstrap.py tests/fixtures/stripe_fixture.py
     ;;
