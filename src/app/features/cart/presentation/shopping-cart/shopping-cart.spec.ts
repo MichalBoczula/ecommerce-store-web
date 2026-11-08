@@ -191,9 +191,9 @@ describe('shopping cart screen', () => {
     facade.shoppingCart.set({ id: clientId, clientId, lines: [] });
     fixture.detectChanges();
     const content = fixture.nativeElement.textContent as string;
-    expect(content).toContain('Final total:');
+    expect(content).toContain('Order subtotal:');
     expect(content).toContain('115 PLN');
-    expect(content).toContain('final price changed from the cart estimate');
+    expect(content).toContain('order subtotal changed from the cart estimate');
     expect(
       fixture.nativeElement.querySelector('a[href="/orders/' + placedOrder.id + '"]'),
     ).not.toBeNull();

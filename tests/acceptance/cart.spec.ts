@@ -134,7 +134,7 @@ test('checkout creates one order, clears the cart and shows the backend total', 
     expect(orders[0].status.toLowerCase()).not.toBe('paid');
     expect((await getCart(request, clientId)).lines).toEqual([]);
     await expect(page.getByText(`Order placed: ${orders[0].id}`)).toBeVisible();
-    await expect(page.getByText('Final total:').locator('..')).toContainText(
+    await expect(page.getByText('Order subtotal:').locator('..')).toContainText(
         new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
             .format(orders[0].totalAmount));
     await page.getByRole('link', { name: 'View order' }).click();
