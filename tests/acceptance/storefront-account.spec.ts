@@ -105,7 +105,7 @@ test('responsive cart places an order and preserves purchase snapshots in the or
     }
     await page.getByRole('link', { name: 'Back to orders', exact: true }).click();
     const card = page.locator(`.order-card[data-order-id="${order.id}"]`);
-    await expect(card.locator('.order-total')).toHaveText(money(order.totalAmount, order.totalCurrency));
+    await expect(card.locator('.order-total')).toHaveText(`Subtotal: ${money(order.totalAmount, order.totalCurrency)}`);
     for (const width of [360, 390, 768, 1024, 1440]) {
         await page.setViewportSize({ width, height: 844 });
         expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
