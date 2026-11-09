@@ -5,6 +5,7 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -39,6 +40,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      - name: Require master for manual runs
+        if: github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/master'
+        run: |
+          echo "::error::Select master for a manual CI run."
+          exit 1
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
@@ -134,7 +140,7 @@ jobs:
             fi
           done
           expected=success
-          if [[ "$EVENT_NAME" == push ]]; then expected=skipped; fi
+          if [[ "$EVENT_NAME" == push || "$EVENT_NAME" == workflow_dispatch ]]; then expected=skipped; fi
           if [[ "$DEPENDENCY_REVIEW" != "$expected" ]]; then
             echo "Dependency Review must be $expected; actual result: $DEPENDENCY_REVIEW" >&2
             exit 1
@@ -143,7 +149,8 @@ jobs:
   publish-web-products-pact:
     if: >-
       always() && !cancelled() && needs.quality-gate.result == 'success' &&
-      github.event_name == 'push' && github.ref == 'refs/heads/master' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      github.ref == 'refs/heads/master' &&
       vars.PACT_REGISTRY_URL != ''
     needs: quality-gate
     runs-on: ubuntu-latest
