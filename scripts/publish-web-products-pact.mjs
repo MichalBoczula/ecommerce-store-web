@@ -8,8 +8,8 @@ if (!directory || !receipt) {
 }
 
 const { GITHUB_EVENT_NAME, GITHUB_REF, GITHUB_SHA, GITHUB_RUN_ID } = process.env;
-if (GITHUB_EVENT_NAME !== 'push' || GITHUB_REF !== 'refs/heads/master') {
-  throw new Error('Web Pact publication requires a master push.');
+if (!['push', 'workflow_dispatch'].includes(GITHUB_EVENT_NAME) || GITHUB_REF !== 'refs/heads/master') {
+  throw new Error('Web Pact publication requires a push or manual run on master.');
 }
 if (!/^[a-f0-9]{40}$/.test(GITHUB_SHA ?? '') || !/^\d+$/.test(GITHUB_RUN_ID ?? '')) {
   throw new Error('Web Pact publication requires GitHub commit and run metadata.');
