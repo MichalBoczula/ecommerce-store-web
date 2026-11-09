@@ -19,7 +19,7 @@ Pact v4 verifications and checks that the JSON bytes match. The required
 `unit-tests` CI job uploads those bytes and a SHA-256 manifest as
 `web-products-pact`.
 
-The `publish-web-products-pact` job publishes after a successful push or manual
+The `publish-web-pact (products)` job publishes after a successful push or manual
 CI run on `master` when the Actions variable `PACT_REGISTRY_URL` is set. To start
 a manual run, open **Actions → CI → Run workflow**, select `master`, and click
 **Run workflow**. Use the existing Pact

@@ -73,12 +73,17 @@ jobs:
       - run: npm ci
       - name: Run Vitest and coverage
         run: VERIFY_SUMMARY_FILE="$GITHUB_STEP_SUMMARY" bash scripts/ci.sh unit
-      - name: Verify the Web Products lookup Pact
+      - name: Verify the Web consumer Pacts
         run: npm run test:pact
       - uses: actions/upload-artifact@v4
         with:
           name: web-products-pact
           path: artifacts/verification/pact-web-products/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-users-pact
+          path: artifacts/verification/pact-web-users/
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
@@ -146,13 +151,17 @@ jobs:
             exit 1
           fi
 
-  publish-web-products-pact:
+  publish-web-pact:
     if: >-
       always() && !cancelled() && needs.quality-gate.result == 'success' &&
       (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
       github.ref == 'refs/heads/master' &&
       vars.PACT_REGISTRY_URL != ''
     needs: quality-gate
+    strategy:
+      fail-fast: false
+      matrix:
+        provider: [products, users]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -164,17 +173,17 @@ jobs:
           node-version: 22
       - uses: actions/download-artifact@v4
         with:
-          name: web-products-pact
+          name: web-${{ matrix.provider }}-pact
           path: pact-input
-      - name: Publish the Web Products Pact
+      - name: Publish the Web consumer Pact
         env:
           PACT_REGISTRY_URL: ${{ vars.PACT_REGISTRY_URL }}
           PACT_PUBLISHER_TOKEN: ${{ secrets.PACT_PUBLISHER_TOKEN }}
-        run: node scripts/publish-web-products-pact.mjs pact-input web-products-publication.json
+        run: node scripts/publish-web-pact.mjs "${{ matrix.provider }}" pact-input "web-${{ matrix.provider }}-publication.json"
       - uses: actions/upload-artifact@v4
         with:
-          name: web-products-publication
-          path: web-products-publication.json
+          name: web-${{ matrix.provider }}-publication
+          path: web-${{ matrix.provider }}-publication.json
           if-no-files-found: error
 
   docker-image:
