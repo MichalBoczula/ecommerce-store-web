@@ -30,7 +30,8 @@ The browser requests `/backend/...` from the frontend origin. Angular's developm
 
 The [Web → Products Pact](docs/products-lookup-pact.md) covers the catalog batch
 lookup used by the cart and favorites. The [Web → Users Pact](docs/customer-profile-pact.md)
-covers loading a demo customer's profile by external ID.
+covers loading a demo customer's profile by external ID. The
+[Web → Invoice Pact](docs/shopping-cart-lookup-pact.md) covers loading a shopping cart by client ID.
 
 ## Technology stack and repository structure
 
