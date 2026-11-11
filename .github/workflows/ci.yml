@@ -113,7 +113,13 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Install Chromium and system dependencies
-        run: npx playwright install --with-deps chromium
+        run: |
+          # Bypass the runner's Azure mirror, which can fail DNS resolution.
+          sudo sed -i -E \
+            -e 's#(mirror\+file:/etc/apt/apt-mirrors\.txt|https?://azure\.archive\.ubuntu\.com/ubuntu)/?#https://archive.ubuntu.com/ubuntu#g' \
+            -e 's#https://archive\.ubuntu\.com/ubuntu/?([[:space:]]+jammy-security[[:space:]])#https://security.ubuntu.com/ubuntu\1#' \
+            /etc/apt/sources.list
+          npx playwright install --with-deps chromium
       - name: Run browser acceptance tests on isolated containers
         run: VERIFY_SUMMARY_FILE="$GITHUB_STEP_SUMMARY" bash scripts/ci.sh acceptance
       - uses: actions/upload-artifact@v4
