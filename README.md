@@ -32,6 +32,8 @@ The [Web → Products Pact](docs/products-lookup-pact.md) covers the catalog bat
 lookup used by the cart and favorites. The [Web → Users Pact](docs/customer-profile-pact.md)
 covers loading a demo customer's profile by external ID. The
 [Web → Invoice Pact](docs/shopping-cart-lookup-pact.md) covers loading a shopping cart by client ID.
+The [Web → Payments Pact](docs/payment-lookup-pact.md) covers loading a payment by order ID
+for the storefront's payment progress view.
 
 ## Technology stack and repository structure
 
