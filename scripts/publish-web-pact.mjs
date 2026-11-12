@@ -3,7 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const [provider, directory, receipt] = process.argv.slice(2);
-if (!['products', 'users', 'invoice', 'payments'].includes(provider) || !directory || !receipt) {
+if (!['products', 'users', 'invoice', 'payments', 'bff'].includes(provider) || !directory || !receipt) {
   throw new Error('Provide a supported Pact provider, verified artifact directory and receipt path.');
 }
 

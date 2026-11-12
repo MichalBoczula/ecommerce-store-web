@@ -1,30 +1,19 @@
 import { randomUUID } from 'node:crypto';
 import { expect, test, type APIRequestContext, type BrowserContext } from '@playwright/test';
+import { demoRegistration, registerCustomer, repairCustomerCart } from '../support/bff-registration';
 
 type Cart = { id: string; clientId: string; lines: { productId: string; quantity: number }[] };
 type Phone = { id: string; name: string; price?: { amount: number; currency: string } };
 
-async function registerCustomer(request: APIRequestContext): Promise<string> {
-    return (await registerCustomerWithExternal(request)).clientId;
+async function registerDemoCustomer(baseURL: string | undefined): Promise<string> {
+    return (await registerCustomerWithExternal(baseURL)).clientId;
 }
 
-async function registerCustomerWithExternal(request: APIRequestContext): Promise<{ clientId: string; externalId: string }> {
+async function registerCustomerWithExternal(baseURL: string | undefined): Promise<{ clientId: string; externalId: string }> {
     const id = randomUUID();
     const externalId = `web-acceptance-${id}`;
-    const address = { postalCode: '00-001', city: 'Warsaw', street: 'Main Street', buildingNumber: '10', apartmentNumber: '2' };
-    const response = await request.post('/backend/registrations/customers', {
-        data: {
-            externalId,
-            individual: {
-                firstName: 'Acceptance', lastName: 'Customer', email: `${id}@example.com`,
-                phone: '123456789', billingAddress: address, shippingAddress: address,
-            },
-        },
-    });
-    expect(response.ok(), await response.text()).toBeTruthy();
-    const customer = await response.json() as { id: string };
-    expect(customer.id).toMatch(/^[0-9a-f-]{36}$/i);
-    return { clientId: customer.id, externalId };
+    const clientId = await registerCustomer(baseURL, demoRegistration(externalId, `${id}@example.com`));
+    return { clientId, externalId };
 }
 
 async function selectCustomer(context: BrowserContext, clientId: string): Promise<void> {
@@ -37,8 +26,8 @@ async function getCart(request: APIRequestContext, clientId: string): Promise<Ca
     return await response.json() as Cart;
 }
 
-test('registration creates an empty cart for its customer', async ({ request }) => {
-    const clientId = await registerCustomer(request);
+test('registration creates an empty cart for its customer', async ({ baseURL, request }) => {
+    const clientId = await registerDemoCustomer(baseURL);
     const cart = await getCart(request, clientId);
     expect(cart.clientId).toBe(clientId);
     expect(cart.lines).toEqual([]);
@@ -47,8 +36,26 @@ test('registration creates an empty cart for its customer', async ({ request }) 
     expect((await getCart(request, clientId)).id).toBe(cart.id);
 });
 
-test('customer adds, changes quantity and removes a catalog product through the UI', async ({ page, request, context }) => {
-    const clientId = await registerCustomer(request);
+test('cart repair creates an empty cart for an existing customer', async ({ baseURL, request }) => {
+    const id = randomUUID();
+    const externalId = `web-acceptance-${id}`;
+    const legacy = await request.post('/backend/customers', {
+        data: demoRegistration(externalId, `${id}@example.com`),
+    });
+    expect(legacy.ok(), await legacy.text()).toBeTruthy();
+    const { id: clientId } = await legacy.json() as { id: string };
+    expect((await request.get(`/backend/shopping-carts/client/${clientId}`)).status()).toBe(404);
+
+    expect(await repairCustomerCart(baseURL, externalId)).toBe(clientId);
+    const cart = await getCart(request, clientId);
+    expect(cart.clientId).toBe(clientId);
+    expect(cart.lines).toEqual([]);
+    expect(await repairCustomerCart(baseURL, externalId)).toBe(clientId);
+    expect((await getCart(request, clientId)).id).toBe(cart.id);
+});
+
+test('customer adds, changes quantity and removes a catalog product through the UI', async ({ baseURL, page, request, context }) => {
+    const clientId = await registerDemoCustomer(baseURL);
     await selectCustomer(context, clientId);
 
     const phonesResponse = await request.get('/backend/mobile-phones?amount=15');
@@ -74,8 +81,8 @@ test('customer adds, changes quantity and removes a catalog product through the 
     expect((await getCart(request, clientId)).lines).toEqual([]);
 });
 
-test('a product removed from the catalog stays visible as unavailable', async ({ page, request, context }) => {
-    const clientId = await registerCustomer(request);
+test('a product removed from the catalog stays visible as unavailable', async ({ baseURL, page, request, context }) => {
+    const clientId = await registerDemoCustomer(baseURL);
     await selectCustomer(context, clientId);
     const missingId = randomUUID();
     const update = await request.put(`/backend/shopping-carts/${clientId}`, {
@@ -90,8 +97,8 @@ test('a product removed from the catalog stays visible as unavailable', async ({
     await expect(page.getByText('Your shopping cart is empty.')).toBeVisible();
 });
 
-test('checkout creates one order, clears the cart and shows the backend total', async ({ page, request, context }) => {
-    const clientId = await registerCustomer(request);
+test('checkout creates one order, clears the cart and shows the backend total', async ({ baseURL, page, request, context }) => {
+    const clientId = await registerDemoCustomer(baseURL);
     await selectCustomer(context, clientId);
 
     const phonesResponse = await request.get('/backend/mobile-phones?amount=15');
@@ -149,8 +156,8 @@ test('an unknown customer sees the cart error and retry action', async ({ page, 
     await expect(page.getByRole('button', { name: 'Retry' })).toBeVisible();
 });
 
-test('demo profile selects the customer and edits individual and company billing data through Users', async ({ page, request }) => {
-    const { clientId, externalId } = await registerCustomerWithExternal(request);
+test('demo profile selects the customer and edits individual and company billing data through Users', async ({ baseURL, page, request }) => {
+    const { clientId, externalId } = await registerCustomerWithExternal(baseURL);
     const companyAddress = { postalCode: '00-001', city: 'Warsaw', street: 'Office',
         buildingNumber: '4', apartmentNumber: '1' };
     const companyResponse = await request.post(`/backend/customers/${clientId}/companies`, {

@@ -26,7 +26,8 @@ export async function throughBrowserPrefix(
 }
 
 export async function writeReproduciblePact(
-  provider: 'products' | 'users' | 'invoice' | 'payments', interactionCount: number, verify: (dir: string) => Promise<void>,
+  provider: 'products' | 'users' | 'invoice' | 'payments' | 'bff',
+  interactionCount: number, verify: (dir: string) => Promise<void>,
 ): Promise<void> {
   process.env['PACT_DO_NOT_TRACK'] = 'true';
   const file = `web-${provider}.json`;
