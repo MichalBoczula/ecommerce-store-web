@@ -96,6 +96,11 @@ jobs:
           path: artifacts/verification/pact-web-payments/
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
+        with:
+          name: web-bff-pact
+          path: artifacts/verification/pact-web-bff/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: unit-test-reports
@@ -177,7 +182,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        provider: [products, users, invoice, payments]
+        provider: [products, users, invoice, payments, bff]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

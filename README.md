@@ -34,6 +34,8 @@ covers loading a demo customer's profile by external ID. The
 [Web → Invoice Pact](docs/shopping-cart-lookup-pact.md) covers loading a shopping cart by client ID.
 The [Web → Payments Pact](docs/payment-lookup-pact.md) covers loading a payment by order ID
 for the storefront's payment progress view.
+The [Web → BFF Pact](docs/bff-registration-pact.md) covers customer registration and
+cart repair in the Web acceptance suite.
 
 ## Technology stack and repository structure
 
